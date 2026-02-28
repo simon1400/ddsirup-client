@@ -2,17 +2,40 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Minus, Plus, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Minus, Plus, Trash2, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
 import { formatPrice } from '@/lib/utils';
+import { validateCoupon } from '@/lib/strapi';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity } = useCartStore();
-  const { subtotal, shipping, total, itemCount } = useCartTotals();
+  const { items, removeItem, updateQuantity, appliedCoupon, applyCoupon, removeCoupon } = useCartStore();
+  const { subtotal, discount, shipping, total, itemCount } = useCartTotals();
+
+  const [couponInput, setCouponInput] = useState('');
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  async function handleApplyCoupon() {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    try {
+      const coupon = await validateCoupon(code, subtotal);
+      applyCoupon(coupon);
+      setCouponInput('');
+    } catch (err) {
+      setCouponError(err instanceof Error ? err.message : 'Neplatný kupón');
+    } finally {
+      setCouponLoading(false);
+    }
+  }
 
   if (items.length === 0) {
     return (
@@ -101,11 +124,71 @@ export default function CartPage() {
         <div className="lg:col-span-1">
           <div className="border rounded-lg p-6 space-y-4 sticky top-24">
             <h2 className="font-semibold text-lg">Souhrn objednávky</h2>
+
+            {/* Coupon section */}
+            <div className="space-y-2">
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm">
+                  <div className="flex items-center gap-2 text-green-700">
+                    <Tag className="h-4 w-4" />
+                    <span className="font-medium">{appliedCoupon.code}</span>
+                    {appliedCoupon.discountType === 'percentage' ? (
+                      <span>−{appliedCoupon.discountValue}%</span>
+                    ) : (
+                      <span>−{formatPrice(appliedCoupon.discountValue)}</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={removeCoupon}
+                    className="text-green-600 hover:text-green-800 ml-2"
+                    aria-label="Odebrat kupón"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Kód kupónu"
+                      value={couponInput}
+                      onChange={(e) => {
+                        setCouponInput(e.target.value.toUpperCase());
+                        setCouponError(null);
+                      }}
+                      onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                      className="text-sm h-9"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 shrink-0"
+                      onClick={handleApplyCoupon}
+                      disabled={couponLoading || !couponInput.trim()}
+                    >
+                      {couponLoading ? '...' : 'Použít'}
+                    </Button>
+                  </div>
+                  {couponError && (
+                    <p className="text-xs text-destructive">{couponError}</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>Mezisoučet</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
+              {discount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Sleva (kupón)</span>
+                  <span>−{formatPrice(discount)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span>Doprava</span>
                 <span>{shipping === 0 ? 'Zdarma' : formatPrice(shipping)}</span>

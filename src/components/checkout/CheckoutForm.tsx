@@ -39,8 +39,8 @@ type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
 export function CheckoutForm() {
   const router = useRouter();
-  const { items, clearCart } = useCartStore();
-  const { subtotal, shipping, total } = useCartTotals();
+  const { items, clearCart, appliedCoupon } = useCartStore();
+  const { subtotal, discount, shipping, total } = useCartTotals();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,6 +80,8 @@ export function CheckoutForm() {
             ? values.shippingAddress
             : values.billingAddress,
           notes: values.notes,
+          couponCode: appliedCoupon?.code,
+          discountAmount: discount > 0 ? discount : undefined,
         }),
       });
 
@@ -181,6 +183,12 @@ export function CheckoutForm() {
           <span>Mezisoučet</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
+        {discount > 0 && appliedCoupon && (
+          <div className="flex justify-between text-sm text-green-600">
+            <span>Sleva ({appliedCoupon.code})</span>
+            <span>−{formatPrice(discount)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-sm">
           <span>Doprava</span>
           <span>{shipping === 0 ? 'Zdarma' : formatPrice(shipping)}</span>

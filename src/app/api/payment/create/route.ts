@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPayment } from '@/lib/comgate';
-import { createOrder } from '@/lib/strapi';
+import { createOrder, incrementCouponUsage } from '@/lib/strapi';
 import type { CreateOrderPayload } from '@/types/order';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
@@ -15,7 +15,14 @@ export async function POST(req: NextRequest) {
       status: 'pending',
     });
 
-    // 2. Create Comgate payment
+    // 2. Increment coupon usage if a coupon was applied
+    if (body.couponCode) {
+      await incrementCouponUsage(body.couponCode).catch((err) =>
+        console.error('[payment/create] Failed to increment coupon usage:', err)
+      );
+    }
+
+    // 3. Create Comgate payment
     const payment = await createPayment({
       price: Math.round(body.total * 100), // to cents
       curr: body.currency || 'CZK',

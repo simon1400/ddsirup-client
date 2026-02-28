@@ -49,6 +49,8 @@ export interface Order {
   comgateTransId?: string;
   comgateStatus?: string;
   notes?: string;
+  couponCode?: string;
+  discountAmount?: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,4 +70,6 @@ export interface CreateOrderPayload {
   shippingAddress: Address;
   billingAddress: Address;
   notes?: string;
+  couponCode?: string;
+  discountAmount?: number;
 }

@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, CartTotals } from '@/types/cart';
+import type { AppliedCoupon } from '@/types/coupon';
 
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
+  appliedCoupon: AppliedCoupon | null;
 
   // Actions
   addItem: (item: CartItem) => void;
@@ -14,8 +16,8 @@ interface CartStore {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-
-  // Computed (via selectors below)
+  applyCoupon: (coupon: AppliedCoupon) => void;
+  removeCoupon: () => void;
 }
 
 const SHIPPING_FREE_THRESHOLD = 1500; // CZK
@@ -26,6 +28,7 @@ export const useCartStore = create<CartStore>()(
     (set) => ({
       items: [],
       isOpen: false,
+      appliedCoupon: null,
 
       addItem: (newItem) =>
         set((state) => {
@@ -55,16 +58,18 @@ export const useCartStore = create<CartStore>()(
                 ),
         })),
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], appliedCoupon: null }),
 
       openCart: () => set({ isOpen: true }),
       closeCart: () => set({ isOpen: false }),
       toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
+
+      applyCoupon: (coupon) => set({ appliedCoupon: coupon }),
+      removeCoupon: () => set({ appliedCoupon: null }),
     }),
     {
       name: 'ddsirup-cart',
-      // Only persist items, not UI state
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({ items: state.items, appliedCoupon: state.appliedCoupon }),
     }
   )
 );
@@ -72,10 +77,23 @@ export const useCartStore = create<CartStore>()(
 // Selectors
 export function useCartTotals(): CartTotals {
   const items = useCartStore((s) => s.items);
+  const appliedCoupon = useCartStore((s) => s.appliedCoupon);
+
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const shipping = subtotal >= SHIPPING_FREE_THRESHOLD || itemCount === 0 ? 0 : SHIPPING_COST;
-  return { subtotal, shipping, total: subtotal + shipping, itemCount };
+
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discountType === 'percentage') {
+      discount = Math.round((subtotal * appliedCoupon.discountValue) / 100);
+    } else {
+      discount = Math.min(appliedCoupon.discountValue, subtotal);
+    }
+  }
+
+  const total = Math.max(0, subtotal - discount + shipping);
+  return { subtotal, discount, shipping, total, itemCount };
 }
 
 export function useCartItemCount(): number {

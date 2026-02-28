@@ -5,6 +5,7 @@ import type {
 } from '@/types/strapi';
 import type { Product, Category, ProductsFilter } from '@/types/product';
 import type { CreateOrderPayload, Order } from '@/types/order';
+import type { AppliedCoupon } from '@/types/coupon';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
@@ -167,4 +168,33 @@ export async function updateOrderPayment(
     body: JSON.stringify({ data: { comgateTransId, comgateStatus, status } }),
   });
   return res.data;
+}
+
+// ---- Coupons ----
+
+export async function validateCoupon(
+  code: string,
+  subtotal: number
+): Promise<AppliedCoupon> {
+  const STRAPI_PUBLIC_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+  const res = await fetch(`${STRAPI_PUBLIC_URL}/api/coupons/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code, subtotal }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ error: { message: res.statusText } }));
+    throw new Error(error?.error?.message ?? 'Neplatný kupón');
+  }
+
+  const json = await res.json();
+  return json.data as AppliedCoupon;
+}
+
+export async function incrementCouponUsage(code: string): Promise<void> {
+  await strapiRequest('/coupons/increment-usage', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
 }
