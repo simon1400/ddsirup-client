@@ -39,6 +39,7 @@ export async function getProducts(
 ): Promise<StrapiListResponse<Product>> {
   const {
     category,
+    parentCategory,
     featured,
     search,
     minPrice,
@@ -53,6 +54,7 @@ export async function getProducts(
 
   const filters: Record<string, unknown> = {};
   if (category) filters.category = { slug: { $eq: category } };
+  else if (parentCategory) filters.category = { parent: { slug: { $eq: parentCategory } } };
   if (featured !== undefined) filters.featured = { $eq: featured };
   if (search) filters.name = { $containsi: search };
   if (minPrice !== undefined) filters.price = { ...((filters.price as object) ?? {}), $gte: minPrice };
@@ -62,7 +64,7 @@ export async function getProducts(
   const query = qs.stringify(
     {
       filters,
-      populate: ['thumbnail', 'category'],
+      populate: ['thumbnail', 'category', 'variants'],
       pagination: { page, pageSize },
       sort: [`${sortBy}:${sortOrder}`],
       locale,
@@ -79,7 +81,15 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
   const query = qs.stringify(
     {
       filters: { slug: { $eq: slug } },
-      populate: ['images', 'thumbnail', 'category', 'variants'],
+      populate: [
+        'images',
+        'thumbnail',
+        'category',
+        'variants',
+        'infoBoxes',
+        'relatedProducts.thumbnail',
+        'relatedProducts.variants',
+      ],
       locale,
     },
     { encodeValuesOnly: true }
@@ -99,9 +109,10 @@ export async function getFeaturedProducts(locale = 'cs'): Promise<Product[]> {
 
 // ---- Categories ----
 
-export async function getCategories(locale = 'cs'): Promise<Category[]> {
+export async function getCategories(locale = 'cs', parentOnly = false): Promise<Category[]> {
   const query = qs.stringify(
     {
+      filters: parentOnly ? { parent: { $null: true } } : undefined,
       populate: ['image', 'children'],
       sort: ['sortOrder:asc', 'name:asc'],
       locale,

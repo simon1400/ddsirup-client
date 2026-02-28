@@ -16,7 +16,7 @@ export function ProductGrid({ products, emptyMessage = 'Žádné produkty nebyly
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 md:gap-10">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

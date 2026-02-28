@@ -2,9 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getProduct, getProducts } from '@/lib/strapi';
-import { AddToCartButton } from '@/components/shop/AddToCartButton';
-import { formatPrice } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
+import { ProductVariantSection } from '@/components/shop/ProductVariantSection';
+import { ProductInfoSections } from '@/components/shop/ProductInfoSections';
 import { Separator } from '@/components/ui/separator';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
@@ -40,9 +39,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
       : `${STRAPI_URL}${mainImage.url}`
     : null;
 
-  const isOnSale = product.compareAtPrice && product.compareAtPrice > product.price;
-  const isOutOfStock = product.stock <= 0;
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
@@ -76,31 +72,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <p className="text-muted-foreground">{product.shortDescription}</p>
           )}
 
-          <div className="flex items-center gap-3">
-            <span className="text-2xl font-bold">{formatPrice(product.price)}</span>
-            {isOnSale && (
-              <span className="text-lg text-muted-foreground line-through">
-                {formatPrice(product.compareAtPrice!)}
-              </span>
-            )}
-            {isOnSale && <Badge variant="destructive">Sleva</Badge>}
-          </div>
-
           {product.sku && (
             <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
           )}
 
-          <Separator />
-
-          <div className="space-y-3">
-            {isOutOfStock ? (
-              <Badge variant="secondary" className="text-sm px-3 py-1">Vyprodáno</Badge>
-            ) : (
-              <p className="text-sm text-green-600">Skladem ({product.stock} ks)</p>
-            )}
-
-            <AddToCartButton product={product} />
-          </div>
+          <ProductVariantSection product={product} />
 
           {product.description && (
             <>
@@ -113,6 +89,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           )}
         </div>
       </div>
+
+      <ProductInfoSections product={product} />
     </div>
   );
 }

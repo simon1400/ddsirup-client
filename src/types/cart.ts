@@ -9,7 +9,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   thumbnail?: string;
-  variant?: Pick<ProductVariant, 'id' | 'name' | 'attributes'>;
+  variant?: Pick<ProductVariant, 'id' | 'name' | 'volume'>;
   stock: number;
 }
 
@@ -41,7 +41,7 @@ export function cartItemFromProduct(
     quantity,
     thumbnail: product.thumbnail?.url,
     variant: variant
-      ? { id: variant.id, name: variant.name, attributes: variant.attributes }
+      ? { id: variant.id, name: variant.name, volume: variant.volume }
       : undefined,
     stock: variant?.stock ?? product.stock,
   };
