@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { CartButton } from '@/components/shop/CartButton';
-import { getCategories } from '@/lib/strapi';
+import { NavMenu } from '@/components/layout/NavMenu';
+import { getNavigation } from '@/lib/strapi';
 
 export async function Header() {
-  const categories = await getCategories().catch(() => []);
+  const navItems = await getNavigation().catch(() => []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -12,23 +13,9 @@ export async function Header() {
           ddsirup.co
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link href="/products" className="text-muted-foreground hover:text-foreground transition-colors">
-            Produkty
-          </Link>
-          {categories.slice(0, 5).map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/categories/${cat.slug}`}
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <CartButton />
+          <NavMenu items={navItems} />
         </div>
       </div>
     </header>

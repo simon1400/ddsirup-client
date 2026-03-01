@@ -11,6 +11,7 @@ export type OrderStatus =
 
 export interface Address {
   street: string;
+  streetLine2?: string;
   city: string;
   zip: string;
   country: string;
@@ -23,11 +24,15 @@ export interface CheckoutFormData {
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
-  shippingAddress: Address;
-  billingAddressSameAsShipping: boolean;
-  billingAddress?: Address;
+  phone: string;
+  billingAddress: Address;
+  shipToDifferentAddress: boolean;
+  shippingAddress?: Omit<Address, 'ico' | 'dic'>;
   notes?: string;
+  forChildren: string;
+  forBar: string;
+  paymentMethod: string;
+  agreedToTerms: boolean;
 }
 
 export interface Order {
@@ -51,6 +56,9 @@ export interface Order {
   notes?: string;
   couponCode?: string;
   discountAmount?: number;
+  paymentMethod?: string;
+  customerForChildren?: boolean;
+  customerForBar?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -72,4 +80,7 @@ export interface CreateOrderPayload {
   notes?: string;
   couponCode?: string;
   discountAmount?: number;
+  paymentMethod?: string;
+  customerForChildren?: boolean;
+  customerForBar?: boolean;
 }

@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
       label: body.orderNumber.slice(0, 16),
       refId: body.orderNumber,
       email: body.customerEmail,
+      method: body.paymentMethod ?? 'ALL',
       returnUrl: `${BASE_URL}/checkout/success?order=${body.orderNumber}&transId=PLACEHOLDER`,
       cancelUrl: `${BASE_URL}/checkout?cancelled=1`,
       notifUrl: `${BASE_URL}/api/payment/webhook`,

@@ -6,6 +6,7 @@ import type {
 import type { Product, Category, ProductsFilter } from '@/types/product';
 import type { CreateOrderPayload, Order } from '@/types/order';
 import type { AppliedCoupon } from '@/types/coupon';
+import type { NavigationItem } from '@/types/navigation';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
@@ -140,6 +141,36 @@ export async function getCategory(slug: string, locale = 'cs'): Promise<Category
 
   const res = await strapiRequest<StrapiListResponse<Category>>(`/categories?${query}`);
   return res.data[0] ?? null;
+}
+
+// ---- Navigation ----
+
+export async function getNavigation(): Promise<NavigationItem[]> {
+  const query = qs.stringify(
+    {
+      populate: {
+        items: {
+          populate: {
+            category: {
+              populate: {
+                children: {
+                  sort: ['sortOrder:asc', 'name:asc'],
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiResponse<{ items: NavigationItem[] }>>(
+    `/navigation?${query}`,
+    { next: { revalidate: 300, tags: ['navigation'] } }
+  );
+
+  return res.data?.items ?? [];
 }
 
 // ---- Orders ----
