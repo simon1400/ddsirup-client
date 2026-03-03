@@ -14,3 +14,16 @@ export interface NavigationItem {
   openInNewTab?: boolean;
   category?: NavCategory;
 }
+
+export interface FooterLink {
+  id: number;
+  label: string;
+  url: string;
+  openInNewTab?: boolean;
+}
+
+export interface FooterNavGroup {
+  id: number;
+  title: string;
+  links: FooterLink[];
+}

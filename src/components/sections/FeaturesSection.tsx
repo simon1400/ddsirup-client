@@ -14,7 +14,7 @@ export function FeaturesSection({ section }: Props) {
     <section className="py-20 px-4">
       <div className="container mx-auto max-w-6xl">
         {section.title && (
-          <h2 className="text-3xl md:text-5xl font-black uppercase text-center mb-12">
+          <h2 className="text-3xl md:text-6xl font-black uppercase text-center mb-12">
             {section.title}
           </h2>
         )}
@@ -22,12 +22,29 @@ export function FeaturesSection({ section }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {blocks.map((block, i) => {
             const colors = FEATURE_BLOCK_COLORS[i % FEATURE_BLOCK_COLORS.length];
+            const isFirst = i === 0;
+            const isLast = i === blocks.length - 1;
+            const hasSplash = isFirst || isLast;
 
             return (
+              <div key={block.id} className="relative">
+                {hasSplash && (
+                  <Image
+                    src="/pouze flek_result_result.webp"
+                    alt=""
+                    width={300}
+                    height={300}
+                    aria-hidden
+                    className={`absolute z-0 pointer-events-none hidden md:block w-[250px] h-auto ${
+                      isFirst
+                        ? '-left-24 top-1/2 -translate-y-1/2'
+                        : '-right-24 top-1/2 -translate-y-1/2 -scale-x-100'
+                    }`}
+                  />
+                )}
               <div
-                key={block.id}
-                className="rounded-3xl p-8 flex flex-col gap-4 relative overflow-hidden"
-                style={{ backgroundColor: colors.bg }}
+                className="rounded-3xl p-8 flex flex-col gap-4 relative z-10 overflow-hidden"
+                style={{ backgroundColor: colors.bg, opacity: 0.9 }}
               >
                 {block.icon?.url && (
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
@@ -41,13 +58,14 @@ export function FeaturesSection({ section }: Props) {
                   </div>
                 )}
 
-                <h3 className="text-xl font-bold" style={{ color: colors.title }}>
+                <h3 className="text-4xl font-bold" style={{ color: colors.title }}>
                   {block.title}
                 </h3>
 
                 {block.content && (
                   <div
-                    className="text-sm leading-relaxed text-gray-700 rich-content"
+                    className="text-lg leading-relaxed rich-content"
+                    style={{ color: colors.text }}
                     dangerouslySetInnerHTML={{ __html: block.content }}
                   />
                 )}
@@ -56,13 +74,14 @@ export function FeaturesSection({ section }: Props) {
                   <div className="mt-auto pt-2">
                     <Link
                       href={block.buttonUrl}
-                      className="inline-flex px-6 py-2 rounded-full font-bold uppercase text-xs tracking-widest text-white transition-opacity hover:opacity-90"
+                      className="inline-flex px-6 py-4 rounded-full font-bold uppercase text-xs tracking-widest text-white transition-opacity hover:opacity-90"
                       style={{ backgroundColor: colors.button }}
                     >
                       {block.buttonText}
                     </Link>
                   </div>
                 )}
+              </div>
               </div>
             );
           })}

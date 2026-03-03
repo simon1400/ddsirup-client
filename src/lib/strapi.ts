@@ -6,7 +6,8 @@ import type {
 import type { Product, Category, ProductsFilter } from '@/types/product';
 import type { CreateOrderPayload, Order } from '@/types/order';
 import type { AppliedCoupon } from '@/types/coupon';
-import type { NavigationItem } from '@/types/navigation';
+import type { NavigationItem, FooterNavGroup } from '@/types/navigation';
+import type { GlobalInfo } from '@/types/global-info';
 import type { Homepage } from '@/types/homepage';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
@@ -282,4 +283,36 @@ export async function getHomepage(): Promise<Homepage | null> {
   }).catch(() => null);
 
   return res?.data ?? null;
+}
+
+// ---- Global Info ----
+
+export async function getGlobalInfo(): Promise<GlobalInfo | null> {
+  const res = await strapiRequest<StrapiResponse<GlobalInfo>>('/global-info', {
+    next: { revalidate: 300, tags: ['global-info'] },
+  }).catch(() => null);
+
+  return res?.data ?? null;
+}
+
+// ---- Footer Navigation ----
+
+export async function getFooterNavGroups(): Promise<FooterNavGroup[]> {
+  const query = qs.stringify(
+    {
+      populate: {
+        footerNavGroups: {
+          populate: ['links'],
+        },
+      },
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiResponse<{ footerNavGroups: FooterNavGroup[] }>>(
+    `/navigation?${query}`,
+    { next: { revalidate: 300, tags: ['navigation'] } }
+  ).catch(() => null);
+
+  return res?.data?.footerNavGroups ?? [];
 }

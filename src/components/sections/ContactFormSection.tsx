@@ -44,8 +44,8 @@ export function ContactFormSection({ section }: Props) {
 
   return (
     <section className="py-20 px-4">
-      <div className="container mx-auto max-w-2xl">
-        <div className="bg-gray-100 rounded-3xl p-8 md:p-12">
+      <div className="container mx-auto max-w-4xl">
+        <div className="rounded-3xl p-8 md:p-12 border border-coral/30">
           {/* Header */}
           <div className="flex items-start gap-4 mb-8">
             {section.icon?.url ? (
@@ -70,7 +70,7 @@ export function ContactFormSection({ section }: Props) {
                 </h2>
               )}
               {section.description && (
-                <p className="text-gray-600 mt-1 text-sm leading-relaxed">
+                <p className="text-gray-600 mt-1 text-lg leading-relaxed">
                   {section.description}
                 </p>
               )}
@@ -134,7 +134,7 @@ export function ContactFormSection({ section }: Props) {
                 type="submit"
                 disabled={status === 'loading'}
                 className="w-full py-4 rounded-full font-bold uppercase text-sm tracking-widest text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-                style={{ backgroundColor: '#C85A2A' }}
+                style={{ backgroundColor: '#F2837A' }}
               >
                 {status === 'loading' ? 'Odesílání...' : 'Odeslat'}
               </button>

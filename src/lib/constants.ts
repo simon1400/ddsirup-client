@@ -13,6 +13,6 @@ export const INFO_BOX_COLORS = [
 
 /** Color scheme for homepage feature blocks (alternating, 2-cycle) */
 export const FEATURE_BLOCK_COLORS = [
-  { bg: 'var(--color-coral)',      title: '#7A2020', button: '#7A2020' },
-  { bg: 'var(--color-green-soft)', title: '#2A4A20', button: '#2D4A2A' },
+  { bg: 'var(--color-coral)',      title: '#FFFFFF', text: '#FFFFFF', button: '#7A2020' },
+  { bg: 'var(--color-green-soft)', title: '#2A4A20', text: '#2A4A20', button: '#2D4A2A' },
 ] as const;

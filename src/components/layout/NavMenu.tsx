@@ -50,7 +50,7 @@ export function NavMenu({ items }: NavMenuProps) {
       <Sheet open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-sm border-none p-0 [&>button]:text-black/70 [&>button]:hover:text-black"
+          className="w-full sm:max-w-sm border-none p-0 [&>button]:text-white/70 [&>button]:hover:text-white"
           style={{ backgroundColor: '#E8635A' }}
         >
           <div className="flex flex-col h-full px-6 pt-14 pb-8 overflow-y-auto">
@@ -80,10 +80,10 @@ export function NavMenu({ items }: NavMenuProps) {
                   const parentSlug = item.category.slug;
                   return (
                     <div key={item.id}>
-                      <div className="flex items-center justify-between border-b border-black/10">
+                      <div className="flex items-center justify-between border-b border-white/20">
                         <Link
                           href={`/products?tab=${parentSlug}`}
-                          className="flex-1 font-bold text-base py-3 text-black"
+                          className="flex-1 font-bold text-base py-3 text-white"
                           onClick={handleClose}
                         >
                           {item.label || item.category.name}
@@ -96,9 +96,9 @@ export function NavMenu({ items }: NavMenuProps) {
                             aria-label={isExpanded ? 'Sbalit' : 'Rozbalit'}
                           >
                             {isExpanded ? (
-                              <ChevronUp className="h-4 w-4 text-black" />
+                              <ChevronUp className="h-4 w-4 text-white" />
                             ) : (
-                              <ChevronDown className="h-4 w-4 text-black" />
+                              <ChevronDown className="h-4 w-4 text-white" />
                             )}
                           </button>
                         )}
@@ -110,7 +110,7 @@ export function NavMenu({ items }: NavMenuProps) {
                             <Link
                               key={child.id}
                               href={`/products?tab=${parentSlug}&sub=${child.slug}`}
-                              className="py-2.5 text-sm border-b border-black/10 text-black/75 hover:text-black transition-colors"
+                              className="py-2.5 text-sm border-b border-white/20 text-white/75 hover:text-white transition-colors"
                               onClick={handleClose}
                             >
                               {child.name}
@@ -129,7 +129,7 @@ export function NavMenu({ items }: NavMenuProps) {
                     href={item.url ?? '#'}
                     target={item.openInNewTab ? '_blank' : undefined}
                     rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                    className="font-bold text-base py-3 border-b border-black/10 text-black hover:text-black/70 transition-colors"
+                    className="font-bold text-base py-3 border-b border-white/20 text-white hover:text-white/70 transition-colors"
                     onClick={handleClose}
                   >
                     {item.label}
