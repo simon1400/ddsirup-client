@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { FeaturesSection as FeaturesSectionType } from '@/types/homepage';
 import { FEATURE_BLOCK_COLORS } from '@/lib/constants';
+import { Container } from '@/components/ui/Container';
 
 interface Props {
   section: FeaturesSectionType;
@@ -12,7 +13,7 @@ export function FeaturesSection({ section }: Props) {
 
   return (
     <section className="py-20 px-4">
-      <div className="container mx-auto max-w-6xl">
+      <Container size="xl">
         {section.title && (
           <h2 className="text-3xl md:text-6xl font-black uppercase text-center mb-12">
             {section.title}
@@ -86,7 +87,7 @@ export function FeaturesSection({ section }: Props) {
             );
           })}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

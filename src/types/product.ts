@@ -21,17 +21,11 @@ export interface Product {
   name: string;
   slug: string;
   description?: string;
-  shortDescription?: string;
   price: number;
-  compareAtPrice?: number;
-  sku?: string;
   stock: number;
   images?: StrapiImage[];
-  thumbnail?: StrapiImage;
   category?: Category;
   variants?: ProductVariant[];
-  featured: boolean;
-  weight?: number;
   infoBoxes?: ProductInfoBox[];
   ingredients?: string;
   countryOfOrigin?: string;
@@ -63,7 +57,6 @@ export interface Category {
 export interface ProductsFilter {
   category?: string;
   parentCategory?: string;
-  featured?: boolean;
   search?: string;
   minPrice?: number;
   maxPrice?: number;

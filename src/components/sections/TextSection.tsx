@@ -1,4 +1,5 @@
 import type { TextSection as TextSectionType } from '@/types/homepage';
+import { Container } from '@/components/ui/Container';
 
 interface Props {
   section: TextSectionType;
@@ -30,7 +31,7 @@ export function TextSection({ section }: Props) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto max-w-3xl text-center py-16 md:py-24 px-4">
+      <Container size="md" className="relative z-10 text-center py-16 md:py-24">
         {section.title && (
           <h2 className="text-3xl md:text-8xl font-black uppercase mb-6 text-white">
             {section.title}
@@ -42,7 +43,7 @@ export function TextSection({ section }: Props) {
             dangerouslySetInnerHTML={{ __html: section.content }}
           />
         )}
-      </div>
+      </Container>
 
       {/* Wave bottom */}
       <div className="relative -bottom-px w-full overflow-hidden leading-none">

@@ -40,7 +40,7 @@ export function cartItemFromProduct(
     slug: product.slug,
     price: variant?.price ?? product.price,
     quantity,
-    thumbnail: product.thumbnail?.url,
+    thumbnail: product.images?.[0]?.url,
     variant: variant
       ? { id: variant.id, name: variant.name, volume: variant.volume }
       : undefined,

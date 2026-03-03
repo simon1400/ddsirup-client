@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { CategoriesSection as CategoriesSectionType } from '@/types/homepage';
+import { Container } from '@/components/ui/Container';
 
 const BUTTON_COLOR = '#F0D060';
 
@@ -12,7 +13,7 @@ export function CategoriesSection({ section }: Props) {
 
   return (
     <section className="py-20 px-4">
-      <div className="container mx-auto max-w-6xl">
+      <Container size="xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* Left: title + description */}
           <div>
@@ -45,7 +46,7 @@ export function CategoriesSection({ section }: Props) {
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

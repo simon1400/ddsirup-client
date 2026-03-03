@@ -15,7 +15,7 @@ function getMaxVariantPrice(product: Product): number | null {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const thumbnailUrl = getStrapiImageUrl(product.thumbnail?.url);
+  const thumbnailUrl = getStrapiImageUrl(product.images?.[0]?.url);
   const displayPrice = getMaxVariantPrice(product) ?? product.price;
 
   return (
@@ -24,7 +24,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {thumbnailUrl ? (
           <Image
             src={thumbnailUrl}
-            alt={product.thumbnail?.alternativeText ?? product.name}
+            alt={product.images?.[0]?.alternativeText ?? product.name}
             fill
             className="object-contain group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

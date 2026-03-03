@@ -5,6 +5,7 @@ import { getProduct, getProducts } from '@/lib/strapi';
 import { ProductVariantSection } from '@/components/shop/ProductVariantSection';
 import { ProductInfoSections } from '@/components/shop/ProductInfoSections';
 import { Separator } from '@/components/ui/separator';
+import { Container } from '@/components/ui/Container';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
 
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   if (!product) return { title: 'Produkt nenalezen' };
   return {
     title: product.seoTitle ?? product.name,
-    description: product.seoDescription ?? product.shortDescription,
+    description: product.seoDescription,
   };
 }
 
@@ -32,7 +33,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = await getProduct(slug, 'cs');
   if (!product) notFound();
 
-  const mainImage = product.images?.[0] ?? product.thumbnail;
+  const mainImage = product.images?.[0];
   const imageUrl = mainImage?.url
     ? mainImage.url.startsWith('http')
       ? mainImage.url
@@ -40,7 +41,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     : null;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Container className="py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         {/* Images */}
         <div className="aspect-square relative bg-muted rounded-lg overflow-hidden">
@@ -68,14 +69,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           <h1 className="text-3xl font-bold">{product.name}</h1>
 
-          {product.shortDescription && (
-            <p className="text-muted-foreground">{product.shortDescription}</p>
-          )}
-
-          {product.sku && (
-            <p className="text-xs text-muted-foreground">SKU: {product.sku}</p>
-          )}
-
           <ProductVariantSection product={product} />
 
           {product.description && (
@@ -91,6 +84,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </div>
 
       <ProductInfoSections product={product} />
-    </div>
+    </Container>
   );
 }

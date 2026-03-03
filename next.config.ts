@@ -14,6 +14,10 @@ const nextConfig: NextConfig = {
         hostname: process.env.STRAPI_HOST ?? 'your-strapi-domain.com',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'ik.imagekit.io',
+      },
     ],
   },
   // Enable experimental features if needed

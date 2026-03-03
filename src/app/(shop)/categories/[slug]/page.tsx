@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCategory, getProducts, getCategories } from '@/lib/strapi';
 import { ProductGrid } from '@/components/shop/ProductGrid';
+import { Container } from '@/components/ui/Container';
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -33,12 +34,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (!category) notFound();
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Container className="py-8">
       <h1 className="text-3xl font-bold mb-2">{category.name}</h1>
       {category.description && (
         <p className="text-muted-foreground mb-8">{category.description}</p>
       )}
       <ProductGrid products={productsRes.data} />
-    </div>
+    </Container>
   );
 }

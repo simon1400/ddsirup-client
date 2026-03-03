@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import type { ContactFormSection as ContactFormSectionType } from '@/types/homepage';
+import { Container } from '@/components/ui/Container';
 
 interface Props {
   section: ContactFormSectionType;
@@ -44,7 +45,7 @@ export function ContactFormSection({ section }: Props) {
 
   return (
     <section className="py-20 px-4">
-      <div className="container mx-auto max-w-4xl">
+      <Container size="default">
         <div className="rounded-3xl p-8 md:p-12 border border-coral/30">
           {/* Header */}
           <div className="flex items-start gap-4 mb-8">
@@ -141,7 +142,7 @@ export function ContactFormSection({ section }: Props) {
             </form>
           )}
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

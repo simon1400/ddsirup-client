@@ -6,6 +6,7 @@ import { ProductGrid } from '@/components/shop/ProductGrid';
 import { SearchInput } from '@/components/shop/SearchInput';
 import { Button } from '@/components/ui/button';
 import { CATEGORY_COLORS } from '@/lib/constants';
+import { Container } from '@/components/ui/Container';
 
 export const metadata: Metadata = {
   title: 'Produkty',
@@ -48,7 +49,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     : 'SIRUPY';
 
   return (
-    <div className="px-4 py-8 max-w-5xl mx-auto">
+    <Container size="lg" className="py-8">
       {/* Title */}
       <h1 className="text-center font-black text-6xl md:text-8xl uppercase tracking-tight mb-10 leading-none">
         {pageTitle}
@@ -129,6 +130,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           )}
         </div>
       )}
-    </div>
+    </Container>
   );
 }

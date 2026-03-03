@@ -166,9 +166,7 @@ export function ProductsSlider({ section }: Props) {
       >
         {items.map((product, idx) => {
           const price = getMaxPrice(product);
-          const imgUrl = getStrapiImageUrl(
-            product.thumbnail?.url ?? product.thumbnail?.formats?.medium?.url
-          );
+          const imgUrl = getStrapiImageUrl(product.images?.[0]?.url);
 
           return (
             <Link

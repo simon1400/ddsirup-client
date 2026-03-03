@@ -10,10 +10,9 @@ const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337'
 async function fetchProducts(filter: ProductsFilter): Promise<StrapiListResponse<Product>> {
   const params = new URLSearchParams();
   if (filter.category) params.set('filters[category][slug][$eq]', filter.category);
-  if (filter.featured !== undefined) params.set('filters[featured][$eq]', String(filter.featured));
   if (filter.search) params.set('filters[name][$containsi]', filter.search);
   if (filter.inStock) params.set('filters[stock][$gt]', '0');
-  params.set('populate[0]', 'thumbnail');
+  params.set('populate[0]', 'images');
   params.set('populate[1]', 'category');
   params.set('pagination[page]', String(filter.page ?? 1));
   params.set('pagination[pageSize]', String(filter.pageSize ?? 24));
@@ -34,5 +33,5 @@ export function useProducts(filter: ProductsFilter = {}) {
 }
 
 export function useFeaturedProducts(locale = 'cs') {
-  return useProducts({ featured: true, pageSize: 8, locale });
+  return useProducts({ pageSize: 8, locale });
 }

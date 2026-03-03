@@ -9,6 +9,7 @@ import type { AppliedCoupon } from '@/types/coupon';
 import type { NavigationItem, FooterNavGroup } from '@/types/navigation';
 import type { GlobalInfo } from '@/types/global-info';
 import type { Homepage } from '@/types/homepage';
+import type { ContactPage } from '@/types/contact-page';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
@@ -44,7 +45,6 @@ export async function getProducts(
   const {
     category,
     parentCategory,
-    featured,
     search,
     minPrice,
     maxPrice,
@@ -59,7 +59,6 @@ export async function getProducts(
   const filters: Record<string, unknown> = {};
   if (category) filters.category = { slug: { $eq: category } };
   else if (parentCategory) filters.category = { parent: { slug: { $eq: parentCategory } } };
-  if (featured !== undefined) filters.featured = { $eq: featured };
   if (search) filters.name = { $containsi: search };
   if (minPrice !== undefined) filters.price = { ...((filters.price as object) ?? {}), $gte: minPrice };
   if (maxPrice !== undefined) filters.price = { ...((filters.price as object) ?? {}), $lte: maxPrice };
@@ -68,7 +67,7 @@ export async function getProducts(
   const query = qs.stringify(
     {
       filters,
-      populate: ['thumbnail', 'category', 'variants'],
+      populate: ['images', 'category', 'variants'],
       pagination: { page, pageSize },
       sort: [`${sortBy}:${sortOrder}`],
       locale,
@@ -87,11 +86,10 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
       filters: { slug: { $eq: slug } },
       populate: [
         'images',
-        'thumbnail',
         'category',
         'variants',
         'infoBoxes',
-        'relatedProducts.thumbnail',
+        'relatedProducts.images',
         'relatedProducts.variants',
       ],
       locale,
@@ -107,7 +105,7 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
 }
 
 export async function getFeaturedProducts(locale = 'cs'): Promise<Product[]> {
-  const res = await getProducts({ featured: true, pageSize: 8, locale });
+  const res = await getProducts({ pageSize: 8, locale });
   return res.data;
 }
 
@@ -256,7 +254,7 @@ export async function getHomepage(): Promise<Homepage | null> {
             'sections.products-slider': {
               populate: {
                 products: {
-                  populate: ['thumbnail', 'variants'],
+                  populate: ['images', 'variants'],
                   filters: { publishedAt: { $notNull: true } },
                 },
               },
@@ -280,6 +278,16 @@ export async function getHomepage(): Promise<Homepage | null> {
 
   const res = await strapiRequest<StrapiResponse<Homepage>>(`/homepage?${query}`, {
     next: { revalidate: 60, tags: ['homepage'] },
+  }).catch(() => null);
+
+  return res?.data ?? null;
+}
+
+// ---- Contact Page ----
+
+export async function getContactPage(): Promise<ContactPage | null> {
+  const res = await strapiRequest<StrapiResponse<ContactPage>>('/contact-page', {
+    next: { revalidate: 300, tags: ['contact-page'] },
   }).catch(() => null);
 
   return res?.data ?? null;

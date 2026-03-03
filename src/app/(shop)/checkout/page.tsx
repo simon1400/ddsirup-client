@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CheckoutForm } from '@/components/checkout/CheckoutForm';
+import { Container } from '@/components/ui/Container';
 
 export const metadata: Metadata = {
   title: 'Pokladna',
@@ -7,9 +8,9 @@ export const metadata: Metadata = {
 
 export default function CheckoutPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <Container size="sm" className="py-8">
       <h1 className="text-3xl font-bold mb-8">Pokladna</h1>
       <CheckoutForm />
-    </div>
+    </Container>
   );
 }

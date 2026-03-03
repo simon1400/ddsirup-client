@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Container } from '@/components/ui/Container';
 
 export const metadata: Metadata = {
   title: 'Objednávka přijata',
@@ -15,7 +16,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const params = await searchParams;
 
   return (
-    <div className="container mx-auto px-4 py-16 text-center max-w-md">
+    <Container size="xs" className="py-16 text-center">
       <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
       <h1 className="text-3xl font-bold mb-3">Děkujeme za objednávku!</h1>
 
@@ -37,6 +38,6 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
           <Link href="/">Zpět na hlavní stránku</Link>
         </Button>
       </div>
-    </div>
+    </Container>
   );
 }
