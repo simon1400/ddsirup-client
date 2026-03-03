@@ -10,6 +10,7 @@ import type { NavigationItem, FooterNavGroup } from '@/types/navigation';
 import type { GlobalInfo } from '@/types/global-info';
 import type { Homepage } from '@/types/homepage';
 import type { ContactPage } from '@/types/contact-page';
+import type { InfoPage } from '@/types/info-page';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
@@ -367,4 +368,39 @@ export async function getFooterNavGroups(): Promise<FooterNavGroup[]> {
   ).catch(() => null);
 
   return res?.data?.footerNavGroups ?? [];
+}
+
+// ---- Info Pages ----
+
+export async function getInfoPages(): Promise<InfoPage[]> {
+  const query = qs.stringify(
+    {
+      fields: ['title', 'slug'],
+      sort: ['title:asc'],
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiListResponse<InfoPage>>(
+    `/info-pages?${query}`,
+    { next: { revalidate: 300, tags: ['info-pages'] } }
+  ).catch(() => null);
+
+  return res?.data ?? [];
+}
+
+export async function getInfoPage(slug: string): Promise<InfoPage | null> {
+  const query = qs.stringify(
+    {
+      filters: { slug: { $eq: slug } },
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiListResponse<InfoPage>>(
+    `/info-pages?${query}`,
+    { next: { revalidate: 300, tags: ['info-pages', `info-page-${slug}`] } }
+  ).catch(() => null);
+
+  return res?.data?.[0] ?? null;
 }

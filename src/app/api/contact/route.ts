@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -19,7 +28,10 @@ export async function POST(req: NextRequest) {
   // 1. Save to Strapi
   const strapiRes = await fetch(`${STRAPI_URL}/api/contacts/submit`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
+    },
     body: JSON.stringify({ data: { name, email, message } }),
   });
 
@@ -28,10 +40,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Nepodařilo se uložit zprávu' }, { status: 500 });
   }
 
-  // 2. Send email via Resend
+  // 2. Fetch recipient email from Strapi Global Info
+  let toEmail: string | undefined;
+  try {
+    const globalRes = await fetch(`${STRAPI_URL}/api/global-info`, {
+      headers: {
+        ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
+      },
+    });
+    if (globalRes.ok) {
+      const globalData = await globalRes.json();
+      toEmail = globalData?.data?.email;
+    }
+  } catch (err) {
+    console.error('Failed to fetch global-info email:', err);
+  }
+
+  // 3. Send email via Resend
   const resendKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev';
-  const toEmail = process.env.RESEND_TO_EMAIL;
 
   if (resendKey && toEmail) {
     try {
@@ -39,20 +66,21 @@ export async function POST(req: NextRequest) {
       await resend.emails.send({
         from: fromEmail,
         to: toEmail,
-        subject: `Nová zpráva z kontaktního formuláře od ${name}`,
+        subject: `Nová zpráva z kontaktního formuláře od ${escapeHtml(name)}`,
         html: `
           <h2>Nová zpráva z kontaktního formuláře</h2>
-          <p><strong>Jméno:</strong> ${name}</p>
-          <p><strong>E-mail:</strong> <a href="mailto:${email}">${email}</a></p>
+          <p><strong>Jméno:</strong> ${escapeHtml(name)}</p>
+          <p><strong>E-mail:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
           <p><strong>Zpráva:</strong></p>
-          <p style="white-space: pre-wrap;">${message}</p>
+          <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>
         `,
         replyTo: email,
       });
     } catch (err) {
-      // Email failure is non-fatal — message is already saved in Strapi
       console.error('Resend email failed:', err);
     }
+  } else if (resendKey && !toEmail) {
+    console.warn('Contact form: no recipient email configured in Strapi Global Info');
   }
 
   return NextResponse.json({ ok: true });

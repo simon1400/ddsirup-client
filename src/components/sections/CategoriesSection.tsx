@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { CategoriesSection as CategoriesSectionType } from '@/types/homepage';
 import { Container } from '@/components/ui/Container';
-
-const BUTTON_COLOR = '#F0D060';
+import { CATEGORY_COLORS } from '@/lib/constants';
+import type { Category } from '@/types/product';
 
 interface Props {
   section: CategoriesSectionType;
@@ -10,6 +10,24 @@ interface Props {
 
 export function CategoriesSection({ section }: Props) {
   const categories = section.categories ?? [];
+
+  // Group categories by parent
+  const parentMap = new Map<string, { parent: Category; children: Category[] }>();
+  for (const cat of categories) {
+    const parentSlug = cat.parent?.slug ?? cat.slug;
+    const parentName = cat.parent?.name ?? cat.name;
+    if (!parentMap.has(parentSlug)) {
+      parentMap.set(parentSlug, {
+        parent: cat.parent ?? cat,
+        children: [],
+      });
+    }
+    if (cat.parent) {
+      parentMap.get(parentSlug)!.children.push(cat);
+    }
+  }
+
+  const groups = Array.from(parentMap.values());
 
   return (
     <section className="py-20 px-4">
@@ -30,19 +48,40 @@ export function CategoriesSection({ section }: Props) {
             )}
           </div>
 
-          {/* Right: category pills */}
-          {categories.length > 0 && (
-            <div className="flex flex-col items-end gap-3">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.documentId}
-                  href={`/products?tab=${cat.parent?.slug ?? cat.slug}&sub=${cat.slug}`}
-                  className="flex items-center justify-center w-[80%] px-8 py-4 rounded-full font-bold uppercase text-md tracking-widest text-gray-900 transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: BUTTON_COLOR }}
-                >
-                  {cat.name}
-                </Link>
-              ))}
+          {/* Right: grouped categories */}
+          {groups.length > 0 && (
+            <div className="flex flex-col gap-6">
+              {groups.map((group, i) => {
+                const color = CATEGORY_COLORS[i] ?? '#E0E0E0';
+                return (
+                  <div key={group.parent.slug}>
+                    {/* Parent category */}
+                    <Link
+                      href={`/products?tab=${group.parent.slug}`}
+                      className="inline-block px-7 py-3 rounded-full font-black uppercase text-base tracking-wide transition-all hover:scale-105 mb-3"
+                      style={{ backgroundColor: color, color: '#1a1a1a' }}
+                    >
+                      {group.parent.name}
+                    </Link>
+
+                    {/* Subcategories */}
+                    {group.children.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pl-3">
+                        {group.children.map((child) => (
+                          <Link
+                            key={child.documentId}
+                            href={`/products?tab=${group.parent.slug}&sub=${child.slug}`}
+                            className="px-4 py-1.5 rounded-full text-sm font-medium transition-all hover:scale-105"
+                            style={{ backgroundColor: '#f5f5f0', color: '#555' }}
+                          >
+                            {child.name}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

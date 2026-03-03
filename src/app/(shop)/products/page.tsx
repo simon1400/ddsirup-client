@@ -63,33 +63,41 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       </div>
 
       {/* Category tabs */}
-      <div className="flex gap-3 mb-2 flex-wrap">
-        {parentCategories.map((cat, i) => (
-          <Link
-            key={cat.id}
-            href={`/products?tab=${cat.slug}`}
-            className="px-5 py-2 rounded-full font-bold text-sm transition-opacity hover:opacity-80"
-            style={{ backgroundColor: CATEGORY_COLORS[i] ?? '#E0E0E0' }}
-          >
-            {cat.name}
-          </Link>
-        ))}
+      <div className="flex gap-3 mb-6 flex-wrap">
+        {parentCategories.map((cat, i) => {
+          const isActive = params.tab === cat.slug;
+          const color = CATEGORY_COLORS[i] ?? '#E0E0E0';
+          return (
+            <Link
+              key={cat.id}
+              href={`/products?tab=${cat.slug}`}
+              className="px-7 py-3 rounded-full font-black text-base uppercase tracking-wide transition-all hover:scale-105"
+              style={{
+                backgroundColor: isActive ? color : 'transparent',
+                border: `2px solid ${color}`,
+                color: isActive ? '#1a1a1a' : '#1a1a1a',
+              }}
+            >
+              {cat.name}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Subcategories */}
       {activeTab?.children && activeTab.children.length > 0 && (
-        <div className="flex flex-col gap-1 mb-8 mt-4">
+        <div className="flex flex-wrap gap-2 mb-8">
           {activeTab.children.map((child) => {
             const isActive = params.sub === child.slug;
             return (
               <Link
                 key={child.id}
                 href={`/products?tab=${params.tab}&sub=${child.slug}`}
-                className="w-fit text-sm px-3 py-1 rounded-full transition-colors hover:opacity-80"
+                className="px-4 py-1.5 rounded-full text-sm transition-all hover:scale-105"
                 style={
                   isActive
-                    ? { backgroundColor: tabColor, fontWeight: 600 }
-                    : { color: 'inherit' }
+                    ? { backgroundColor: tabColor, fontWeight: 700, color: '#1a1a1a' }
+                    : { backgroundColor: '#f5f5f0', fontWeight: 500, color: '#555' }
                 }
               >
                 {child.name}
