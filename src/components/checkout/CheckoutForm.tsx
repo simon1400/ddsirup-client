@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -87,6 +88,12 @@ export function CheckoutForm() {
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const aresLoading = false;
+  const aresError = null as string | null;
+
+  // TODO: enable ARES lookup when ready
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async function handleIcoLookup(_ico: string) { /* stub */ }
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -226,18 +233,33 @@ export function CheckoutForm() {
         <div>
           <Label htmlFor="company">Název firmy (volitelný)</Label>
           <Input id="company" className="mt-1" {...form.register('billingAddress.company')} />
-          <p className="text-xs text-muted-foreground mt-1">Vyplňte IČO pro vyplnění</p>
+          <p className="text-xs text-muted-foreground mt-1">Zadejte IČO pro automatické vyplnění</p>
         </div>
 
         {/* IČO + DIČ */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="ico">IČO (volitelný)</Label>
-            <Input id="ico" className="mt-1" placeholder="IČO" {...form.register('billingAddress.ico')} />
+            <div className="relative mt-1">
+              <Input
+                id="ico"
+                placeholder="12345678"
+                className={aresError ? 'border-destructive pr-8' : 'pr-8'}
+                {...form.register('billingAddress.ico')}
+                onBlur={(e) => {
+                  form.register('billingAddress.ico').onBlur(e);
+                  handleIcoLookup(e.target.value);
+                }}
+              />
+              {aresLoading && (
+                <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+              )}
+            </div>
+            {aresError && <p className="text-xs text-destructive mt-1">{aresError}</p>}
           </div>
           <div>
             <Label htmlFor="dic">DIČ (volitelný)</Label>
-            <Input id="dic" className="mt-1" placeholder="DIČ" {...form.register('billingAddress.dic')} />
+            <Input id="dic" className="mt-1" placeholder="CZ12345678" {...form.register('billingAddress.dic')} />
           </div>
         </div>
 

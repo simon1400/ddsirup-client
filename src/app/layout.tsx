@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
+import { Josefin_Sans } from 'next/font/google';
 import './globals.css';
 import { QueryProvider } from '@/providers/query-provider';
 import { CartDrawer } from '@/components/shop/CartDrawer';
 import { Toaster } from '@/components/ui/sonner';
 
-const geist = Geist({
-  variable: '--font-geist-sans',
+const josefinSans = Josefin_Sans({
+  variable: '--font-josefin-sans',
   subsets: ['latin', 'latin-ext'],
+  weight: ['100', '300', '400', '600', '700'],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="cs" suppressHydrationWarning>
-      <body className={`${geist.variable} font-sans antialiased`}>
+      <body className={`${josefinSans.variable} font-sans antialiased`}>
         <QueryProvider>
           {children}
           <CartDrawer />

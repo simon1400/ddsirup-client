@@ -1,41 +1,34 @@
-import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { ProductGrid } from '@/components/shop/ProductGrid';
-import { Button } from '@/components/ui/button';
-import { getFeaturedProducts } from '@/lib/strapi';
+import { HeroSection } from '@/components/sections/HeroSection';
+import { SectionRenderer } from '@/components/sections/SectionRenderer';
+import { getHomepage } from '@/lib/strapi';
 
 export default async function HomePage() {
-  const featuredProducts = await getFeaturedProducts('cs').catch(() => []);
+  const homepage = await getHomepage();
+
+  const hasHero = !!homepage?.heroTitle;
+  const hasSections = !!homepage?.sections?.length;
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero */}
-        <section className="bg-muted py-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4">ddsirup.co</h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-xl mx-auto">
-              Vítejte v našem obchodě
-            </p>
-            <Button size="lg" asChild>
-              <Link href="/products">Prohlédnout produkty</Link>
-            </Button>
+        {hasHero && (
+          <HeroSection
+            hero={{
+              title: homepage!.heroTitle!,
+              subtitle: homepage!.heroSubtitle,
+              video: homepage!.heroVideo,
+              categories: homepage!.heroCategories,
+            }}
+          />
+        )}
+        {hasSections && <SectionRenderer sections={homepage!.sections} />}
+        {!hasHero && !hasSections && (
+          <div className="flex items-center justify-center min-h-[60vh] text-gray-400 px-4 text-center">
+            <p>Stránka ještě není nakonfigurována. Přidejte obsah v Strapi Admin.</p>
           </div>
-        </section>
-
-        {/* Featured products */}
-        {featuredProducts.length > 0 && (
-          <section className="container mx-auto px-4 py-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Doporučené produkty</h2>
-              <Button variant="ghost" asChild>
-                <Link href="/products">Zobrazit vše</Link>
-              </Button>
-            </div>
-            <ProductGrid products={featuredProducts} />
-          </section>
         )}
       </main>
       <Footer />

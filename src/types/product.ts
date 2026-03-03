@@ -55,6 +55,7 @@ export interface Category {
   parent?: Category;
   children?: Category[];
   sortOrder: number;
+  color?: string;
   createdAt: string;
   updatedAt: string;
 }

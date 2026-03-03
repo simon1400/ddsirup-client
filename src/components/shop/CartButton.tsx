@@ -9,10 +9,10 @@ export function CartButton() {
   const count = useCartItemCount();
 
   return (
-    <Button variant="ghost" size="icon" onClick={toggleCart} className="relative">
-      <ShoppingCart className="h-5 w-5" />
+    <Button variant="ghost" onClick={toggleCart} className="relative h-12 w-12">
+      <ShoppingCart className="h-10 w-10" />
       {count > 0 && (
-        <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
+        <span className="absolute -top-1 -right-1 h-6 w-6 rounded-full text-black text-xs flex items-center justify-center font-bold" style={{ backgroundColor: '#C8D870' }}>
           {count > 99 ? '99+' : count}
         </span>
       )}

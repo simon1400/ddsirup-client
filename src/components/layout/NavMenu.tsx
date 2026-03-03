@@ -41,10 +41,10 @@ export function NavMenu({ items }: NavMenuProps) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center justify-center h-9 w-9 rounded-md hover:bg-muted transition-colors"
+        className="flex items-center justify-center h-12 w-12 rounded-md hover:bg-muted transition-colors"
         aria-label="Otevřít menu"
       >
-        <Menu className="h-5 w-5" />
+        <Menu className="h-7 w-7" />
       </button>
 
       <Sheet open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>

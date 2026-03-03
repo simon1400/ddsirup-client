@@ -7,6 +7,7 @@ import type { Product, Category, ProductsFilter } from '@/types/product';
 import type { CreateOrderPayload, Order } from '@/types/order';
 import type { AppliedCoupon } from '@/types/coupon';
 import type { NavigationItem } from '@/types/navigation';
+import type { Homepage } from '@/types/homepage';
 
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
@@ -228,4 +229,57 @@ export async function incrementCouponUsage(code: string): Promise<void> {
     method: 'POST',
     body: JSON.stringify({ code }),
   });
+}
+
+// ---- Homepage ----
+
+export async function getHomepage(): Promise<Homepage | null> {
+  const query = qs.stringify(
+    {
+      populate: {
+        heroVideo: true,
+        heroCategories: { fields: ['name', 'slug', 'color'] },
+        sections: {
+          on: {
+            'sections.categories-section': {
+              populate: {
+                categories: {
+                  populate: ['image', 'parent'],
+                  fields: ['name', 'slug', 'color'],
+                },
+              },
+            },
+            'sections.text-section': {
+              populate: '*',
+            },
+            'sections.products-slider': {
+              populate: {
+                products: {
+                  populate: ['thumbnail', 'variants'],
+                  filters: { publishedAt: { $notNull: true } },
+                },
+              },
+            },
+            'sections.features': {
+              populate: {
+                blocks: {
+                  populate: ['icon'],
+                },
+              },
+            },
+            'sections.contact-form': {
+              populate: ['icon'],
+            },
+          },
+        },
+      },
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiResponse<Homepage>>(`/homepage?${query}`, {
+    next: { revalidate: 60, tags: ['homepage'] },
+  }).catch(() => null);
+
+  return res?.data ?? null;
 }
