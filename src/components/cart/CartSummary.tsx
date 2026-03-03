@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { AppliedCouponBadge } from '@/components/cart/AppliedCouponBadge';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
 import { formatPrice } from '@/lib/utils';
@@ -17,6 +16,8 @@ export function CartSummary() {
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+
+  const dph = Math.round(total - total / 1.12);
 
   async function handleApplyCoupon() {
     const code = couponInput.trim();
@@ -35,69 +36,78 @@ export function CartSummary() {
   }
 
   return (
-    <div className="border rounded-lg p-6 space-y-4 sticky top-24">
-      <h2 className="font-semibold text-lg">Souhrn objednávky</h2>
+    <div className="bg-muted/50 rounded-2xl p-6 space-y-5 sticky top-24">
+      <h2 className="text-2xl font-bold italic text-coral">Celkem k platbě</h2>
 
+      <div className="space-y-3 text-sm">
+        <div className="flex justify-between items-center border-b pb-3">
+          <span className="font-medium">Mezisoučet</span>
+          <span className="text-coral font-semibold">{formatPrice(subtotal)}</span>
+        </div>
+
+        {discount > 0 && (
+          <div className="flex justify-between items-center border-b pb-3 text-green-600">
+            <span className="font-medium">Sleva (kupón)</span>
+            <span className="font-semibold">−{formatPrice(discount)}</span>
+          </div>
+        )}
+
+        <div className="border-b pb-3">
+          <div className="flex justify-between items-center">
+            <span className="font-medium">Zásilka 1</span>
+            <span className="font-medium">
+              {shipping === 0 ? 'Místní vyzvednutí' : formatPrice(shipping)}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Možnosti přepravy budou aktualizovány na stránce pokladny.
+          </p>
+        </div>
+
+        <div className="flex justify-between items-center pt-1">
+          <span className="font-semibold text-base">Cena celkem</span>
+          <span className="text-coral font-bold text-base">
+            {formatPrice(total)}{' '}
+            <span className="text-xs text-muted-foreground font-normal">
+              (včetně {formatPrice(dph)} 12% DPH)
+            </span>
+          </span>
+        </div>
+      </div>
+
+      {/* Coupon */}
       {appliedCoupon ? (
         <AppliedCouponBadge coupon={appliedCoupon} onRemove={removeCoupon} />
       ) : (
         <div className="space-y-2">
           <div className="flex gap-2">
             <Input
-              placeholder="Kód kupónu"
+              placeholder="Kód kuponu"
               value={couponInput}
               onChange={(e) => {
                 setCouponInput(e.target.value.toUpperCase());
                 setCouponError(null);
               }}
               onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
-              className="text-sm h-9"
+              className="h-10"
             />
             <Button
-              variant="outline"
-              size="sm"
-              className="h-9 shrink-0"
               onClick={handleApplyCoupon}
               disabled={couponLoading || !couponInput.trim()}
+              className="bg-coral hover:bg-coral/90 text-white h-10 px-5 rounded-full font-bold shrink-0"
             >
-              {couponLoading ? '...' : 'Použít'}
+              {couponLoading ? '...' : 'Použít kupon'}
             </Button>
           </div>
           {couponError && <p className="text-xs text-destructive">{couponError}</p>}
         </div>
       )}
 
-      <Separator />
-
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span>Mezisoučet</span>
-          <span>{formatPrice(subtotal)}</span>
-        </div>
-        {discount > 0 && (
-          <div className="flex justify-between text-green-600">
-            <span>Sleva (kupón)</span>
-            <span>−{formatPrice(discount)}</span>
-          </div>
-        )}
-        <div className="flex justify-between">
-          <span>Doprava</span>
-          <span>{shipping === 0 ? 'Zdarma' : formatPrice(shipping)}</span>
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="flex justify-between font-semibold">
-        <span>Celkem</span>
-        <span>{formatPrice(total)}</span>
-      </div>
-
-      <Button className="w-full" size="lg" asChild>
+      <Button
+        className="w-full bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-12 text-base"
+        asChild
+      >
         <Link href="/checkout">Přejít k pokladně</Link>
-      </Button>
-      <Button variant="outline" className="w-full" asChild>
-        <Link href="/products">Pokračovat v nákupu</Link>
       </Button>
     </div>
   );

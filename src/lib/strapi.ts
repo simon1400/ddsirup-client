@@ -87,6 +87,7 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
       populate: [
         'images',
         'category',
+        'category.parent',
         'variants',
         'infoBoxes',
         'relatedProducts.images',
@@ -184,21 +185,64 @@ export async function createOrder(payload: CreateOrderPayload): Promise<Order> {
 }
 
 export async function getOrder(documentId: string): Promise<Order | null> {
-  const res = await strapiRequest<StrapiResponse<Order>>(`/orders/${documentId}`);
+  const query = qs.stringify({ populate: '*' }, { encodeValuesOnly: true });
+  const res = await strapiRequest<StrapiResponse<Order>>(
+    `/orders/${documentId}?${query}`,
+    { cache: 'no-store' }
+  );
   return res.data ?? null;
+}
+
+export async function getOrderByNumber(orderNumber: string): Promise<Order | null> {
+  const query = qs.stringify(
+    {
+      filters: { orderNumber: { $eq: orderNumber } },
+      populate: '*',
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiListResponse<Order>>(`/orders?${query}`, {
+    cache: 'no-store',
+  });
+
+  return res.data[0] ?? null;
+}
+
+export async function updateOrder(
+  documentId: string,
+  data: Partial<CreateOrderPayload>
+): Promise<Order> {
+  const res = await strapiRequest<StrapiResponse<Order>>(`/orders/${documentId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ data }),
+  });
+  return res.data;
 }
 
 export async function updateOrderPayment(
   documentId: string,
   comgateTransId: string,
   comgateStatus: string,
-  status: string
+  orderStatus: string
 ): Promise<Order> {
   const res = await strapiRequest<StrapiResponse<Order>>(`/orders/${documentId}`, {
     method: 'PUT',
-    body: JSON.stringify({ data: { comgateTransId, comgateStatus, status } }),
+    body: JSON.stringify({ data: { comgateTransId, comgateStatus, orderStatus } }),
   });
   return res.data;
+}
+
+export async function assignInvoiceNumber(documentId: string): Promise<string> {
+  const res = await strapiRequest<{ invoiceNumber: string }>(
+    '/orders/assign-invoice-number',
+    {
+      method: 'POST',
+      body: JSON.stringify({ documentId }),
+      cache: 'no-store',
+    }
+  );
+  return res.invoiceNumber;
 }
 
 // ---- Coupons ----

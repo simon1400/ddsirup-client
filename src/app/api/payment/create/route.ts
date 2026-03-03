@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPayment } from '@/lib/comgate';
-import { createOrder, incrementCouponUsage } from '@/lib/strapi';
+import {
+  createOrder,
+  incrementCouponUsage,
+  assignInvoiceNumber,
+  getOrder,
+} from '@/lib/strapi';
+import { sendOrderConfirmation } from '@/lib/send-order-confirmation';
 import type { CreateOrderPayload } from '@/types/order';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
@@ -9,10 +15,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as CreateOrderPayload;
 
-    // 1. Create order in Strapi (status: pending)
+    // 1. Create order in Strapi
+    const initialStatus = body.paymentMethod === 'TEST' ? 'paid' : 'pending';
     const order = await createOrder({
       ...body,
-      status: 'pending',
+      orderStatus: initialStatus,
     });
 
     // 2. Increment coupon usage if a coupon was applied
@@ -22,7 +29,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Create Comgate payment
+    // 3. Skip Comgate for test payment method — set status to 'paid' immediately
+    if (body.paymentMethod === 'TEST') {
+      try {
+        const invoiceNumber = await assignInvoiceNumber(order.documentId);
+        const fullOrder = await getOrder(order.documentId);
+        if (fullOrder) {
+          await sendOrderConfirmation({ ...fullOrder, invoiceNumber });
+        }
+      } catch (emailErr) {
+        console.error('[payment/create] TEST email failed:', emailErr);
+      }
+
+      return NextResponse.json({
+        orderId: order.documentId,
+        orderNumber: body.orderNumber,
+      });
+    }
+
+    // 4. Create Comgate payment
     const payment = await createPayment({
       price: Math.round(body.total * 100), // to cents
       curr: body.currency || 'CZK',

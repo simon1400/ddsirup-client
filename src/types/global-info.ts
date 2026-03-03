@@ -8,4 +8,8 @@ export interface GlobalInfo {
   street?: string;
   city?: string;
   copyright?: string;
+  invoicePrefix?: string;
+  invoiceNextNumber?: number;
+  invoiceYear?: number;
+  vatRate?: number;
 }

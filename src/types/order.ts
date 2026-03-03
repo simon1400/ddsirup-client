@@ -1,4 +1,14 @@
-import type { CartItem } from './cart';
+export interface OrderItem {
+  id: number;
+  productName: string;
+  productSlug: string;
+  unitPrice: number;
+  quantity: number;
+  totalPrice: number;
+  thumbnail?: string;
+  variantName?: string;
+  variantVolume?: string;
+}
 
 export type OrderStatus =
   | 'pending'
@@ -39,8 +49,8 @@ export interface Order {
   id: number;
   documentId: string;
   orderNumber: string;
-  status: OrderStatus;
-  items: CartItem[];
+  orderStatus: OrderStatus;
+  items: OrderItem[];
   subtotal: number;
   shippingCost: number;
   total: number;
@@ -59,14 +69,15 @@ export interface Order {
   paymentMethod?: string;
   customerForChildren?: boolean;
   customerForBar?: boolean;
+  invoiceNumber?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateOrderPayload {
   orderNumber: string;
-  status: 'pending';
-  items: CartItem[];
+  orderStatus: OrderStatus;
+  items: Omit<OrderItem, 'id'>[];
   subtotal: number;
   shippingCost: number;
   total: number;

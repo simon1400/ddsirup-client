@@ -7,6 +7,7 @@ export const PAYMENT_METHODS = [
   { id: 'CARD_ALL', label: 'Platební kartou', description: 'Visa, Mastercard' },
   { id: 'GPAY', label: 'Google Pay', description: '' },
   { id: 'BANK_ALL', label: 'Rychlá platba online převodem', description: '' },
+  { id: 'TEST', label: 'Test (bez platby)', description: 'Přeskočí platební bránu' },
 ] as const;
 
 const billingAddressSchema = z.object({
@@ -35,6 +36,7 @@ export const checkoutSchema = z.object({
   email: z.string().email({ message: 'Neplatný e-mail' }),
   phone: z.string().min(9, { message: 'Telefon je povinný' }),
   billingAddress: billingAddressSchema,
+  isCompany: z.boolean(),
   shipToDifferentAddress: z.boolean(),
   shippingAddress: shippingAddressSchema.optional(),
   notes: z.string().optional(),

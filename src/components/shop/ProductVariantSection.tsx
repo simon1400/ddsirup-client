@@ -39,26 +39,34 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
 
   return (
     <>
-      <div className="flex items-center gap-3">
-        <span className="text-2xl font-bold">{formatPrice(displayPrice)}</span>
-      </div>
-
       {hasVariants && (
-        <Select
-          value={selectedVariant ? String(selectedVariant.id) : undefined}
-          onValueChange={handleVariantChange}
-        >
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Vyberte objem" />
-          </SelectTrigger>
-          <SelectContent>
-            {variants.map((v) => (
-              <SelectItem key={v.id} value={String(v.id)}>
-                {v.name}{v.volume ? ` – ${v.volume}` : ''}{typeof v.price === 'number' ? ` (${formatPrice(v.price)})` : ''}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-muted-foreground">Vyberte objem</label>
+          <div className="flex items-center gap-4">
+            <Select
+              value={selectedVariant ? String(selectedVariant.id) : undefined}
+              onValueChange={handleVariantChange}
+            >
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Vyberte objem" />
+              </SelectTrigger>
+              <SelectContent>
+                {variants.map((v) => (
+                  <SelectItem key={v.id} value={String(v.id)}>
+                    {v.name}{v.volume ? ` – ${v.volume}` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="text-2xl font-bold text-coral">{formatPrice(displayPrice)}</span>
+          </div>
+        </div>
+      )}
+
+      {!hasVariants && (
+        <div className="flex items-center gap-3">
+          <span className="text-2xl font-bold text-coral">{formatPrice(displayPrice)}</span>
+        </div>
       )}
 
       <Separator />

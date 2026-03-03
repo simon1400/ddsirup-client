@@ -1,15 +1,13 @@
-import type { Metadata } from 'next';
-import { CheckoutForm } from '@/components/checkout/CheckoutForm';
-import { Container } from '@/components/ui/Container';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Pokladna',
-};
+import { CheckoutForm } from '@/components/checkout/CheckoutForm';
+import { CheckoutStepper } from '@/components/checkout/CheckoutStepper';
+import { Container } from '@/components/ui/Container';
 
 export default function CheckoutPage() {
   return (
-    <Container size="sm" className="py-8">
-      <h1 className="text-3xl font-bold mb-8">Pokladna</h1>
+    <Container className="py-8 min-h-screen">
+      <CheckoutStepper activeStep={2} />
       <CheckoutForm />
     </Container>
   );

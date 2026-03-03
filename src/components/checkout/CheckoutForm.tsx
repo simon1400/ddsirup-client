@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -30,6 +29,7 @@ export function CheckoutForm() {
     defaultValues: {
       billingAddress: { country: 'CZ' },
       shippingAddress: { country: 'CZ' },
+      isCompany: false,
       shipToDifferentAddress: false,
       paymentMethod: 'ALL',
       agreedToTerms: false,
@@ -43,6 +43,20 @@ export function CheckoutForm() {
   const errors = form.formState.errors;
 
   async function onSubmit(values: CheckoutFormValues) {
+    if (values.isCompany) {
+      let hasError = false;
+      const ba = values.billingAddress;
+      if (!ba.company || ba.company.length < 2) {
+        form.setError('billingAddress.company', { message: 'Název firmy je povinný' });
+        hasError = true;
+      }
+      if (!ba.ico || ba.ico.length < 6) {
+        form.setError('billingAddress.ico', { message: 'IČO je povinné' });
+        hasError = true;
+      }
+      if (hasError) return;
+    }
+
     if (values.shipToDifferentAddress) {
       let hasError = false;
       const sa = values.shippingAddress;
@@ -83,7 +97,16 @@ export function CheckoutForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderNumber,
-          items,
+          items: items.map((item) => ({
+            productName: item.name,
+            productSlug: item.slug,
+            unitPrice: item.price,
+            quantity: item.quantity,
+            totalPrice: item.price * item.quantity,
+            thumbnail: item.thumbnail,
+            variantName: item.variant?.name,
+            variantVolume: item.variant?.volume,
+          })),
           subtotal,
           shippingCost: shipping,
           total,
@@ -121,91 +144,96 @@ export function CheckoutForm() {
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      <BillingSection form={form} />
-
-      <Separator />
-
-      <ShippingSection form={form} shipToDifferentAddress={shipToDifferentAddress} />
-
-      <Separator />
-
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Další informace</h2>
-        <div>
-          <Label htmlFor="notes">Poznámky k objednávce (volitelný)</Label>
-          <Textarea
-            id="notes"
-            className="mt-1"
-            placeholder="Poznámky k Vaší objednávce, např. speciální požadavky na doručení."
-            rows={4}
-            {...form.register('notes')}
-          />
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* Left column — Billing */}
+        <div className="space-y-6">
+          <BillingSection form={form} />
         </div>
-      </section>
 
-      <Separator />
+        {/* Right column — Shipping, Notes, Payment, Summary */}
+        <div className="space-y-6">
+          <ShippingSection form={form} shipToDifferentAddress={shipToDifferentAddress} />
 
-      <CouponSection />
+          <div className="border-t pt-6">
+            <h2 className="text-lg font-semibold mb-3">Další informace</h2>
+            <div>
+              <Label htmlFor="notes">Poznámky k objednávce (volitelný)</Label>
+              <Textarea
+                id="notes"
+                className="mt-1"
+                placeholder="Poznámky k Vaší objednávce, např. speciální požadavky na doručení."
+                rows={3}
+                {...form.register('notes')}
+              />
+            </div>
+          </div>
 
-      <Separator />
+          <div className="border-t pt-6">
+            <h2 className="text-lg font-semibold mb-3">Způsob platby</h2>
+            <PaymentSection form={form} currentMethod={paymentMethod} />
+          </div>
 
-      <OrderSummary
-        subtotal={subtotal}
-        discount={discount}
-        shipping={shipping}
-        total={total}
-        couponCode={appliedCoupon?.code}
-      />
+          {/* Order summary card */}
+          <div className="bg-muted/50 rounded-2xl p-6 space-y-5">
+            <h2 className="text-2xl font-bold italic text-coral">Vaše objednávka</h2>
 
-      <Separator />
+            <OrderSummary
+              subtotal={subtotal}
+              discount={discount}
+              shipping={shipping}
+              total={total}
+              couponCode={appliedCoupon?.code}
+            />
 
-      <PaymentSection form={form} currentMethod={paymentMethod} />
+            <CouponSection />
 
-      <p className="text-xs text-muted-foreground">
-        Vaše osobní údaje budou použity k vyřízení Vaší objednávky, zvýšení spokojenosti po celou
-        dobu procházení tohoto webu a k dalším účelům popsaným na stránce{' '}
-        <a href="/ochrana-osobnich-udaju" className="underline hover:text-foreground">
-          ochrana osobních údajů
-        </a>
-        .
-      </p>
+            <p className="text-xs text-muted-foreground">
+              Vaše osobní údaje budou použity k vyřízení Vaší objednávky, zvýšení spokojenosti po celou
+              dobu procházení tohoto webu a k dalším účelům popsaným na stránce{' '}
+              <a href="/ochrana-osobnich-udaju" className="underline hover:text-foreground">
+                ochrana osobních údajů
+              </a>
+              .
+            </p>
 
-      <div className="space-y-1">
-        <label className="flex cursor-pointer items-start gap-3">
-          <input
-            type="checkbox"
-            id="agreedToTerms"
-            className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-foreground"
-            {...form.register('agreedToTerms')}
-          />
-          <span className="text-sm">
-            Přečetl/a jsem si{' '}
-            <a href="/obchodni-podminky" className="underline hover:text-foreground">
-              obchodní podmínky
-            </a>{' '}
-            a souhlasím s nimi *
-          </span>
-        </label>
-        <FieldError message={errors.agreedToTerms?.message} />
+            <div className="space-y-1">
+              <label className="flex cursor-pointer items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="agreedToTerms"
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-foreground"
+                  {...form.register('agreedToTerms')}
+                />
+                <span className="text-sm">
+                  Přečetl/a jsem si{' '}
+                  <a href="/obchodni-podminky" className="underline hover:text-foreground">
+                    obchodní podmínky
+                  </a>{' '}
+                  a souhlasím s nimi *
+                </span>
+              </label>
+              <FieldError message={errors.agreedToTerms?.message} />
+            </div>
+
+            {error && (
+              <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-12 text-base"
+              disabled={isLoading || items.length === 0}
+            >
+              {isLoading ? 'Zpracovávám...' : `Zaplatit ${formatPrice(total)}`}
+            </Button>
+
+            <p className="text-center text-xs text-muted-foreground">
+              Platba je zpracována bezpečně přes Comgate.
+            </p>
+          </div>
+        </div>
       </div>
-
-      {error && (
-        <p className="rounded bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
-      )}
-
-      <Button
-        type="submit"
-        className="w-full"
-        size="lg"
-        disabled={isLoading || items.length === 0}
-      >
-        {isLoading ? 'Zpracovávám...' : `Zaplatit ${formatPrice(total)}`}
-      </Button>
-
-      <p className="text-center text-xs text-muted-foreground">
-        Platba je zpracována bezpečně přes Comgate. Po kliknutí budete přesměrováni na platební bránu.
-      </p>
     </form>
   );
 }

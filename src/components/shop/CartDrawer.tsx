@@ -36,7 +36,7 @@ export function CartDrawer() {
 
                 return (
                   <div key={item.id} className="flex gap-3">
-                    <div className="relative h-16 w-16 shrink-0 rounded-md overflow-hidden bg-muted">
+                    <div className="relative h-24 w-24 shrink-0 rounded-md overflow-hidden bg-muted">
                       {imgUrl ? (
                         <Image src={imgUrl} alt={item.name} fill className="object-cover" />
                       ) : (

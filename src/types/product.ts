@@ -4,6 +4,7 @@ export interface ProductInfoBox {
   id: number;
   title: string;
   content: string;
+  color?: string;
 }
 
 export interface ProductVariant {

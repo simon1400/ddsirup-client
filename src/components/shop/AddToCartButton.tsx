@@ -31,7 +31,7 @@ export function AddToCartButton({ product, variant, quantity = 1 }: AddToCartBut
   return (
     <Button
       size="lg"
-      className="w-full"
+      className="w-full bg-coral hover:bg-coral/90 text-white"
       onClick={handleAdd}
       disabled={isOutOfStock || isAdding}
     >

@@ -4,6 +4,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AddressFields } from './AddressFields';
+import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 import type { CheckoutFormValues } from './checkout.schema';
 
 interface ShippingSectionProps {
@@ -23,7 +24,7 @@ export function ShippingSection({ form, shipToDifferentAddress }: ShippingSectio
         <span className="text-lg font-semibold">Doručit na jinou adresu?</span>
       </label>
 
-      {shipToDifferentAddress && (
+      <AnimatedCollapse open={shipToDifferentAddress}>
         <div className="space-y-4 pt-2">
           <div>
             <Label>Název firmy (volitelný)</Label>
@@ -31,7 +32,7 @@ export function ShippingSection({ form, shipToDifferentAddress }: ShippingSectio
           </div>
           <AddressFields prefix="shippingAddress" form={form} />
         </div>
-      )}
+      </AnimatedCollapse>
     </section>
   );
 }

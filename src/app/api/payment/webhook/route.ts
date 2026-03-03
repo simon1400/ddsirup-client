@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyWebhook, getPaymentStatus } from '@/lib/comgate';
-import { updateOrderPayment } from '@/lib/strapi';
+import { verifyWebhook } from '@/lib/comgate';
+import {
+  getOrderByNumber,
+  updateOrderPayment,
+  assignInvoiceNumber,
+} from '@/lib/strapi';
+import { sendOrderConfirmation } from '@/lib/send-order-confirmation';
 
 /**
  * Comgate webhook handler
@@ -36,14 +41,36 @@ export async function POST(req: NextRequest) {
 
     const orderStatus = orderStatusMap[status] ?? 'pending';
 
-    // Find order by refId (order number) and update
-    // NOTE: You need to query Strapi to find the order by orderNumber, then update
-    // This is a simplified implementation - enhance with order lookup
+    // Find order by refId (order number)
+    const order = await getOrderByNumber(refId);
+    if (!order) {
+      console.error(`[webhook] Order not found for refId: ${refId}`);
+      return new NextResponse('ORDER_NOT_FOUND', { status: 404 });
+    }
+
+    // Update payment status in Strapi
+    await updateOrderPayment(
+      order.documentId,
+      transId,
+      status,
+      orderStatus
+    );
+
     console.log(`[webhook] Order ${refId} → ${status} (transId: ${transId})`);
 
-    // TODO: Find order documentId by refId (orderNumber) in Strapi
-    // const order = await findOrderByNumber(refId);
-    // if (order) await updateOrderPayment(order.documentId, transId, status, orderStatus);
+    // Send confirmation email only when payment is PAID and wasn't already paid
+    if (status === 'PAID' && order.orderStatus !== 'paid') {
+      try {
+        // Assign invoice number (idempotent — returns existing if already assigned)
+        const invoiceNumber = await assignInvoiceNumber(order.documentId);
+        const orderWithInvoice = { ...order, invoiceNumber };
+        await sendOrderConfirmation(orderWithInvoice);
+        console.log(`[webhook] Confirmation email sent for order ${refId}`);
+      } catch (emailErr) {
+        // Email failure is non-fatal — order is already updated
+        console.error('[webhook] Failed to send confirmation email:', emailErr);
+      }
+    }
 
     return new NextResponse('OK', { status: 200 });
   } catch (err) {

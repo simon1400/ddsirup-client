@@ -56,11 +56,19 @@ function buildForm(params: Record<string, string | number | boolean>): string {
     .join('&');
 }
 
+function safeDecode(str: string): string {
+  try {
+    return decodeURIComponent(str);
+  } catch {
+    return str;
+  }
+}
+
 function parseResponse(text: string): Record<string, string> {
   return Object.fromEntries(
     text.split('&').map((pair) => {
       const [key, ...rest] = pair.split('=');
-      return [decodeURIComponent(key), decodeURIComponent(rest.join('='))];
+      return [safeDecode(key), safeDecode(rest.join('='))];
     })
   );
 }
