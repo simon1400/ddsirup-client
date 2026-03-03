@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import type { HeroProps } from '@/types/homepage';
-
-const CATEGORY_COLORS = ['#F0D060', '#E07878'];
+import { CATEGORY_COLORS } from '@/lib/constants';
 
 interface Props {
   hero: HeroProps;

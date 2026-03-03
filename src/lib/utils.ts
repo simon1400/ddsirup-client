@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { STRAPI_URL } from './constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -21,6 +22,12 @@ export function slugify(text: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
+}
+
+/** Resolves a Strapi media path to a full URL. Returns null if path is falsy. */
+export function getStrapiImageUrl(path?: string | null): string | null {
+  if (!path) return null;
+  return path.startsWith('http') ? path : `${STRAPI_URL}${path}`;
 }
 
 export function generateOrderNumber(): string {

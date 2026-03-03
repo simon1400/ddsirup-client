@@ -1,34 +1,22 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types/product';
-import { formatPrice } from '@/lib/utils';
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
 }
 
-function getPriceRange(product: Product): { min: number; max: number } | null {
-  const variantPrices = (product.variants ?? [])
+function getMaxVariantPrice(product: Product): number | null {
+  const prices = (product.variants ?? [])
     .map((v) => v.price)
     .filter((p): p is number => typeof p === 'number' && p > 0);
-
-  if (variantPrices.length === 0) return null;
-  return {
-    min: Math.min(...variantPrices),
-    max: Math.max(...variantPrices),
-  };
+  return prices.length > 0 ? Math.max(...prices) : null;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const thumbnailUrl = product.thumbnail?.url
-    ? product.thumbnail.url.startsWith('http')
-      ? product.thumbnail.url
-      : `${STRAPI_URL}${product.thumbnail.url}`
-    : null;
-
-  const range = getPriceRange(product);
+  const thumbnailUrl = getStrapiImageUrl(product.thumbnail?.url);
+  const displayPrice = getMaxVariantPrice(product) ?? product.price;
 
   return (
     <Link href={`/products/${product.slug}`} className="group flex flex-col items-center text-center">
@@ -49,10 +37,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       <h3 className="font-bold text-base mb-1">{product.name}</h3>
-
-      <p className="text-sm font-medium" style={{ color: '#C85A2A' }}>
-        {formatPrice(range?.max ?? product.price)}
-      </p>
+      <p className="text-sm font-medium text-price">{formatPrice(displayPrice)}</p>
     </Link>
   );
 }

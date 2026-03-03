@@ -4,10 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { ProductsSliderSection } from '@/types/homepage';
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: 'CZK' }).format(price);
-}
+import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
 
 interface Props {
   section: ProductsSliderSection;
@@ -22,14 +19,13 @@ export function ProductsSlider({ section }: Props) {
     scrollRef.current.scrollBy({ left: dir === 'left' ? -320 : 320, behavior: 'smooth' });
   };
 
-  // Max variant price or base price
-  const getPrice = (product: typeof products[number]) => {
+  function getMaxPrice(product: typeof products[number]): number {
     const prices = product.variants?.map((v) => v.price).filter((p): p is number => p != null) ?? [];
     return prices.length > 0 ? Math.max(...prices) : product.price;
-  };
+  }
 
   return (
-    <section className="py-20 px-4 bg-[#F2837A]/10 relative overflow-hidden">
+    <section className="py-20 px-4 bg-coral/10 relative overflow-hidden">
       {/* Wave top */}
       <div className="absolute top-0 left-0 right-0">
         <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -45,7 +41,6 @@ export function ProductsSlider({ section }: Props) {
         )}
 
         <div className="relative">
-          {/* Prev button */}
           <button
             onClick={() => scroll('left')}
             className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition"
@@ -56,21 +51,22 @@ export function ProductsSlider({ section }: Props) {
             </svg>
           </button>
 
-          {/* Scrollable track */}
           <div
             ref={scrollRef}
             className="flex gap-6 overflow-x-auto scroll-smooth pb-4 scrollbar-hide snap-x snap-mandatory"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {products.map((product) => {
-              const price = getPrice(product);
-              const imgUrl = product.thumbnail?.url ?? product.thumbnail?.formats?.medium?.url;
+              const price = getMaxPrice(product);
+              const imgUrl = getStrapiImageUrl(
+                product.thumbnail?.url ?? product.thumbnail?.formats?.medium?.url
+              );
 
               return (
                 <Link
                   key={product.documentId}
                   href={`/products/${product.slug}`}
-                  className="flex-shrink-0 w-56 snap-start group"
+                  className="shrink-0 w-56 snap-start group"
                 >
                   <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white mb-3">
                     {imgUrl ? (
@@ -83,13 +79,13 @@ export function ProductsSlider({ section }: Props) {
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
-                        No image
+                        Bez obrázku
                       </div>
                     )}
                   </div>
                   <p className="font-bold text-center text-sm leading-tight mb-1">{product.name}</p>
                   {price > 0 && (
-                    <p className="text-center text-sm font-semibold" style={{ color: '#C85A2A' }}>
+                    <p className="text-center text-sm font-semibold text-price">
                       {formatPrice(price)}
                     </p>
                   )}
@@ -98,7 +94,6 @@ export function ProductsSlider({ section }: Props) {
             })}
           </div>
 
-          {/* Next button */}
           <button
             onClick={() => scroll('right')}
             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-gray-50 transition"
@@ -110,7 +105,6 @@ export function ProductsSlider({ section }: Props) {
           </button>
         </div>
 
-        {/* Dot indicators */}
         {products.length > 0 && (
           <div className="flex justify-center gap-2 mt-6">
             {Array.from({ length: Math.min(products.length, 9) }).map((_, i) => (
@@ -119,12 +113,10 @@ export function ProductsSlider({ section }: Props) {
           </div>
         )}
 
-        {/* CTA button */}
         <div className="flex justify-center mt-8">
           <Link
             href="/products"
-            className="px-10 py-4 rounded-full font-bold uppercase text-sm tracking-widest text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: '#F2837A' }}
+            className="px-10 py-4 rounded-full font-bold uppercase text-sm tracking-widest text-white transition-opacity hover:opacity-90 bg-coral"
           >
             Máme jich víc, koukni
           </Link>

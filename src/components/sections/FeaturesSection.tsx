@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { FeaturesSection as FeaturesSectionType } from '@/types/homepage';
-
-// Alternating colors: coral, green, coral, green
-const BLOCK_COLORS = ['#F2837A', '#A8C98E', '#F2837A', '#A8C98E'];
+import { FEATURE_BLOCK_COLORS } from '@/lib/constants';
 
 interface Props {
   section: FeaturesSectionType;
@@ -23,16 +21,14 @@ export function FeaturesSection({ section }: Props) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {blocks.map((block, i) => {
-            const bg = BLOCK_COLORS[i % BLOCK_COLORS.length];
-            const isDark = bg === '#F2837A';
+            const colors = FEATURE_BLOCK_COLORS[i % FEATURE_BLOCK_COLORS.length];
 
             return (
               <div
                 key={block.id}
                 className="rounded-3xl p-8 flex flex-col gap-4 relative overflow-hidden"
-                style={{ backgroundColor: bg }}
+                style={{ backgroundColor: colors.bg }}
               >
-                {/* Icon */}
                 {block.icon?.url && (
                   <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
                     <Image
@@ -45,15 +41,10 @@ export function FeaturesSection({ section }: Props) {
                   </div>
                 )}
 
-                {/* Title */}
-                <h3
-                  className="text-xl font-bold"
-                  style={{ color: isDark ? '#7A2020' : '#2A4A20' }}
-                >
+                <h3 className="text-xl font-bold" style={{ color: colors.title }}>
                   {block.title}
                 </h3>
 
-                {/* Content */}
                 {block.content && (
                   <div
                     className="text-sm leading-relaxed text-gray-700 rich-content"
@@ -61,13 +52,12 @@ export function FeaturesSection({ section }: Props) {
                   />
                 )}
 
-                {/* Button */}
                 {block.buttonText && block.buttonUrl && (
                   <div className="mt-auto pt-2">
                     <Link
                       href={block.buttonUrl}
                       className="inline-flex px-6 py-2 rounded-full font-bold uppercase text-xs tracking-widest text-white transition-opacity hover:opacity-90"
-                      style={{ backgroundColor: isDark ? '#7A2020' : '#2D4A2A' }}
+                      style={{ backgroundColor: colors.button }}
                     >
                       {block.buttonText}
                     </Link>

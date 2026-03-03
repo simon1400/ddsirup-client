@@ -2,14 +2,13 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Minus, Plus, Trash2, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { QuantityControl } from '@/components/ui/QuantityControl';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
-import { formatPrice } from '@/lib/utils';
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity } = useCartStore();
@@ -33,15 +32,11 @@ export function CartDrawer() {
           <>
             <div className="flex-1 overflow-y-auto py-4 space-y-4">
               {items.map((item) => {
-                const imgUrl = item.thumbnail
-                  ? item.thumbnail.startsWith('http')
-                    ? item.thumbnail
-                    : `${STRAPI_URL}${item.thumbnail}`
-                  : null;
+                const imgUrl = getStrapiImageUrl(item.thumbnail);
 
                 return (
                   <div key={item.id} className="flex gap-3">
-                    <div className="relative h-16 w-16 flex-shrink-0 rounded-md overflow-hidden bg-muted">
+                    <div className="relative h-16 w-16 shrink-0 rounded-md overflow-hidden bg-muted">
                       {imgUrl ? (
                         <Image src={imgUrl} alt={item.name} fill className="object-cover" />
                       ) : (
@@ -56,32 +51,21 @@ export function CartDrawer() {
                       )}
                       <p className="text-sm font-semibold mt-1">{formatPrice(item.price)}</p>
 
-                      <div className="flex items-center gap-2 mt-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <span className="text-sm w-6 text-center">{item.quantity}</span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          disabled={item.quantity >= item.stock}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
+                      <div className="mt-2">
+                        <QuantityControl
+                          value={item.quantity}
+                          onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
+                          onIncrement={() => updateQuantity(item.id, item.quantity + 1)}
+                          max={item.stock}
+                          size="sm"
+                        />
                       </div>
                     </div>
 
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 flex-shrink-0 text-muted-foreground"
+                      className="h-8 w-8 shrink-0 text-muted-foreground"
                       onClick={() => removeItem(item.id)}
                     >
                       <X className="h-4 w-4" />

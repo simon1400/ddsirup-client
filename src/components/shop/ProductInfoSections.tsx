@@ -1,15 +1,9 @@
 import type { Product, ProductInfoBox } from '@/types/product';
 import { ProductCard } from '@/components/shop/ProductCard';
-
-const BOX_COLORS = [
-  { bg: '#F2837A', text: '#7A1A0F' },
-  { bg: '#A8C98E', text: '#2A5A1A' },
-  { bg: '#F2837A', text: '#7A1A0F' },
-  { bg: '#C8D870', text: '#3A5A10' },
-];
+import { INFO_BOX_COLORS } from '@/lib/constants';
 
 function InfoBox({ box, index }: { box: ProductInfoBox; index: number }) {
-  const color = BOX_COLORS[index % BOX_COLORS.length];
+  const color = INFO_BOX_COLORS[index % INFO_BOX_COLORS.length];
   const lines = box.content.split('\n').filter(Boolean);
 
   return (

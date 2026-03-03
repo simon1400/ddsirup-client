@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Minus, Plus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { QuantityControl } from '@/components/ui/QuantityControl';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { formatPrice } from '@/lib/utils';
 import type { Product, ProductVariant } from '@/types/product';
@@ -36,14 +35,6 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
     const v = variants.find((v) => String(v.id) === variantId);
     setSelectedVariant(v);
     setQuantity(1);
-  }
-
-  function decrement() {
-    setQuantity((q) => Math.max(1, q - 1));
-  }
-
-  function increment() {
-    setQuantity((q) => Math.min(stockCount, q + 1));
   }
 
   return (
@@ -80,31 +71,19 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
         )}
 
         <div className="flex items-center gap-3">
-            <div className="flex items-center border rounded-md">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-r-none"
-                onClick={decrement}
-                disabled={quantity <= 1}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <span className="w-10 text-center text-sm font-medium">{quantity}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 rounded-l-none"
-                onClick={increment}
-                disabled={quantity >= stockCount}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="flex-1">
-              <AddToCartButton product={product} variant={selectedVariant} quantity={quantity} />
-            </div>
+          <QuantityControl
+            value={quantity}
+            onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
+            onIncrement={() => setQuantity((q) => Math.min(stockCount, q + 1))}
+            min={1}
+            max={stockCount}
+            size="lg"
+            bordered
+          />
+          <div className="flex-1">
+            <AddToCartButton product={product} variant={selectedVariant} quantity={quantity} />
           </div>
+        </div>
       </div>
     </>
   );

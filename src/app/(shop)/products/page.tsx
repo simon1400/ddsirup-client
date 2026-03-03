@@ -5,13 +5,11 @@ import { getProducts, getCategories } from '@/lib/strapi';
 import { ProductGrid } from '@/components/shop/ProductGrid';
 import { SearchInput } from '@/components/shop/SearchInput';
 import { Button } from '@/components/ui/button';
+import { CATEGORY_COLORS } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: 'Produkty',
 };
-
-// Colors per parent-category index
-const TAB_COLORS = ['#F0D060', '#E07878'];
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -43,7 +41,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   const activeTab = parentCategories.find((c) => c.slug === params.tab);
   const activeTabIndex = parentCategories.findIndex((c) => c.slug === params.tab);
-  const tabColor = activeTabIndex >= 0 ? TAB_COLORS[activeTabIndex] : undefined;
+  const tabColor = activeTabIndex >= 0 ? CATEGORY_COLORS[activeTabIndex] : undefined;
 
   const pageTitle = activeTab
     ? activeTab.name.toUpperCase()
@@ -70,7 +68,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             key={cat.id}
             href={`/products?tab=${cat.slug}`}
             className="px-5 py-2 rounded-full font-bold text-sm transition-opacity hover:opacity-80"
-            style={{ backgroundColor: TAB_COLORS[i] ?? '#E0E0E0' }}
+            style={{ backgroundColor: CATEGORY_COLORS[i] ?? '#E0E0E0' }}
           >
             {cat.name}
           </Link>
