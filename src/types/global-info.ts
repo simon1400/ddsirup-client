@@ -12,4 +12,8 @@ export interface GlobalInfo {
   invoiceNextNumber?: number;
   invoiceYear?: number;
   vatRate?: number;
+  gtmId?: string;
+  comgateTestMode?: boolean;
+  orderFromEmail?: string;
+  contactFromEmail?: string;
 }

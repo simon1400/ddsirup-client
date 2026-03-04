@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
 
   // 2. Fetch recipient email from Strapi Global Info
   let toEmail: string | undefined;
+  let senderFromEmail: string | undefined;
   try {
     const globalRes = await fetch(`${STRAPI_URL}/api/global-info`, {
       headers: {
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
     if (globalRes.ok) {
       const globalData = await globalRes.json();
       toEmail = globalData?.data?.email;
+      senderFromEmail = globalData?.data?.contactFromEmail;
     }
   } catch (err) {
     console.error('Failed to fetch global-info email:', err);
@@ -58,7 +60,10 @@ export async function POST(req: NextRequest) {
 
   // 3. Send email via Resend
   const resendKey = process.env.RESEND_API_KEY;
-  const fromEmail = process.env.RESEND_FROM_EMAIL ?? 'onboarding@resend.dev';
+  const fromEmail =
+    senderFromEmail ||
+    process.env.RESEND_FROM_EMAIL ||
+    'onboarding@resend.dev';
 
   if (resendKey && toEmail) {
     try {

@@ -4,6 +4,11 @@ import './globals.css';
 import { QueryProvider } from '@/providers/query-provider';
 import { CartDrawer } from '@/components/shop/CartDrawer';
 import { Toaster } from '@/components/ui/sonner';
+import { getGlobalInfo } from '@/lib/strapi';
+import {
+  GoogleTagManager,
+  GoogleTagManagerNoscript,
+} from '@/components/layout/GoogleTagManager';
 
 const josefinSans = Josefin_Sans({
   variable: '--font-josefin-sans',
@@ -35,14 +40,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const globalInfo = await getGlobalInfo();
+  const gtmId = globalInfo?.gtmId;
+
   return (
     <html lang="cs" suppressHydrationWarning>
+      {gtmId && <GoogleTagManager gtmId={gtmId} />}
       <body className={`${josefinSans.variable} font-sans antialiased`}>
+        {gtmId && <GoogleTagManagerNoscript gtmId={gtmId} />}
         <QueryProvider>
           {children}
           <CartDrawer />

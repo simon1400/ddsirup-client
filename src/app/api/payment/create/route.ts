@@ -5,6 +5,7 @@ import {
   incrementCouponUsage,
   assignInvoiceNumber,
   getOrder,
+  getGlobalInfo,
 } from '@/lib/strapi';
 import { sendOrderConfirmation } from '@/lib/send-order-confirmation';
 import type { CreateOrderPayload } from '@/types/order';
@@ -48,6 +49,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Create Comgate payment
+    const globalInfo = await getGlobalInfo();
     const payment = await createPayment({
       price: Math.round(body.total * 100), // to cents
       curr: body.currency || 'CZK',
@@ -58,6 +60,7 @@ export async function POST(req: NextRequest) {
       returnUrl: `${BASE_URL}/pokladna/uspech?order=${body.orderNumber}&transId=PLACEHOLDER`,
       cancelUrl: `${BASE_URL}/pokladna?cancelled=1`,
       notifUrl: `${BASE_URL}/api/payment/webhook`,
+      test: globalInfo?.comgateTestMode,
     });
 
     if (payment.code !== '0') {

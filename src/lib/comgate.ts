@@ -74,8 +74,9 @@ function parseResponse(text: string): Record<string, string> {
 }
 
 export async function createPayment(
-  params: ComgateCreateParams
+  params: ComgateCreateParams & { test?: boolean }
 ): Promise<ComgateCreateResponse> {
+  const testMode = params.test ?? process.env.COMGATE_TEST === 'true';
   const body = buildForm({
     merchant: MERCHANT,
     secret: SECRET,
@@ -91,7 +92,7 @@ export async function createPayment(
     returnUrl: params.returnUrl,
     cancelUrl: params.cancelUrl,
     notifUrl: params.notifUrl,
-    test: process.env.COMGATE_TEST === 'true' ? 'true' : 'false',
+    test: testMode ? 'true' : 'false',
   });
 
   const res = await fetch(`${COMGATE_URL}/create`, {
