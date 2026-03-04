@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
       refId: body.orderNumber,
       email: body.customerEmail,
       method: body.paymentMethod ?? 'ALL',
-      returnUrl: `${BASE_URL}/checkout/success?order=${body.orderNumber}&transId=PLACEHOLDER`,
-      cancelUrl: `${BASE_URL}/checkout?cancelled=1`,
+      returnUrl: `${BASE_URL}/pokladna/uspech?order=${body.orderNumber}&transId=PLACEHOLDER`,
+      cancelUrl: `${BASE_URL}/pokladna?cancelled=1`,
       notifUrl: `${BASE_URL}/api/payment/webhook`,
     });
 

@@ -34,7 +34,7 @@ export default function CartPage() {
           <h1 className="text-3xl font-bold mb-4">Košík</h1>
           <p className="text-muted-foreground mb-8">Váš košík je prázdný</p>
           <Button asChild>
-            <Link href="/products">Pokračovat v nákupu</Link>
+            <Link href="/produkty">Pokračovat v nákupu</Link>
           </Button>
         </div>
       </Container>
@@ -81,7 +81,7 @@ export default function CartPage() {
                       )}
                     </div>
                     <div>
-                      <Link href={`/products/${item.slug}`} className="font-medium hover:underline text-sm">
+                      <Link href={`/produkty/${item.slug}`} className="font-medium hover:underline text-sm">
                         {item.name}
                       </Link>
                       {item.variant && (

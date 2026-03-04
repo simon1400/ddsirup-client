@@ -134,7 +134,7 @@ export function CheckoutForm() {
       if (data.redirect) {
         window.location.href = data.redirect;
       } else {
-        router.push(`/checkout/success?order=${orderNumber}`);
+        router.push(`/pokladna/uspech?order=${orderNumber}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nastala chyba. Zkuste to prosím znovu.');

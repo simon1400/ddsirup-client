@@ -21,6 +21,7 @@ import { formatPrice } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Objednávka přijata',
+  robots: { index: false, follow: false },
 };
 
 interface SuccessPageProps {
@@ -119,7 +120,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
                     >
                       <div className="col-span-12 sm:col-span-6">
                         <Link
-                          href={`/products/${item.productSlug}`}
+                          href={`/produkty/${item.productSlug}`}
                           className="font-bold text-coral underline hover:underline"
                         >
                           {item.productName}
@@ -312,7 +313,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
             asChild
             className="bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-12 px-8"
           >
-            <Link href="/products">
+            <Link href="/produkty">
               Pokračovat v nákupu
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>

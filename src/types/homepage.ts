@@ -69,6 +69,7 @@ export interface Homepage {
   heroVideo?: StrapiImage;
   heroCategories?: Category[];
   sections: HomepageSection[];
+  seo?: import('./product').SeoComponent;
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;

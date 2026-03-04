@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 const steps = [
-  { label: 'E-SHOP', href: '/products', icon: ShoppingBag },
-  { label: 'KOŠÍK', href: '/cart', icon: Building2 },
-  { label: 'POKLADNA', href: '/checkout', icon: CreditCard },
+  { label: 'E-SHOP', href: '/produkty', icon: ShoppingBag },
+  { label: 'KOŠÍK', href: '/kosik', icon: Building2 },
+  { label: 'POKLADNA', href: '/pokladna', icon: CreditCard },
 ] as const;
 
 interface CheckoutStepperProps {

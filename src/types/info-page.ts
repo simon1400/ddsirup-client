@@ -4,4 +4,5 @@ export interface InfoPage {
   title: string;
   slug: string;
   content?: string;
+  seo?: import('./product').SeoComponent;
 }

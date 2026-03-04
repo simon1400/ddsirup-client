@@ -8,4 +8,5 @@ export interface ContactPage {
   directorName?: string;
   formTitle?: string;
   formDescription?: string;
+  seo?: import('./product').SeoComponent;
 }

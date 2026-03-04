@@ -1,4 +1,5 @@
 export const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ddsirup.cz';
 
 /** Fallback colors for parent categories (by index) when category.color is not set */
 export const CATEGORY_COLORS = ['var(--color-category-yellow)', 'var(--color-coral)'] as const;

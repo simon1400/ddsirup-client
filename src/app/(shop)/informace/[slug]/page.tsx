@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getInfoPage, getInfoPages } from '@/lib/strapi';
 import { Container } from '@/components/ui/Container';
+import { buildPageMetadata, stripHtml } from '@/lib/seo';
 
 interface InfoPageProps {
   params: Promise<{ slug: string }>;
@@ -16,9 +17,12 @@ export async function generateMetadata({ params }: InfoPageProps): Promise<Metad
   const { slug } = await params;
   const page = await getInfoPage(slug).catch(() => null);
   if (!page) return { title: 'Stránka nenalezena' };
-  return {
-    title: page.title,
-  };
+  return buildPageMetadata({
+    title: page.seo?.metaTitle ?? page.title,
+    description: page.seo?.metaDescription ?? (page.content ? stripHtml(page.content).slice(0, 160) : undefined),
+    path: page.seo?.canonicalURL ?? `/informace/${slug}`,
+    ogImage: page.seo?.metaImage ?? null,
+  });
 }
 
 export default async function InfoPageDetail({ params }: InfoPageProps) {

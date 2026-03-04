@@ -18,7 +18,7 @@ export default function NotFound() {
             </p>
             <Link
               href="/"
-              className="inline-block mt-6 px-8 py-3 rounded-full bg-gray-800 text-white font-bold text-sm uppercase tracking-widest hover:opacity-90 transition-opacity"
+              className="inline-block mt-6 px-8 py-3 rounded-full bg-coral text-white font-bold text-sm uppercase tracking-widest hover:bg-coral/90 transition-colors"
             >
               Zpět na úvod
             </Link>

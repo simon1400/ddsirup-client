@@ -1,4 +1,3 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { getProducts, getCategories } from '@/lib/strapi';
@@ -7,10 +6,14 @@ import { SearchInput } from '@/components/shop/SearchInput';
 import { Button } from '@/components/ui/button';
 import { CATEGORY_COLORS } from '@/lib/constants';
 import { Container } from '@/components/ui/Container';
+import { buildPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata = buildPageMetadata({
   title: 'Produkty',
-};
+  description:
+    'Prozkoumejte naši nabídku prémiových českých sirupů. Ovocné, bylinné, hřejivé sirupy a speciální sirupy pro barmany.',
+  path: '/produkty',
+});
 
 interface ProductsPageProps {
   searchParams: Promise<{
@@ -49,28 +52,28 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     : 'SIRUPY';
 
   return (
-    <Container size="lg" className="py-8">
+    <Container size="lg" className="py-25">
       {/* Title */}
-      <h1 className="text-center font-black text-6xl md:text-8xl uppercase tracking-tight mb-10 leading-none">
+      <h1 className="text-center font-black text-6xl md:text-8xl uppercase tracking-tight mb-15 leading-none">
         {pageTitle}
       </h1>
 
       {/* Search */}
-      <div className="flex justify-center mb-8">
+      <div className="flex justify-center mb-15">
         <Suspense>
           <SearchInput />
         </Suspense>
       </div>
 
       {/* Category tabs */}
-      <div className="flex gap-3 mb-6 flex-wrap">
+      <div className="flex gap-3 mb-8 flex-wrap justify-center">
         {parentCategories.map((cat, i) => {
           const isActive = params.tab === cat.slug;
           const color = CATEGORY_COLORS[i] ?? '#E0E0E0';
           return (
             <Link
               key={cat.id}
-              href={`/products?tab=${cat.slug}`}
+              href={`/produkty?tab=${cat.slug}`}
               className="px-7 py-3 rounded-full font-black text-base uppercase tracking-wide transition-all hover:scale-105"
               style={{
                 backgroundColor: isActive ? color : 'transparent',
@@ -86,13 +89,13 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
       {/* Subcategories */}
       {activeTab?.children && activeTab.children.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="flex flex-wrap gap-2 mb-8 justify-center">
           {activeTab.children.map((child) => {
             const isActive = params.sub === child.slug;
             return (
               <Link
                 key={child.id}
-                href={`/products?tab=${params.tab}&sub=${child.slug}`}
+                href={`/produkty?tab=${params.tab}&sub=${child.slug}`}
                 className="px-4 py-1.5 rounded-full text-sm transition-all hover:scale-105"
                 style={
                   isActive
@@ -118,7 +121,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           {page > 1 && (
             <Button variant="outline" asChild>
               <Link
-                href={`/products?page=${page - 1}${params.tab ? `&tab=${params.tab}` : ''}${params.sub ? `&sub=${params.sub}` : ''}`}
+                href={`/produkty?page=${page - 1}${params.tab ? `&tab=${params.tab}` : ''}${params.sub ? `&sub=${params.sub}` : ''}`}
               >
                 Předchozí
               </Link>
@@ -130,7 +133,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           {page < totalPages && (
             <Button variant="outline" asChild>
               <Link
-                href={`/products?page=${page + 1}${params.tab ? `&tab=${params.tab}` : ''}${params.sub ? `&sub=${params.sub}` : ''}`}
+                href={`/produkty?page=${page + 1}${params.tab ? `&tab=${params.tab}` : ''}${params.sub ? `&sub=${params.sub}` : ''}`}
               >
                 Další
               </Link>

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getCategory, getProducts, getCategories } from '@/lib/strapi';
 import { ProductGrid } from '@/components/shop/ProductGrid';
 import { Container } from '@/components/ui/Container';
+import { buildPageMetadata } from '@/lib/seo';
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -12,10 +13,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const { slug } = await params;
   const category = await getCategory(slug).catch(() => null);
   if (!category) return { title: 'Kategorie nenalezena' };
-  return {
-    title: category.name,
-    description: category.description,
-  };
+  return buildPageMetadata({
+    title: category.seo?.metaTitle ?? category.name,
+    description: category.seo?.metaDescription ?? category.description ?? `Sirupy v kategorii ${category.name}. Prémiové české sirupy od DD Sirup.`,
+    path: category.seo?.canonicalURL ?? `/kategorie/${slug}`,
+    ogImage: category.seo?.metaImage ?? category.image ?? null,
+  });
 }
 
 export async function generateStaticParams() {

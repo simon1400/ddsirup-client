@@ -28,7 +28,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
       </div>
 
       <div className="flex-1">
-        <Link href={`/products/${item.slug}`} className="font-medium hover:underline">
+        <Link href={`/produkty/${item.slug}`} className="font-medium hover:underline">
           {item.name}
         </Link>
         {item.variant && (

@@ -1,5 +1,27 @@
 import type { StrapiImage } from './strapi';
 
+export interface SeoOpenGraph {
+  id: number;
+  ogTitle: string;
+  ogDescription: string;
+  ogImage?: StrapiImage;
+  ogUrl?: string;
+  ogType?: string;
+}
+
+export interface SeoComponent {
+  id: number;
+  metaTitle: string;
+  metaDescription: string;
+  metaImage?: StrapiImage;
+  keywords?: string;
+  metaRobots?: string;
+  metaViewport?: string;
+  canonicalURL?: string;
+  structuredData?: Record<string, unknown>;
+  openGraph?: SeoOpenGraph;
+}
+
 export interface ProductInfoBox {
   id: number;
   title: string;
@@ -32,8 +54,7 @@ export interface Product {
   countryOfOrigin?: string;
   madeIn?: string;
   relatedProducts?: Product[];
-  seoTitle?: string;
-  seoDescription?: string;
+  seo?: SeoComponent;
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
@@ -51,6 +72,7 @@ export interface Category {
   children?: Category[];
   sortOrder: number;
   color?: string;
+  seo?: SeoComponent;
   createdAt: string;
   updatedAt: string;
 }

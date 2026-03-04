@@ -8,9 +8,13 @@ import { ProductVariantSection } from '@/components/shop/ProductVariantSection';
 import { ProductInfoSections } from '@/components/shop/ProductInfoSections';
 import { Separator } from '@/components/ui/separator';
 import { Container } from '@/components/ui/Container';
-
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ddsirup.cz';
+import { STRAPI_URL } from '@/lib/constants';
+import {
+  buildPageMetadata,
+  buildProductJsonLd,
+  getCanonicalUrl,
+  stripHtml,
+} from '@/lib/seo';
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -20,10 +24,14 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const { slug } = await params;
   const product = await getProduct(slug).catch(() => null);
   if (!product) return { title: 'Produkt nenalezen' };
-  return {
-    title: product.seoTitle ?? product.name,
-    description: product.seoDescription,
-  };
+  return buildPageMetadata({
+    title: product.seo?.metaTitle ?? product.name,
+    description:
+      product.seo?.metaDescription ??
+      (product.description ? stripHtml(product.description).slice(0, 160) : undefined),
+    path: product.seo?.canonicalURL ?? `/produkty/${slug}`,
+    ogImage: product.seo?.metaImage ?? product.images?.[0] ?? null,
+  });
 }
 
 export async function generateStaticParams() {
@@ -47,15 +55,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const category = product.category;
 
   const breadcrumbItems = [
-    { name: 'Úvod', url: `${SITE_URL}/` },
-    { name: 'Produkty', url: `${SITE_URL}/products` },
+    { name: 'Úvod', url: getCanonicalUrl('/') },
+    { name: 'Produkty', url: getCanonicalUrl('/produkty') },
     ...(parentCategory
-      ? [{ name: parentCategory.name, url: `${SITE_URL}/products?tab=${parentCategory.slug}` }]
+      ? [{ name: parentCategory.name, url: getCanonicalUrl(`/produkty?tab=${parentCategory.slug}`) }]
       : []),
     ...(category
-      ? [{ name: category.name, url: `${SITE_URL}/products?tab=${parentCategory?.slug ?? category.slug}&sub=${category.slug}` }]
+      ? [{ name: category.name, url: getCanonicalUrl(`/produkty?tab=${parentCategory?.slug ?? category.slug}&sub=${category.slug}`) }]
       : []),
-    { name: product.name, url: `${SITE_URL}/products/${product.slug}` },
+    { name: product.name, url: getCanonicalUrl(`/produkty/${product.slug}`) },
   ];
 
   const breadcrumbJsonLd = {
@@ -75,6 +83,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildProductJsonLd(product)) }}
+      />
 
       <nav aria-label="Breadcrumb" className="mb-6">
         <ol className="flex items-center gap-1 text-sm text-muted-foreground flex-wrap">
@@ -83,13 +95,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </li>
           <li><ChevronRight className="h-3.5 w-3.5" /></li>
           <li>
-            <Link href="/products" className="hover:text-foreground transition-colors">Produkty</Link>
+            <Link href="/produkty" className="hover:text-foreground transition-colors">Produkty</Link>
           </li>
           {parentCategory && (
             <>
               <li><ChevronRight className="h-3.5 w-3.5" /></li>
               <li>
-                <Link href={`/products?tab=${parentCategory.slug}`} className="hover:text-foreground transition-colors">
+                <Link href={`/produkty?tab=${parentCategory.slug}`} className="hover:text-foreground transition-colors">
                   {parentCategory.name}
                 </Link>
               </li>
@@ -100,7 +112,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <li><ChevronRight className="h-3.5 w-3.5" /></li>
               <li>
                 <Link
-                  href={`/products?tab=${parentCategory?.slug ?? category.slug}&sub=${category.slug}`}
+                  href={`/produkty?tab=${parentCategory?.slug ?? category.slug}&sub=${category.slug}`}
                   className="hover:text-foreground transition-colors"
                 >
                   {category.name}

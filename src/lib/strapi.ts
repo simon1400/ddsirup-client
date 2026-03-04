@@ -93,6 +93,10 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
         'infoBoxes',
         'relatedProducts.images',
         'relatedProducts.variants',
+        'seo',
+        'seo.metaImage',
+        'seo.openGraph',
+        'seo.openGraph.ogImage',
       ],
       locale,
     },
@@ -135,7 +139,7 @@ export async function getCategory(slug: string, locale = 'cs'): Promise<Category
   const query = qs.stringify(
     {
       filters: { slug: { $eq: slug } },
-      populate: ['image', 'children', 'parent'],
+      populate: ['image', 'children', 'parent', 'seo', 'seo.metaImage', 'seo.openGraph'],
       locale,
     },
     { encodeValuesOnly: true }
@@ -283,6 +287,7 @@ export async function getHomepage(): Promise<Homepage | null> {
       populate: {
         heroVideo: true,
         heroCategories: { fields: ['name', 'slug', 'color'] },
+        seo: { populate: ['metaImage', 'openGraph', 'openGraph.ogImage'] },
         sections: {
           on: {
             'sections.categories-section': {
@@ -331,7 +336,11 @@ export async function getHomepage(): Promise<Homepage | null> {
 // ---- Contact Page ----
 
 export async function getContactPage(): Promise<ContactPage | null> {
-  const res = await strapiRequest<StrapiResponse<ContactPage>>('/contact-page', {
+  const query = qs.stringify(
+    { populate: ['seo', 'seo.metaImage', 'seo.openGraph'] },
+    { encodeValuesOnly: true }
+  );
+  const res = await strapiRequest<StrapiResponse<ContactPage>>(`/contact-page?${query}`, {
     next: { revalidate: 300, tags: ['contact-page'] },
   }).catch(() => null);
 
@@ -393,6 +402,7 @@ export async function getInfoPage(slug: string): Promise<InfoPage | null> {
   const query = qs.stringify(
     {
       filters: { slug: { $eq: slug } },
+      populate: ['seo', 'seo.metaImage', 'seo.openGraph'],
     },
     { encodeValuesOnly: true }
   );

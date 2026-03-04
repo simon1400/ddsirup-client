@@ -25,7 +25,7 @@ export function CartDrawer() {
           <div className="flex-1 flex flex-col items-center justify-center gap-4 text-muted-foreground">
             <p>Košík je prázdný</p>
             <Button variant="outline" onClick={closeCart} asChild>
-              <Link href="/products">Prohlédnout produkty</Link>
+              <Link href="/produkty">Prohlédnout produkty</Link>
             </Button>
           </div>
         ) : (
@@ -91,10 +91,10 @@ export function CartDrawer() {
               </div>
 
               <Button className="w-full" asChild onClick={closeCart}>
-                <Link href="/checkout">Přejít k pokladně</Link>
+                <Link href="/pokladna">Přejít k pokladně</Link>
               </Button>
               <Button variant="outline" className="w-full" asChild onClick={closeCart}>
-                <Link href="/cart">Zobrazit košík</Link>
+                <Link href="/kosik">Zobrazit košík</Link>
               </Button>
             </div>
           </>

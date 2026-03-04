@@ -11,12 +11,28 @@ const josefinSans = Josefin_Sans({
   weight: ['100', '300', '400', '600', '700'],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ddsirup.cz';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'ddsirup.co',
-    template: '%s | ddsirup.co',
+    default: 'DD Sirup | Prémiové české sirupy',
+    template: '%s | DD Sirup',
   },
-  description: 'Váš online obchod',
+  description:
+    'Prémiové české sirupy z přírodních ingrediencí. Ovocné, bylinné a hřejivé sirupy pro každého i pro barmany.',
+  openGraph: {
+    type: 'website',
+    locale: 'cs_CZ',
+    siteName: 'DD Sirup',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

@@ -19,7 +19,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const displayPrice = getMaxVariantPrice(product) ?? product.price;
 
   return (
-    <Link href={`/products/${product.slug}`} className="group flex flex-col items-center text-center">
+    <Link href={`/produkty/${product.slug}`} className="group flex flex-col items-center text-center">
       <div className="relative w-full aspect-2/3 mb-4 overflow-hidden">
         {thumbnailUrl ? (
           <Image
@@ -36,8 +36,8 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
-      <h3 className="font-bold text-base mb-1">{product.name}</h3>
-      <p className="text-sm font-medium text-price">{formatPrice(displayPrice)}</p>
+      <h3 className="font-bold text-2xl mb-1">{product.name}</h3>
+      <p className="text-lg font-semibold text-coral">{formatPrice(displayPrice)}</p>
     </Link>
   );
 }

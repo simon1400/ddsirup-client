@@ -16,7 +16,7 @@ export function SearchInput() {
     if (q) params.set('search', q);
     else params.delete('search');
     params.delete('page');
-    router.push(`/products?${params.toString()}`);
+    router.push(`/produkty?${params.toString()}`);
   }
 
   return (

@@ -107,7 +107,7 @@ export function CartSummary() {
         className="w-full bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-12 text-base"
         asChild
       >
-        <Link href="/checkout">Přejít k pokladně</Link>
+        <Link href="/pokladna">Přejít k pokladně</Link>
       </Button>
     </div>
   );

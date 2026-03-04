@@ -1,11 +1,18 @@
+import type { Metadata } from 'next';
 import { getContactPage, getGlobalInfo } from '@/lib/strapi';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { Container } from '@/components/ui/Container';
+import { buildPageMetadata } from '@/lib/seo';
 
-export const metadata = {
-  title: 'Kontakt | DD Sirup',
-  description: 'Kontaktujte nás – DD Sirup',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const contactPage = await getContactPage().catch(() => null);
+  return buildPageMetadata({
+    title: contactPage?.seo?.metaTitle ?? contactPage?.title ?? 'Kontakt',
+    description: contactPage?.seo?.metaDescription ?? `Kontaktujte DD Sirup. ${contactPage?.formDescription ?? 'Rádi vám odpovíme na vaše dotazy.'}`,
+    path: contactPage?.seo?.canonicalURL ?? '/kontakt',
+    ogImage: contactPage?.seo?.metaImage ?? null,
+  });
+}
 
 export default async function KontaktPage() {
   const [contactPage, globalInfo] = await Promise.all([

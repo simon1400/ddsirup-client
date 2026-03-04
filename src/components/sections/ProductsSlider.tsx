@@ -171,7 +171,7 @@ export function ProductsSlider({ section }: Props) {
           return (
             <Link
               key={`${product.documentId}-${idx}`}
-              href={`/products/${product.slug}`}
+              href={`/produkty/${product.slug}`}
               className="shrink-0 w-80 snap-start group"
               draggable={false}
             >
@@ -204,7 +204,7 @@ export function ProductsSlider({ section }: Props) {
 
       <div className="flex justify-center mt-8 px-4">
         <Link
-          href="/products"
+          href="/produkty"
           className="px-10 py-4 rounded-full font-bold uppercase text-sm tracking-widest text-white transition-opacity hover:opacity-90 bg-coral"
         >
           Máme jich víc, koukni

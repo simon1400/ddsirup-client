@@ -26,7 +26,7 @@ export function NavMenu({ items }: NavMenuProps) {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (search.trim()) {
-      router.push(`/products?search=${encodeURIComponent(search.trim())}`);
+      router.push(`/produkty?search=${encodeURIComponent(search.trim())}`);
       handleClose();
     }
   }
@@ -82,7 +82,7 @@ export function NavMenu({ items }: NavMenuProps) {
                     <div key={item.id}>
                       <div className="flex items-center justify-between border-b border-white/20">
                         <Link
-                          href={`/products?tab=${parentSlug}`}
+                          href={`/produkty?tab=${parentSlug}`}
                           className="flex-1 font-bold text-base py-3 text-white"
                           onClick={handleClose}
                         >
@@ -109,7 +109,7 @@ export function NavMenu({ items }: NavMenuProps) {
                           {item.category.children!.map((child) => (
                             <Link
                               key={child.id}
-                              href={`/products?tab=${parentSlug}&sub=${child.slug}`}
+                              href={`/produkty?tab=${parentSlug}&sub=${child.slug}`}
                               className="py-2.5 text-sm border-b border-white/20 text-white/75 hover:text-white transition-colors"
                               onClick={handleClose}
                             >
