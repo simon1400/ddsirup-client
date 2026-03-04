@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { QuantityControl } from '@/components/ui/QuantityControl';
 import { CartSummary } from '@/components/cart/CartSummary';
 import { CheckoutStepper } from '@/components/checkout/CheckoutStepper';
-import { ProductCard } from '@/components/shop/ProductCard';
+import RelatedProducts from '@/components/shop/RelatedProducts';
 import { Container } from '@/components/ui/Container';
 import { useCartStore } from '@/store/cart.store';
 import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
@@ -162,19 +162,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      {/* Related products */}
-      {relatedProducts.length > 0 && (
-        <div className="mt-20 mb-8">
-          <h2 className="text-3xl md:text-4xl font-black uppercase text-center mb-10">
-            Související produkty
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {relatedProducts.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </div>
-      )}
+      <RelatedProducts products={relatedProducts} className="mt-20 mb-8" />
     </Container>
   );
 }

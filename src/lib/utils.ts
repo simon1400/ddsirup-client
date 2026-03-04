@@ -30,6 +30,22 @@ export function getStrapiImageUrl(path?: string | null): string | null {
   return path.startsWith('http') ? path : `${STRAPI_URL}${path}`;
 }
 
+export function getPaymentLabel(method?: string): string {
+  switch (method) {
+    case 'CARD_ALL':
+      return 'Platební karta';
+    case 'BANK_ALL':
+      return 'Bankovní převod';
+    case 'GPAY':
+      return 'Google Pay';
+    case 'TEST':
+      return 'Testovací platba';
+    case 'ALL':
+    default:
+      return method ?? 'Comgate';
+  }
+}
+
 export function generateOrderNumber(): string {
   const date = new Date();
   const year = date.getFullYear();

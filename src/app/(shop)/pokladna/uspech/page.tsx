@@ -6,18 +6,18 @@ import {
   Calendar,
   Mail,
   CreditCard,
-  MapPin,
-  Phone,
+  Banknote,
   ArrowRight,
   Home,
-  Truck,
-  Banknote,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/Container';
 import { CheckoutStepper } from '@/components/checkout/CheckoutStepper';
+import { OrderMetaCard } from '@/components/checkout/success/OrderMetaCard';
+import { OrderDetailsCard } from '@/components/checkout/success/OrderDetailsCard';
+import { OrderAddresses } from '@/components/checkout/success/OrderAddresses';
 import { getOrderByNumber } from '@/lib/strapi';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getPaymentLabel } from '@/lib/utils';
 
 export const metadata: Metadata = {
   title: 'Objednávka přijata',
@@ -96,214 +96,8 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
 
         {order && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-            {/* Order items — left 2 cols */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-white rounded-2xl border p-6">
-                <h2 className="text-xl font-bold mb-4">
-                  Podrobnosti objednávky
-                </h2>
-
-                {/* Table header */}
-                <div className="hidden sm:grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground pb-3 border-b">
-                  <span className="col-span-6">Produkt</span>
-                  <span className="col-span-2 text-right">Cena</span>
-                  <span className="col-span-2 text-center">Množství</span>
-                  <span className="col-span-2 text-right">Celkem</span>
-                </div>
-
-                {/* Items */}
-                <div className="divide-y">
-                  {order.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="grid grid-cols-12 gap-4 py-4 items-center text-sm"
-                    >
-                      <div className="col-span-12 sm:col-span-6">
-                        <Link
-                          href={`/produkty/${item.productSlug}`}
-                          className="font-bold text-coral underline hover:underline"
-                        >
-                          {item.productName}
-                        </Link>
-                        {item.variantName && (
-                          <span className="text-muted-foreground ml-1">
-                            — {item.variantName}
-                          </span>
-                        )}
-                      </div>
-                      <div className="col-span-4 sm:col-span-2 text-right text-muted-foreground">
-                        {formatPrice(item.unitPrice)}
-                      </div>
-                      <div className="col-span-4 sm:col-span-2 text-center">
-                        {item.quantity}×
-                      </div>
-                      <div className="col-span-4 sm:col-span-2 text-right font-medium text-coral">
-                        {formatPrice(item.totalPrice)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Totals */}
-                <div className="border-t pt-4 mt-2 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Mezisoučet</span>
-                    <span>{formatPrice(order.subtotal)}</span>
-                  </div>
-                  {order.discountAmount && order.discountAmount > 0 && (
-                    <div className="flex justify-between text-green-600">
-                      <span>
-                        Sleva{order.couponCode ? ` (${order.couponCode})` : ''}
-                      </span>
-                      <span>−{formatPrice(order.discountAmount)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Doprava</span>
-                    <span>
-                      {getShippingLabel(order.shippingCost)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Způsob platby</span>
-                    <span>{getPaymentLabel(order.paymentMethod)}</span>
-                  </div>
-                  <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                    <span>Cena celkem</span>
-                    <span className="text-coral">
-                      {formatPrice(order.total)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Extra info */}
-              {(order.customerForChildren !== undefined ||
-                order.customerForBar !== undefined) && (
-                <div className="bg-white rounded-2xl border p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div className="flex justify-between sm:block">
-                      <span className="text-muted-foreground">
-                        Nakupuji pro děti?
-                      </span>
-                      <span className="sm:ml-2 font-medium">
-                        {order.customerForChildren ? 'Ano' : 'Ne'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between sm:block">
-                      <span className="text-muted-foreground">
-                        Nakupuji pro bar?
-                      </span>
-                      <span className="sm:ml-2 font-medium">
-                        {order.customerForBar ? 'Ano' : 'Ne'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Right sidebar — Address & Info */}
-            <div className="space-y-6">
-              {/* Billing address */}
-              {order.billingAddress && (
-                <div className="bg-green-soft/30 rounded-2xl p-6">
-                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-green-text" />
-                    Fakturační adresa
-                  </h3>
-                  <div className="text-sm space-y-1">
-                    <p className="font-medium">
-                      {order.customerFirstName} {order.customerLastName}
-                    </p>
-                    {order.billingAddress.company && (
-                      <p>{order.billingAddress.company}</p>
-                    )}
-                    <p>{order.billingAddress.street}</p>
-                    {order.billingAddress.streetLine2 && (
-                      <p>{order.billingAddress.streetLine2}</p>
-                    )}
-                    <p>
-                      {order.billingAddress.zip} {order.billingAddress.city}
-                    </p>
-                    {order.billingAddress.ico && (
-                      <p className="pt-1">IČO: {order.billingAddress.ico}</p>
-                    )}
-                    {order.billingAddress.dic && (
-                      <p>DIČ: {order.billingAddress.dic}</p>
-                    )}
-                  </div>
-                  <div className="text-sm space-y-2 mt-4 pt-4 border-t border-green-text/10">
-                    {order.customerPhone && (
-                      <p className="flex items-center gap-1.5">
-                        <Phone className="w-3.5 h-3.5 text-muted-foreground" />
-                        {order.customerPhone}
-                      </p>
-                    )}
-                    <p className="flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-muted-foreground" />
-                      {order.customerEmail}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Contact info fallback (when no billing address) */}
-              {!order.billingAddress && (
-                <div className="bg-green-soft/30 rounded-2xl p-6">
-                  <div className="text-sm space-y-2">
-                    {order.customerPhone && (
-                      <p className="flex items-center gap-1.5 text-muted-foreground">
-                        <Phone className="w-3.5 h-3.5" />
-                        {order.customerPhone}
-                      </p>
-                    )}
-                    <p className="flex items-center gap-1.5 text-muted-foreground">
-                      <Mail className="w-3.5 h-3.5" />
-                      {order.customerEmail}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Shipping address (if different) */}
-              {order.shippingAddress &&
-                order.billingAddress &&
-                order.shippingAddress.street !==
-                  order.billingAddress.street && (
-                  <div className="bg-category-yellow/20 rounded-2xl p-6">
-                    <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-                      <Truck className="w-5 h-5 text-yellow-700" />
-                      Doručovací adresa
-                    </h3>
-                    <div className="text-sm space-y-1">
-                      {order.shippingAddress.company && (
-                        <p className="font-medium">
-                          {order.shippingAddress.company}
-                        </p>
-                      )}
-                      <p>{order.shippingAddress.street}</p>
-                      {order.shippingAddress.streetLine2 && (
-                        <p>{order.shippingAddress.streetLine2}</p>
-                      )}
-                      <p>
-                        {order.shippingAddress.zip}{' '}
-                        {order.shippingAddress.city}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-              {/* Notes */}
-              {order.notes && (
-                <div className="bg-muted/50 rounded-2xl p-6">
-                  <h3 className="font-bold text-sm mb-2 text-muted-foreground uppercase tracking-wide">
-                    Poznámky
-                  </h3>
-                  <p className="text-sm">{order.notes}</p>
-                </div>
-              )}
-            </div>
+            <OrderDetailsCard order={order} />
+            <OrderAddresses order={order} />
           </div>
         )}
 
@@ -328,48 +122,4 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
       </Container>
     </div>
   );
-}
-
-function OrderMetaCard({
-  icon,
-  label,
-  value,
-  highlight,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="bg-muted/50 rounded-2xl p-4 text-center">
-      <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white mb-2">
-        {icon}
-      </div>
-      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-        {label}
-      </p>
-      <p className={`font-bold text-md truncate ${highlight ? 'text-coral' : ''}`}>{value}</p>
-    </div>
-  );
-}
-
-function getShippingLabel(cost: number): string {
-  return `Messenger (${cost} Kč)`;
-}
-
-function getPaymentLabel(method?: string): string {
-  switch (method) {
-    case 'CARD_ALL':
-      return 'Platební karta';
-    case 'BANK_ALL':
-      return 'Bankovní převod';
-    case 'GPAY':
-      return 'Google Pay';
-    case 'TEST':
-      return 'Testovací platba';
-    case 'ALL':
-    default:
-      return 'Comgate';
-  }
 }

@@ -1,6 +1,5 @@
 import type { Product, ProductInfoBox } from '@/types/product';
-import { ProductCard } from '@/components/shop/ProductCard';
-import { INFO_BOX_COLORS } from '@/lib/constants';
+import RelatedProducts from '@/components/shop/RelatedProducts';
 
 /**
  * Returns true if the background color is dark (text should be white).
@@ -79,16 +78,7 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
         </div>
       )}
 
-      {hasRelated && (
-        <div className={'my-25'}>
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-6">Související produkty</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {product.relatedProducts!.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </div>
-      )}
+      <RelatedProducts products={product.relatedProducts ?? []} />
     </div>
   );
 }

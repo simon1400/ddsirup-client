@@ -1,5 +1,6 @@
 import type { Order } from '@/types/order';
 import type { GlobalInfo } from '@/types/global-info';
+import { getPaymentLabel } from '@/lib/utils';
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://ddsirup.co';
 const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
@@ -16,16 +17,7 @@ function formatDate(dateStr: string): string {
   return `${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`;
 }
 
-function getPaymentLabel(method?: string): string {
-  switch (method) {
-    case 'CARD_ALL': return 'Platební karta';
-    case 'BANK_ALL': return 'Bankovní převod';
-    case 'GPAY': return 'Google Pay';
-    case 'ALL': return 'Comgate';
-    case 'TEST': return 'Testovací platba';
-    default: return method ?? 'Comgate';
-  }
-}
+
 
 function getShippingLabel(cost: number): string {
   return `Messenger (${formatPrice(cost)})`;
