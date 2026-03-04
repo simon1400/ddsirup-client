@@ -32,16 +32,17 @@ export function AddressFields({ prefix, form }: AddressFieldsProps) {
         <input type="hidden" {...reg('country')} value="CZ" />
       </div>
 
-      <div>
-        <Label>Ulice a č.p. *</Label>
-        <Input className="mt-1" {...reg('street')} />
-        <FieldError message={errors?.street?.message} />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>Ulice a č.p. *</Label>
+          <Input className="mt-1" {...reg('street')} />
+          <FieldError message={errors?.street?.message} />
+        </div>
+        <div>
+          <Label>Číslo bytu, pokoje atd.</Label>
+          <Input className="mt-1" {...reg('streetLine2')} />
+        </div>
       </div>
-
-      <Input
-        placeholder="Číslo bytu, hotelového pokoje atd. (nepovinné)"
-        {...reg('streetLine2')}
-      />
 
       <div className="grid grid-cols-2 gap-4">
         <div>

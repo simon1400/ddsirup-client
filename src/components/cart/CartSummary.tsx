@@ -47,7 +47,7 @@ export function CartSummary() {
 
   return (
     <div className="bg-muted/50 rounded-2xl p-6 space-y-5 sticky top-24">
-      <h2 className="text-2xl font-bold italic text-coral">Celkem k platbě</h2>
+      <h2 className="text-2xl font-bold text-coral">Celkem k platbě</h2>
 
       <div className="space-y-3 text-sm">
         <div className="flex justify-between items-center border-b pb-3">
@@ -75,14 +75,14 @@ export function CartSummary() {
           )}
         </div>
 
-        <div className="flex justify-between items-center pt-1">
+        <div className="flex justify-between items-baseline pt-1">
           <span className="font-semibold text-base">Cena celkem</span>
-          <span className="text-coral font-bold text-base">
-            {formatPrice(total)}{' '}
-            <span className="text-xs text-muted-foreground font-normal">
-              (včetně {formatPrice(dph)} 12% DPH)
-            </span>
-          </span>
+          <div className="text-right">
+            <span className="text-coral font-bold text-lg">{formatPrice(total)}</span>
+            <p className="text-xs text-muted-foreground font-normal">
+              včetně {formatPrice(dph)} 12% DPH
+            </p>
+          </div>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ export function CartSummary() {
         <AppliedCouponBadge coupon={appliedCoupon} onRemove={removeCoupon} />
       ) : (
         <div className="space-y-2">
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <Input
               placeholder="Kód kuponu"
               value={couponInput}
@@ -100,12 +100,12 @@ export function CartSummary() {
                 setCouponError(null);
               }}
               onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
-              className="h-10"
+              className="h-12 rounded-full px-5 text-sm"
             />
             <Button
               onClick={handleApplyCoupon}
               disabled={couponLoading || !couponInput.trim()}
-              className="bg-coral hover:bg-coral/90 text-white h-10 px-5 rounded-full font-bold shrink-0"
+              className="bg-coral hover:bg-coral/90 text-white h-12 px-6 rounded-full font-bold shrink-0 w-full sm:w-auto"
             >
               {couponLoading ? '...' : 'Použít kupon'}
             </Button>
@@ -115,7 +115,7 @@ export function CartSummary() {
       )}
 
       <Button
-        className="w-full bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-12 text-base"
+        className="w-full bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-14 text-base"
         asChild
       >
         <Link href="/pokladna">Přejít k pokladně</Link>

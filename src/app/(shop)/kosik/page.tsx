@@ -61,56 +61,94 @@ export default function CartPage() {
             {items.map((item) => {
               const imgUrl = getStrapiImageUrl(item.thumbnail);
               return (
-                <div
-                  key={item.id}
-                  className="grid grid-cols-[1fr] sm:grid-cols-[1fr_auto_auto_auto] gap-4 py-4 items-center"
-                >
-                  {/* Product */}
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="text-coral hover:text-coral/70 shrink-0"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                    <div className="relative h-16 w-12 shrink-0">
+                <div key={item.id} className="py-4">
+                  {/* Desktop row */}
+                  <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="text-coral hover:text-coral/70 shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <div className="relative h-16 w-12 shrink-0">
+                        {imgUrl ? (
+                          <Image src={imgUrl} alt={item.name} fill className="object-contain" />
+                        ) : (
+                          <div className="w-full h-full bg-muted rounded" />
+                        )}
+                      </div>
+                      <div>
+                        <Link href={`/produkty/${item.slug}`} className="font-medium hover:underline text-sm">
+                          {item.name}
+                        </Link>
+                        {item.variant && (
+                          <p className="text-xs text-muted-foreground">{item.variant.name}</p>
+                        )}
+                      </div>
+                    </div>
+                    <span className="w-24 text-center text-sm text-coral font-medium">
+                      {formatPrice(item.price)}
+                    </span>
+                    <div className="w-28 flex justify-center">
+                      <QuantityControl
+                        value={item.quantity}
+                        onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
+                        onIncrement={() => updateQuantity(item.id, item.quantity + 1)}
+                        max={item.stock}
+                        size="md"
+                        bordered
+                      />
+                    </div>
+                    <span className="w-24 text-right text-sm text-coral font-medium">
+                      {formatPrice(item.price * item.quantity)}
+                    </span>
+                  </div>
+
+                  {/* Mobile card */}
+                  <div className="sm:hidden flex gap-3">
+                    <div className="relative h-20 w-16 shrink-0">
                       {imgUrl ? (
                         <Image src={imgUrl} alt={item.name} fill className="object-contain" />
                       ) : (
                         <div className="w-full h-full bg-muted rounded" />
                       )}
                     </div>
-                    <div>
-                      <Link href={`/produkty/${item.slug}`} className="font-medium hover:underline text-sm">
-                        {item.name}
-                      </Link>
-                      {item.variant && (
-                        <p className="text-xs text-muted-foreground">{item.variant.name}</p>
-                      )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <Link href={`/produkty/${item.slug}`} className="font-medium hover:underline text-sm leading-tight">
+                            {item.name}
+                          </Link>
+                          {item.variant && (
+                            <p className="text-xs text-muted-foreground">{item.variant.name}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="text-coral hover:text-coral/70 shrink-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-sm text-coral font-medium mt-1">
+                        {formatPrice(item.price)}
+                      </p>
+                      <div className="flex items-center justify-between mt-2">
+                        <QuantityControl
+                          value={item.quantity}
+                          onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
+                          onIncrement={() => updateQuantity(item.id, item.quantity + 1)}
+                          max={item.stock}
+                          size="md"
+                          bordered
+                        />
+                        <span className="text-sm text-coral font-medium">
+                          {formatPrice(item.price * item.quantity)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Price */}
-                  <span className="w-24 text-center text-sm text-coral font-medium">
-                    {formatPrice(item.price)}
-                  </span>
-
-                  {/* Quantity */}
-                  <div className="w-28 flex justify-center">
-                    <QuantityControl
-                      value={item.quantity}
-                      onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
-                      onIncrement={() => updateQuantity(item.id, item.quantity + 1)}
-                      max={item.stock}
-                      size="md"
-                      bordered
-                    />
-                  </div>
-
-                  {/* Subtotal */}
-                  <span className="w-24 text-right text-sm text-coral font-medium">
-                    {formatPrice(item.price * item.quantity)}
-                  </span>
                 </div>
               );
             })}

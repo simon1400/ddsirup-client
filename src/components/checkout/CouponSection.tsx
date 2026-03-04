@@ -43,7 +43,7 @@ export function CouponSection() {
 
   return (
     <section className="space-y-2">
-      <label className="flex cursor-pointer items-center gap-3">
+      <label className="flex cursor-pointer items-start gap-3">
         <input
           type="checkbox"
           checked={isOpen}
@@ -51,7 +51,7 @@ export function CouponSection() {
             setIsOpen(e.target.checked);
             setError(null);
           }}
-          className="h-4 w-4 rounded border-gray-300 accent-foreground"
+          className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 accent-foreground"
         />
         <span className="text-sm">Máte kupon? Klikněte zde a zadejte Váš kód</span>
       </label>

@@ -32,7 +32,10 @@ export function ProductsSlider({ section }: Props) {
     const el = scrollRef.current;
     if (!el || visibleProducts.length === 0) return;
 
-    const cardWidth = 344; // 320px card + 24px gap
+    // Measure actual card width (card + gap) from the DOM
+    const firstCard = el.querySelector(':scope > a') as HTMLElement | null;
+    const gap = 24;
+    const cardWidth = firstCard ? firstCard.offsetWidth + gap : 344;
     const singleSetWidth = visibleProducts.length * cardWidth;
     // Start in the middle zone so we have room to scroll both directions
     const midPoint = Math.floor(copies / 2) * singleSetWidth;
@@ -162,7 +165,7 @@ export function ProductsSlider({ section }: Props) {
 
       <div
         ref={scrollRef}
-        className="flex gap-6 overflow-x-hidden pb-4 cursor-grab select-none"
+        className="flex gap-0 md:gap-6 overflow-x-hidden pb-4 cursor-grab select-none"
       >
         {items.map((product, idx) => {
           const price = getMaxPrice(product);
@@ -191,9 +194,9 @@ export function ProductsSlider({ section }: Props) {
                   </div>
                 )}
               </div>
-              <p className="font-bold text-center text-sm leading-tight mb-1">{product.name}</p>
+              <p className="font-bold text-center text-2xl leading-tight mb-1">{product.name}</p>
               {price > 0 && (
-                <p className="text-center text-sm font-semibold text-price">
+                <p className="text-center text-xl font-bold text-coral">
                   {formatPrice(price)}
                 </p>
               )}
@@ -202,7 +205,7 @@ export function ProductsSlider({ section }: Props) {
         })}
       </div>
 
-      <div className="flex justify-center mt-8 px-4">
+      <div className="flex justify-center mt-20 px-4">
         <Link
           href="/produkty"
           className="px-10 py-4 rounded-full font-bold uppercase text-sm tracking-widest text-white transition-opacity hover:opacity-90 bg-coral"

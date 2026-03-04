@@ -146,7 +146,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Info */}
         <div className="space-y-4">
-          <h1 className="text-6xl font-bold">{product.name}</h1>
+          <h1 className="text-4xl md:text-6xl font-bold">{product.name}</h1>
 
           <ProductVariantSection product={product} />
 
@@ -154,7 +154,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <>
               <Separator />
               <div
-                className="prose prose-sm max-w-none text-xl"
+                className="prose prose-sm max-w-none text-md md:text-xl"
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
             </>

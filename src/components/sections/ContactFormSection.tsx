@@ -44,11 +44,11 @@ export function ContactFormSection({ section }: Props) {
   };
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-20">
       <Container size="default">
         <div className="rounded-3xl p-8 md:p-12 border border-coral/30">
           {/* Header */}
-          <div className="flex items-start gap-4 mb-8">
+          <div className="flex items-start gap-4 mb-8 flex-wrap md:flex-nowrap justify-center">
             {section.icon?.url ? (
               <div className="w-14 h-14 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
                 <Image

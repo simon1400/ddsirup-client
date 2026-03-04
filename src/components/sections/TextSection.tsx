@@ -33,7 +33,7 @@ export function TextSection({ section }: Props) {
       {/* Content */}
       <Container size="md" className="relative z-10 text-center py-16 md:py-24">
         {section.title && (
-          <h2 className="text-3xl md:text-8xl font-black uppercase mb-6 text-white">
+          <h2 className="text-5xl md:text-8xl font-black uppercase mb-6 text-white">
             {section.title}
           </h2>
         )}

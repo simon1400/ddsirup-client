@@ -41,7 +41,7 @@ export function HeroSection({ hero }: Props) {
         </h1>
         {hero.subtitle && (
           <p
-            className="text-xl md:text-4xl font-semibold mb-10"
+            className="text-2xl md:text-4xl font-semibold mb-10"
             style={{ textShadow: '0 1px 8px rgba(0,0,0,0.95), 0 4px 24px rgba(0,0,0,0.7)' }}
           >
             {hero.subtitle}
@@ -50,12 +50,12 @@ export function HeroSection({ hero }: Props) {
 
         {/* Category buttons */}
         {categories.length > 0 && (
-          <div className="flex flex-wrap gap-10 justify-center">
+          <div className="flex flex-wrap gap-5 md:gap-10 justify-center">
             {categories.slice(0, 2).map((cat, i) => (
               <Link
                 key={cat.documentId}
                 href={`/produkty?tab=${cat.slug}`}
-                className="px-30 py-6 rounded-full font-bold uppercase text-lg tracking-widest text-gray-900 transition-opacity hover:opacity-90"
+                className="px-20 md:px-30 py-6 rounded-full font-bold uppercase text-lg tracking-widest text-gray-900 transition-opacity hover:opacity-90"
                 style={{
                   backgroundColor: cat.color ?? CATEGORY_COLORS[i] ?? '#F0D060',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3)',

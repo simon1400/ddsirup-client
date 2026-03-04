@@ -146,17 +146,17 @@ export function CheckoutForm() {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
         {/* Left column — Billing */}
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           <BillingSection form={form} />
         </div>
 
         {/* Right column — Shipping, Notes, Payment, Summary */}
-        <div className="space-y-6">
+        <div className="space-y-4 lg:space-y-6">
           <ShippingSection form={form} shipToDifferentAddress={shipToDifferentAddress} />
 
-          <div className="border-t pt-6">
+          <div className="border-t pt-4 lg:pt-6">
             <h2 className="text-lg font-semibold mb-3">Další informace</h2>
             <div>
               <Label htmlFor="notes">Poznámky k objednávce (volitelný)</Label>
@@ -170,7 +170,7 @@ export function CheckoutForm() {
             </div>
           </div>
 
-          <div className="border-t pt-6">
+          <div className="border-t pt-4 lg:pt-6">
             <h2 className="text-lg font-semibold mb-3">Způsob platby</h2>
             <PaymentSection form={form} currentMethod={paymentMethod} />
           </div>
@@ -191,21 +191,14 @@ export function CheckoutForm() {
 
             <CouponSection />
 
-            <p className="text-xs text-muted-foreground">
-              Vaše osobní údaje budou použity k vyřízení Vaší objednávky, zvýšení spokojenosti po celou
-              dobu procházení tohoto webu a k dalším účelům popsaným na stránce{' '}
-              <a href="/ochrana-osobnich-udaju" className="underline hover:text-foreground">
-                ochrana osobních údajů
-              </a>
-              .
-            </p>
+            
 
             <div className="space-y-1">
               <label className="flex cursor-pointer items-start gap-3">
                 <input
                   type="checkbox"
                   id="agreedToTerms"
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-foreground"
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 accent-foreground"
                   {...form.register('agreedToTerms')}
                 />
                 <span className="text-sm">
@@ -218,6 +211,14 @@ export function CheckoutForm() {
               </label>
               <FieldError message={errors.agreedToTerms?.message} />
             </div>
+            <p className="text-xs text-muted-foreground">
+              Vaše osobní údaje budou použity k vyřízení Vaší objednávky, zvýšení spokojenosti po celou
+              dobu procházení tohoto webu a k dalším účelům popsaným na stránce{' '}
+              <a href="/ochrana-osobnich-udaju" className="underline hover:text-foreground">
+                ochrana osobních údajů
+              </a>
+              .
+            </p>
 
             {error && (
               <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>

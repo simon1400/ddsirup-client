@@ -15,7 +15,6 @@ export function CategoriesSection({ section }: Props) {
   const parentMap = new Map<string, { parent: Category; children: Category[] }>();
   for (const cat of categories) {
     const parentSlug = cat.parent?.slug ?? cat.slug;
-    const parentName = cat.parent?.name ?? cat.name;
     if (!parentMap.has(parentSlug)) {
       parentMap.set(parentSlug, {
         parent: cat.parent ?? cat,
@@ -50,7 +49,7 @@ export function CategoriesSection({ section }: Props) {
 
           {/* Right: grouped categories */}
           {groups.length > 0 && (
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-7">
               {groups.map((group, i) => {
                 const color = CATEGORY_COLORS[i] ?? '#E0E0E0';
                 return (
@@ -66,12 +65,12 @@ export function CategoriesSection({ section }: Props) {
 
                     {/* Subcategories */}
                     {group.children.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pl-3">
+                      <div className="flex flex-wrap gap-3 pl-3">
                         {group.children.map((child) => (
                           <Link
                             key={child.documentId}
                             href={`/produkty?tab=${group.parent.slug}&sub=${child.slug}`}
-                            className="px-4 py-1.5 rounded-full text-sm font-medium transition-all hover:scale-105"
+                            className="px-4 py-1.5 rounded-full text-md font-medium transition-all hover:scale-105"
                             style={{ backgroundColor: '#f5f5f0', color: '#555' }}
                           >
                             {child.name}

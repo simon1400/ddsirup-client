@@ -12,7 +12,7 @@ export function FeaturesSection({ section }: Props) {
   const blocks = section.blocks ?? [];
 
   return (
-    <section className="py-20 px-4">
+    <section className="py-20">
       <Container size="xl">
         {section.title && (
           <h2 className="text-3xl md:text-6xl font-black uppercase text-center mb-12">

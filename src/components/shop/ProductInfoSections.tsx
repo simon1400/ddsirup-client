@@ -28,12 +28,12 @@ function InfoBox({ box, index }: { box: ProductInfoBox; index: number }) {
 
   return (
     <div className="rounded-2xl p-6 break-inside-avoid" style={{ backgroundColor: bg }}>
-      <h3 className="font-bold text-3xl mb-3" style={{ color: textColor }}>
+      <h3 className="font-bold text-2xl md:text-3xl mb-3" style={{ color: textColor }}>
         {box.title}
       </h3>
       <ul className="space-y-1">
         {lines.map((line, i) => (
-          <li key={i} className="text-lg flex gap-2" style={{ color: textColor }}>
+          <li key={i} className="text-md md:text-lg flex gap-2" style={{ color: textColor }}>
             <span>•</span>
             <span>{line.replace(/^[-•]\s*/, '')}</span>
           </li>
@@ -55,7 +55,7 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
   if (!hasBoxes && !hasFooter && !hasRelated) return null;
 
   return (
-    <div className="mt-25 space-y-10">
+    <div className="mt-15 md:mt-25 space-y-10">
       {hasBoxes && (
         <div className="columns-1 sm:columns-2 gap-4 space-y-4">
           {product.infoBoxes!.map((box, i) => (
@@ -81,7 +81,7 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
 
       {hasRelated && (
         <div className={'my-25'}>
-          <h2 className="text-5xl font-bold text-center mb-6">Související produkty</h2>
+          <h2 className="text-3xl md:text-5xl font-bold text-center mb-6">Související produkty</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {product.relatedProducts!.map((p) => (
               <ProductCard key={p.id} product={p} />
