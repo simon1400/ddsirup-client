@@ -11,7 +11,7 @@ import { validateCoupon } from '@/lib/strapi';
 
 export function CartSummary() {
   const { appliedCoupon, applyCoupon, removeCoupon } = useCartStore();
-  const { subtotal, discount, shipping, total } = useCartTotals();
+  const { subtotal, discount, shipping, total, totalWeight, packageCount } = useCartTotals();
 
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
@@ -54,14 +54,15 @@ export function CartSummary() {
 
         <div className="border-b pb-3">
           <div className="flex justify-between items-center">
-            <span className="font-medium">Zásilka 1</span>
-            <span className="font-medium">
-              {shipping === 0 ? 'Místní vyzvednutí' : formatPrice(shipping)}
-            </span>
+            <span className="font-medium">Doprava (Messenger)</span>
+            <span className="font-medium">{formatPrice(shipping)}</span>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            Možnosti přepravy budou aktualizovány na stránce pokladny.
-          </p>
+          {totalWeight > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              {totalWeight.toFixed(1)} kg · {packageCount}{' '}
+              {packageCount === 1 ? 'balík' : packageCount < 5 ? 'balíky' : 'balíků'}
+            </p>
+          )}
         </div>
 
         <div className="flex justify-between items-center pt-1">

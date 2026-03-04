@@ -22,6 +22,9 @@ export interface CartTotals {
   subtotal: number;
   discount: number;
   shipping: number;
+  shippingWithoutVat: number;
+  totalWeight: number;
+  packageCount: number;
   total: number;
   itemCount: number;
 }

@@ -4,8 +4,12 @@ import {
   getOrderByNumber,
   updateOrderPayment,
   assignInvoiceNumber,
+  updateOrderTracking,
 } from '@/lib/strapi';
 import { sendOrderConfirmation } from '@/lib/send-order-confirmation';
+import { createMessengerShipment } from '@/lib/messenger';
+import { getBottleWeight } from '@/lib/shipping';
+import { MESSENGER_PACKAGE_MAX_KG } from '@/lib/constants';
 
 /**
  * Comgate webhook handler
@@ -69,6 +73,36 @@ export async function POST(req: NextRequest) {
       } catch (emailErr) {
         // Email failure is non-fatal — order is already updated
         console.error('[webhook] Failed to send confirmation email:', emailErr);
+      }
+
+      // Create Messenger shipment (non-fatal)
+      try {
+        const shippingAddr = order.shippingAddress ?? order.billingAddress;
+        const totalWeight = order.items.reduce(
+          (sum, item) => sum + getBottleWeight(item.variantVolume) * item.quantity,
+          0,
+        );
+        const packageCount = Math.max(1, Math.ceil(totalWeight / MESSENGER_PACKAGE_MAX_KG));
+
+        const shipment = await createMessengerShipment({
+          deliveryAddress: shippingAddr,
+          customerName: `${order.customerFirstName} ${order.customerLastName}`,
+          customerPhone: order.customerPhone,
+          customerEmail: order.customerEmail,
+          weightKg: totalWeight,
+          packageCount,
+          orderNumber: order.orderNumber,
+          notes: order.notes,
+        });
+
+        await updateOrderTracking(order.documentId, {
+          messengerShipmentId: shipment.shipmentId,
+          messengerTrackingCode: shipment.trackingCode,
+          messengerTrackingUrl: shipment.trackingUrl,
+        });
+        console.log(`[webhook] Messenger shipment created for order ${refId}: ${shipment.trackingCode}`);
+      } catch (messengerErr) {
+        console.error('[webhook] Failed to create Messenger shipment:', messengerErr);
       }
     }
 

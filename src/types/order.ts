@@ -70,6 +70,10 @@ export interface Order {
   customerForChildren?: boolean;
   customerForBar?: boolean;
   invoiceNumber?: string;
+  totalWeight?: number;
+  messengerShipmentId?: string;
+  messengerTrackingCode?: string;
+  messengerTrackingUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,6 +84,7 @@ export interface CreateOrderPayload {
   items: Omit<OrderItem, 'id'>[];
   subtotal: number;
   shippingCost: number;
+  totalWeight?: number;
   total: number;
   currency: string;
   customerEmail: string;

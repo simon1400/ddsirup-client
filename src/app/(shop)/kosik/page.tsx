@@ -91,7 +91,7 @@ export default function CartPage() {
                   </div>
 
                   {/* Price */}
-                  <span className="w-24 text-center text-sm text-price font-medium">
+                  <span className="w-24 text-center text-sm text-coral font-medium">
                     {formatPrice(item.price)}
                   </span>
 
@@ -108,7 +108,7 @@ export default function CartPage() {
                   </div>
 
                   {/* Subtotal */}
-                  <span className="w-24 text-right text-sm text-price font-medium">
+                  <span className="w-24 text-right text-sm text-coral font-medium">
                     {formatPrice(item.price * item.quantity)}
                   </span>
                 </div>

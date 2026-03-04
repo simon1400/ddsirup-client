@@ -20,7 +20,7 @@ import { PaymentSection } from './PaymentSection';
 export function CheckoutForm() {
   const router = useRouter();
   const { items, clearCart, appliedCoupon } = useCartStore();
-  const { subtotal, discount, shipping, total } = useCartTotals();
+  const { subtotal, discount, shipping, total, totalWeight, packageCount } = useCartTotals();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -109,6 +109,7 @@ export function CheckoutForm() {
           })),
           subtotal,
           shippingCost: shipping,
+          totalWeight,
           total,
           currency: 'CZK',
           customerEmail: values.email,
@@ -184,6 +185,8 @@ export function CheckoutForm() {
               shipping={shipping}
               total={total}
               couponCode={appliedCoupon?.code}
+              totalWeight={totalWeight}
+              packageCount={packageCount}
             />
 
             <CouponSection />

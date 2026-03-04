@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { CartItem, CartTotals } from '@/types/cart';
 import type { AppliedCoupon } from '@/types/coupon';
+import { calculateShipping } from '@/lib/shipping';
 
 interface CartStore {
   items: CartItem[];
@@ -19,9 +20,6 @@ interface CartStore {
   applyCoupon: (coupon: AppliedCoupon) => void;
   removeCoupon: () => void;
 }
-
-const SHIPPING_FREE_THRESHOLD = 1500; // CZK
-const SHIPPING_COST = 99; // CZK
 
 export const useCartStore = create<CartStore>()(
   persist(
@@ -81,7 +79,10 @@ export function useCartTotals(): CartTotals {
 
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
-  const shipping = subtotal >= SHIPPING_FREE_THRESHOLD || itemCount === 0 ? 0 : SHIPPING_COST;
+
+  const shippingCalc = calculateShipping(items);
+  const shipping = itemCount === 0 ? 0 : shippingCalc.priceWithVat;
+  const shippingWithoutVat = itemCount === 0 ? 0 : shippingCalc.priceWithoutVat;
 
   let discount = 0;
   if (appliedCoupon) {
@@ -93,7 +94,16 @@ export function useCartTotals(): CartTotals {
   }
 
   const total = Math.max(0, subtotal - discount + shipping);
-  return { subtotal, discount, shipping, total, itemCount };
+  return {
+    subtotal,
+    discount,
+    shipping,
+    shippingWithoutVat,
+    totalWeight: shippingCalc.totalWeightKg,
+    packageCount: shippingCalc.packageCount,
+    total,
+    itemCount,
+  };
 }
 
 export function useCartItemCount(): number {

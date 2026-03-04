@@ -355,8 +355,7 @@ function OrderMetaCard({
 }
 
 function getShippingLabel(cost: number): string {
-  if (cost === 0) return 'Místní vyzvednutí';
-  return `Doručení (${cost} Kč)`;
+  return `Messenger (${cost} Kč)`;
 }
 
 function getPaymentLabel(method?: string): string {

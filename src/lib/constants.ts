@@ -17,3 +17,43 @@ export const FEATURE_BLOCK_COLORS = [
   { bg: 'var(--color-coral)',      title: '#FFFFFF', text: '#FFFFFF', button: '#7A2020' },
   { bg: 'var(--color-green-soft)', title: '#2A4A20', text: '#2A4A20', button: '#2D4A2A' },
 ] as const;
+
+// ── Shipping (Messenger) ────────────────────────────────────────────────
+
+/** Weight in kg per bottle volume (liters) */
+export const BOTTLE_WEIGHTS: Record<number, number> = {
+  1: 1.63,    // 1L bottle
+  0.5: 0.860, // 0.5L bottle
+};
+export const DEFAULT_BOTTLE_WEIGHT = 1.63;
+
+/** Max weight per Messenger package in kg */
+export const MESSENGER_PACKAGE_MAX_KG = 10;
+
+/** Shipping price table per number of packages (bez DPH). Index = package count. */
+export const MESSENGER_PRICE_TABLE = [
+  0,     // 0 — placeholder
+  145,   // 1 zásilka
+  220,   // 2
+  295,   // 3
+  370,   // 4
+  445,   // 5
+  520,   // 6
+  595,   // 7
+  670,   // 8
+  745,   // 9
+  820,   // 10
+  895,   // 11
+  970,   // 12
+  1045,  // 13
+  1120,  // 14
+  1195,  // 15
+  1270,  // 16
+  1345,  // 17
+  1420,  // 18
+  1495,  // 19
+  1570,  // 20
+] as const;
+
+/** Shipping VAT rate — same as products (vedlejší plnění) */
+export const SHIPPING_VAT_RATE = 0.12;

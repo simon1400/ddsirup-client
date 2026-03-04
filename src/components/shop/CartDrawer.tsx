@@ -81,8 +81,8 @@ export function CartDrawer() {
                 <span>{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Doprava</span>
-                <span>{shipping === 0 ? 'Zdarma' : formatPrice(shipping)}</span>
+                <span>Doprava (Messenger)</span>
+                <span>{formatPrice(shipping)}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-semibold">

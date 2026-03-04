@@ -250,6 +250,20 @@ export async function assignInvoiceNumber(documentId: string): Promise<string> {
   return res.invoiceNumber;
 }
 
+export async function updateOrderTracking(
+  documentId: string,
+  tracking: {
+    messengerShipmentId: string;
+    messengerTrackingCode: string;
+    messengerTrackingUrl: string;
+  }
+): Promise<void> {
+  await strapiRequest(`/orders/${documentId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ data: tracking }),
+  });
+}
+
 // ---- Coupons ----
 
 export async function validateCoupon(

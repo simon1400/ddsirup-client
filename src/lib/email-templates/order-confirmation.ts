@@ -28,8 +28,7 @@ function getPaymentLabel(method?: string): string {
 }
 
 function getShippingLabel(cost: number): string {
-  if (cost === 0) return 'Místní vyzvednutí';
-  return `Doručení (${formatPrice(cost)})`;
+  return `Messenger (${formatPrice(cost)})`;
 }
 
 function getThumbnailUrl(thumbnail?: string): string {
@@ -44,7 +43,8 @@ export function buildOrderConfirmationHtml(
 ): string {
   const vatRate = (globalInfo.vatRate ?? 12) / 100;
   const vatPercent = globalInfo.vatRate ?? 12;
-  const vatAmount = order.subtotal - order.subtotal / (1 + vatRate);
+  const taxableTotal = order.subtotal + (order.shippingCost ?? 0);
+  const vatAmount = taxableTotal - taxableTotal / (1 + vatRate);
   const logoUrl = `${BASE_URL}/logo.png`;
   const orderDate = formatDate(order.createdAt);
 
@@ -200,8 +200,8 @@ export function buildOrderConfirmationHtml(
                 </tr>
                 ${discountHtml}
                 <tr>
-                  <td style="padding:4px 0;color:#aaaaaa;font-size:14px;">Doprava: ${getShippingLabel(order.shippingCost ?? 0)}</td>
-                  <td style="padding:4px 0;color:#aaaaaa;font-size:14px;text-align:right;">${getShippingLabel(order.shippingCost ?? 0)}</td>
+                  <td style="padding:4px 0;color:#aaaaaa;font-size:14px;">Doprava (Messenger):</td>
+                  <td style="padding:4px 0;color:#ffffff;font-size:14px;text-align:right;font-weight:600;">${formatPrice(order.shippingCost ?? 0)}</td>
                 </tr>
                 <tr>
                   <td style="padding:8px 0 4px 0;font-size:16px;font-weight:700;color:#ffffff;">Cena celkem:</td>
