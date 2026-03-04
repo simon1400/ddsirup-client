@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { AppliedCouponBadge } from '@/components/cart/AppliedCouponBadge';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
 import { formatPrice } from '@/lib/utils';
-import { validateCoupon } from '@/lib/strapi';
+import type { AppliedCoupon } from '@/types/coupon';
 
 export function CartSummary() {
   const { appliedCoupon, applyCoupon, removeCoupon } = useCartStore();
@@ -25,7 +25,16 @@ export function CartSummary() {
     setCouponLoading(true);
     setCouponError(null);
     try {
-      const coupon = await validateCoupon(code, subtotal);
+      const res = await fetch('/api/coupon/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Neplatný kupón');
+      }
+      const { data: coupon } = (await res.json()) as { data: AppliedCoupon };
       applyCoupon(coupon);
       setCouponInput('');
     } catch (err) {

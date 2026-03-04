@@ -270,20 +270,12 @@ export async function validateCoupon(
   code: string,
   subtotal: number
 ): Promise<AppliedCoupon> {
-  const STRAPI_PUBLIC_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
-  const res = await fetch(`${STRAPI_PUBLIC_URL}/api/coupons/validate`, {
+  const json = await strapiRequest<{ data: AppliedCoupon }>('/coupons/validate', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, subtotal }),
   });
 
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ error: { message: res.statusText } }));
-    throw new Error(error?.error?.message ?? 'Neplatný kupón');
-  }
-
-  const json = await res.json();
-  return json.data as AppliedCoupon;
+  return json.data;
 }
 
 export async function incrementCouponUsage(code: string): Promise<void> {
