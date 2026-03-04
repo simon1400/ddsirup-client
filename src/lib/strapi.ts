@@ -77,7 +77,7 @@ export async function getProducts(
   );
 
   return strapiRequest<StrapiListResponse<Product>>(`/products?${query}`, {
-    next: { revalidate: 60, tags: ['products'] },
+    next: { revalidate: 0, tags: ['products'] },
   });
 }
 
@@ -104,7 +104,7 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
   );
 
   const res = await strapiRequest<StrapiListResponse<Product>>(`/products?${query}`, {
-    next: { revalidate: 60, tags: ['products', `product-${slug}`] },
+    next: { revalidate: 0, tags: ['products', `product-${slug}`] },
   });
 
   return res.data[0] ?? null;
@@ -129,7 +129,7 @@ export async function getCategories(locale = 'cs', parentOnly = false): Promise<
   );
 
   const res = await strapiRequest<StrapiListResponse<Category>>(`/categories?${query}`, {
-    next: { revalidate: 300, tags: ['categories'] },
+    next: { revalidate: 0, tags: ['categories'] },
   });
 
   return res.data;
@@ -173,7 +173,7 @@ export async function getNavigation(): Promise<NavigationItem[]> {
 
   const res = await strapiRequest<StrapiResponse<{ items: NavigationItem[] }>>(
     `/navigation?${query}`,
-    { next: { revalidate: 300, tags: ['navigation'] } }
+    { next: { revalidate: 0, tags: ['navigation'] } }
   );
 
   return res.data?.items ?? [];
@@ -341,7 +341,7 @@ export async function getHomepage(): Promise<Homepage | null> {
   );
 
   const res = await strapiRequest<StrapiResponse<Homepage>>(`/homepage?${query}`, {
-    next: { revalidate: 60, tags: ['homepage'] },
+    next: { revalidate: 0, tags: ['homepage'] },
   }).catch(() => null);
 
   return res?.data ?? null;
@@ -355,7 +355,7 @@ export async function getContactPage(): Promise<ContactPage | null> {
     { encodeValuesOnly: true }
   );
   const res = await strapiRequest<StrapiResponse<ContactPage>>(`/contact-page?${query}`, {
-    next: { revalidate: 300, tags: ['contact-page'] },
+    next: { revalidate: 0, tags: ['contact-page'] },
   }).catch(() => null);
 
   return res?.data ?? null;
@@ -365,7 +365,7 @@ export async function getContactPage(): Promise<ContactPage | null> {
 
 export async function getGlobalInfo(): Promise<GlobalInfo | null> {
   const res = await strapiRequest<StrapiResponse<GlobalInfo>>('/global-info', {
-    next: { revalidate: 300, tags: ['global-info'] },
+    next: { revalidate: 0, tags: ['global-info'] },
   }).catch(() => null);
 
   return res?.data ?? null;
@@ -387,7 +387,7 @@ export async function getFooterNavGroups(): Promise<FooterNavGroup[]> {
 
   const res = await strapiRequest<StrapiResponse<{ footerNavGroups: FooterNavGroup[] }>>(
     `/navigation?${query}`,
-    { next: { revalidate: 300, tags: ['navigation'] } }
+    { next: { revalidate: 0, tags: ['navigation'] } }
   ).catch(() => null);
 
   return res?.data?.footerNavGroups ?? [];
@@ -406,7 +406,7 @@ export async function getInfoPages(): Promise<InfoPage[]> {
 
   const res = await strapiRequest<StrapiListResponse<InfoPage>>(
     `/info-pages?${query}`,
-    { next: { revalidate: 300, tags: ['info-pages'] } }
+    { next: { revalidate: 0, tags: ['info-pages'] } }
   ).catch(() => null);
 
   return res?.data ?? [];
@@ -423,7 +423,7 @@ export async function getInfoPage(slug: string): Promise<InfoPage | null> {
 
   const res = await strapiRequest<StrapiListResponse<InfoPage>>(
     `/info-pages?${query}`,
-    { next: { revalidate: 300, tags: ['info-pages', `info-page-${slug}`] } }
+    { next: { revalidate: 0, tags: ['info-pages', `info-page-${slug}`] } }
   ).catch(() => null);
 
   return res?.data?.[0] ?? null;

@@ -88,7 +88,7 @@ export async function createPayment(
     method: params.method ?? 'ALL',
     country: params.country ?? 'CZ',
     lang: params.lang ?? 'cs',
-    prepareOnly: params.prepareOnly ? 'true' : 'false',
+    prepareOnly: 'true',
     returnUrl: params.returnUrl,
     cancelUrl: params.cancelUrl,
     notifUrl: params.notifUrl,

@@ -16,6 +16,9 @@ import { MESSENGER_PACKAGE_MAX_KG } from '@/lib/constants';
  * Comgate sends POST with application/x-www-form-urlencoded body
  * Fields: merchant, test, price, curr, label, refId, payerId, method,
  *         account, email, name, transId, secret, status, fee, vs
+ *
+ * We respond OK immediately and process the order in the background
+ * so Comgate doesn't time out.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -52,7 +55,7 @@ export async function POST(req: NextRequest) {
       return new NextResponse('ORDER_NOT_FOUND', { status: 404 });
     }
 
-    // Update payment status in Strapi
+    // Update payment status in Strapi (fast operation — do before responding)
     await updateOrderPayment(
       order.documentId,
       transId,
@@ -62,53 +65,68 @@ export async function POST(req: NextRequest) {
 
     console.log(`[webhook] Order ${refId} → ${status} (transId: ${transId})`);
 
-    // Send confirmation email only when payment is PAID and wasn't already paid
+    // Fire-and-forget: process email, invoice, messenger in background
     if (status === 'PAID' && order.orderStatus !== 'paid') {
-      try {
-        // Assign invoice number (idempotent — returns existing if already assigned)
-        const invoiceNumber = await assignInvoiceNumber(order.documentId);
-        const orderWithInvoice = { ...order, invoiceNumber };
-        await sendOrderConfirmation(orderWithInvoice);
-        console.log(`[webhook] Confirmation email sent for order ${refId}`);
-      } catch (emailErr) {
-        // Email failure is non-fatal — order is already updated
-        console.error('[webhook] Failed to send confirmation email:', emailErr);
-      }
-
-      // Create Messenger shipment (non-fatal)
-      try {
-        const shippingAddr = order.shippingAddress ?? order.billingAddress;
-        const totalWeight = order.items.reduce(
-          (sum, item) => sum + getBottleWeight(item.variantVolume) * item.quantity,
-          0,
-        );
-        const packageCount = Math.max(1, Math.ceil(totalWeight / MESSENGER_PACKAGE_MAX_KG));
-
-        const shipment = await createMessengerShipment({
-          deliveryAddress: shippingAddr,
-          customerName: `${order.customerFirstName} ${order.customerLastName}`,
-          customerPhone: order.customerPhone,
-          customerEmail: order.customerEmail,
-          weightKg: totalWeight,
-          packageCount,
-          orderNumber: order.orderNumber,
-          notes: order.notes,
-        });
-
-        await updateOrderTracking(order.documentId, {
-          messengerShipmentId: shipment.shipmentId,
-          messengerTrackingCode: shipment.trackingCode,
-          messengerTrackingUrl: shipment.trackingUrl,
-        });
-        console.log(`[webhook] Messenger shipment created for order ${refId}: ${shipment.trackingCode}`);
-      } catch (messengerErr) {
-        console.error('[webhook] Failed to create Messenger shipment:', messengerErr);
-      }
+      processOrderPaid(order, refId).catch((err) =>
+        console.error(`[webhook] Background processing failed for ${refId}:`, err)
+      );
     }
 
+    // Respond immediately so Comgate doesn't time out
     return new NextResponse('OK', { status: 200 });
   } catch (err) {
     console.error('[webhook] Error:', err);
     return new NextResponse('ERROR', { status: 500 });
+  }
+}
+
+/**
+ * Background processing for paid orders:
+ * - Assign invoice number
+ * - Send confirmation email with PDF
+ * - Create Messenger shipment
+ */
+async function processOrderPaid(
+  order: Awaited<ReturnType<typeof getOrderByNumber>> & {},
+  refId: string
+) {
+  // 1. Assign invoice number + send email
+  try {
+    const invoiceNumber = await assignInvoiceNumber(order.documentId);
+    const orderWithInvoice = { ...order, invoiceNumber };
+    await sendOrderConfirmation(orderWithInvoice);
+    console.log(`[webhook] Confirmation email sent for order ${refId}`);
+  } catch (emailErr) {
+    console.error('[webhook] Failed to send confirmation email:', emailErr);
+  }
+
+  // 2. Create Messenger shipment
+  try {
+    const shippingAddr = order.shippingAddress ?? order.billingAddress;
+    const totalWeight = order.items.reduce(
+      (sum, item) => sum + getBottleWeight(item.variantVolume) * item.quantity,
+      0,
+    );
+    const packageCount = Math.max(1, Math.ceil(totalWeight / MESSENGER_PACKAGE_MAX_KG));
+
+    const shipment = await createMessengerShipment({
+      deliveryAddress: shippingAddr,
+      customerName: `${order.customerFirstName} ${order.customerLastName}`,
+      customerPhone: order.customerPhone,
+      customerEmail: order.customerEmail,
+      weightKg: totalWeight,
+      packageCount,
+      orderNumber: order.orderNumber,
+      notes: order.notes,
+    });
+
+    await updateOrderTracking(order.documentId, {
+      messengerShipmentId: shipment.shipmentId,
+      messengerTrackingCode: shipment.trackingCode,
+      messengerTrackingUrl: shipment.trackingUrl,
+    });
+    console.log(`[webhook] Messenger shipment created for order ${refId}: ${shipment.trackingCode}`);
+  } catch (messengerErr) {
+    console.error('[webhook] Failed to create Messenger shipment:', messengerErr);
   }
 }
