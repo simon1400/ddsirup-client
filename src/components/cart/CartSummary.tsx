@@ -17,6 +17,7 @@ export function CartSummary() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
 
+  // TODO: vatRate is hardcoded at 12% — should match globalInfo.vatRate from Strapi
   const dph = Math.round(total - total / 1.12);
 
   async function handleApplyCoupon() {

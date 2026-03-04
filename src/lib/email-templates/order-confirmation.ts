@@ -43,7 +43,7 @@ export function buildOrderConfirmationHtml(
 ): string {
   const vatRate = (globalInfo.vatRate ?? 12) / 100;
   const vatPercent = globalInfo.vatRate ?? 12;
-  const taxableTotal = order.subtotal + (order.shippingCost ?? 0);
+  const taxableTotal = order.subtotal - (order.discountAmount ?? 0) + (order.shippingCost ?? 0);
   const vatAmount = taxableTotal - taxableTotal / (1 + vatRate);
   const logoUrl = `${BASE_URL}/logo.png`;
   const orderDate = formatDate(order.createdAt);

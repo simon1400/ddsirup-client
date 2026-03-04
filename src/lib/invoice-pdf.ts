@@ -263,7 +263,8 @@ export async function generateInvoicePdf(
   }
 
   const shippingCost = order.shippingCost ?? 0;
-  const taxableTotal = order.subtotal + shippingCost; // both have same VAT rate
+  const discountAmt = order.discountAmount ?? 0;
+  const taxableTotal = order.subtotal - discountAmt + shippingCost;
   summaryLines.push(
     [`DPH ${vatPercent} %`, formatCzk(vatAmount(taxableTotal, vatRate)), true],
     ['Základ', formatCzk(taxableTotal / (1 + vatRate)), true],
@@ -288,7 +289,7 @@ export async function generateInvoicePdf(
   drawText(page, 'Rekapitulace DPH', summaryX + 30, sy, bold, 9);
   sy -= 14;
 
-  const taxableTotalForRecap = order.subtotal + (order.shippingCost ?? 0);
+  const taxableTotalForRecap = order.subtotal - (order.discountAmount ?? 0) + (order.shippingCost ?? 0);
   const vatBase = taxableTotalForRecap / (1 + vatRate);
   const vatAmt = taxableTotalForRecap - vatBase;
   const recapRows: [string, string][] = [
