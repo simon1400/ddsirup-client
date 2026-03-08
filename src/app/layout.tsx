@@ -9,6 +9,7 @@ import {
   GoogleTagManager,
   GoogleTagManagerNoscript,
 } from '@/components/layout/GoogleTagManager';
+import { VatRateProvider } from '@/providers/vat-rate-provider';
 
 const josefinSans = Josefin_Sans({
   variable: '--font-josefin-sans',
@@ -47,6 +48,7 @@ export default async function RootLayout({
 }) {
   const globalInfo = await getGlobalInfo();
   const gtmId = globalInfo?.gtmId;
+  const vatRate = globalInfo?.vatRate ?? 12;
 
   return (
     <html lang="cs" suppressHydrationWarning>
@@ -54,9 +56,11 @@ export default async function RootLayout({
       <body className={`${josefinSans.variable} font-sans antialiased`}>
         {gtmId && <GoogleTagManagerNoscript gtmId={gtmId} />}
         <QueryProvider>
-          {children}
-          <CartDrawer />
-          <Toaster richColors />
+          <VatRateProvider vatRate={vatRate}>
+            {children}
+            <CartDrawer />
+            <Toaster richColors />
+          </VatRateProvider>
         </QueryProvider>
       </body>
     </html>

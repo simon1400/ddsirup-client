@@ -4,13 +4,15 @@ import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { ProductsSliderSection } from '@/types/homepage';
-import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { useVatRate } from '@/providers/vat-rate-provider';
 
 interface Props {
   section: ProductsSliderSection;
 }
 
 export function ProductsSlider({ section }: Props) {
+  const vatRate = useVatRate();
   const scrollRef = useRef<HTMLDivElement>(null);
   const products = section.products ?? [];
   const animationRef = useRef<number>(0);
@@ -196,9 +198,14 @@ export function ProductsSlider({ section }: Props) {
               </div>
               <p className="font-bold text-center text-2xl leading-tight mb-1">{product.name}</p>
               {price > 0 && (
-                <p className="text-center text-xl font-bold text-coral">
-                  {formatPrice(price)}
-                </p>
+                <>
+                  <p className="text-center text-xl font-bold text-coral">
+                    {formatPrice(price)}
+                  </p>
+                  <p className="text-center text-sm text-muted-foreground">
+                    {formatPriceWithoutVat(price, vatRate)} bez DPH
+                  </p>
+                </>
               )}
             </Link>
           );

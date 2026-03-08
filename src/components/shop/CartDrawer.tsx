@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { QuantityControl } from '@/components/ui/QuantityControl';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
-import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { useVatRate } from '@/providers/vat-rate-provider';
 
 export function CartDrawer() {
+  const vatRate = useVatRate();
   const { items, isOpen, closeCart, removeItem, updateQuantity } = useCartStore();
   const { subtotal, shipping, total, itemCount } = useCartTotals();
 
@@ -50,6 +52,7 @@ export function CartDrawer() {
                         <p className="text-xs text-muted-foreground">{item.variant.name}</p>
                       )}
                       <p className="text-sm font-semibold mt-1">{formatPrice(item.price)}</p>
+                      <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(item.price, vatRate)} bez DPH</p>
 
                       <div className="mt-2">
                         <QuantityControl
@@ -87,7 +90,10 @@ export function CartDrawer() {
               <Separator />
               <div className="flex justify-between font-semibold">
                 <span>Celkem</span>
-                <span>{formatPrice(total)}</span>
+                <div className="text-right">
+                  <span>{formatPrice(total)}</span>
+                  <p className="text-xs text-muted-foreground font-normal">{formatPriceWithoutVat(total, vatRate)} bez DPH</p>
+                </div>
               </div>
 
               <Button className="w-full" asChild onClick={closeCart}>

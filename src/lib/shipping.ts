@@ -1,5 +1,6 @@
 import {
   BOTTLE_WEIGHTS,
+  BOTTLES_PER_PACKAGE,
   DEFAULT_BOTTLE_WEIGHT,
   MESSENGER_PACKAGE_MAX_KG,
   MESSENGER_PRICE_TABLE,
@@ -56,7 +57,11 @@ export function calculateShipping(items: CartItemForShipping[]): ShippingCalcula
     return sum + getBottleWeight(item.variant?.volume) * item.quantity;
   }, 0);
 
-  const packageCount = Math.max(1, Math.ceil(totalWeightKg / MESSENGER_PACKAGE_MAX_KG));
+  const totalBottles = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const packagesByWeight = Math.ceil(totalWeightKg / MESSENGER_PACKAGE_MAX_KG);
+  const packagesByCount = Math.ceil(totalBottles / BOTTLES_PER_PACKAGE);
+  const packageCount = Math.max(1, packagesByWeight, packagesByCount);
   const maxPackages = MESSENGER_PRICE_TABLE.length - 1;
   const clampedPackages = Math.min(packageCount, maxPackages);
 

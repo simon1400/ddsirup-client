@@ -1,5 +1,8 @@
+'use client';
+
 import { Separator } from '@/components/ui/separator';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat } from '@/lib/utils';
+import { useVatRate } from '@/providers/vat-rate-provider';
 
 interface OrderSummaryProps {
   subtotal: number;
@@ -20,11 +23,16 @@ export function OrderSummary({
   totalWeight,
   packageCount,
 }: OrderSummaryProps) {
+  const vatRate = useVatRate();
+
   return (
     <section className="space-y-2 text-sm">
       <div className="flex justify-between">
         <span>Mezisoučet</span>
-        <span>{formatPrice(subtotal)}</span>
+        <div className="text-right">
+          <span>{formatPrice(subtotal)}</span>
+          <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(subtotal, vatRate)} bez DPH</p>
+        </div>
       </div>
       {discount > 0 && couponCode && (
         <div className="flex justify-between text-green-600">
@@ -35,7 +43,10 @@ export function OrderSummary({
       <div>
         <div className="flex justify-between">
           <span>Doprava (Messenger)</span>
-          <span>{formatPrice(shipping)}</span>
+          <div className="text-right">
+            <span>{formatPrice(shipping)}</span>
+            <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(shipping, vatRate)} bez DPH</p>
+          </div>
         </div>
         {totalWeight != null && totalWeight > 0 && packageCount != null && (
           <p className="text-xs text-muted-foreground">
@@ -47,7 +58,10 @@ export function OrderSummary({
       <Separator />
       <div className="flex justify-between font-semibold text-base">
         <span>Celkem k úhradě</span>
-        <span>{formatPrice(total)}</span>
+        <div className="text-right">
+          <span>{formatPrice(total)}</span>
+          <p className="text-sm text-muted-foreground font-normal">{formatPriceWithoutVat(total, vatRate)} bez DPH</p>
+        </div>
       </div>
     </section>
   );

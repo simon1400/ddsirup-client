@@ -6,7 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { QuantityControl } from '@/components/ui/QuantityControl';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat } from '@/lib/utils';
+import { useVatRate } from '@/providers/vat-rate-provider';
 import type { Product, ProductVariant } from '@/types/product';
 
 interface ProductVariantSectionProps {
@@ -20,6 +21,7 @@ function getMaxVariant(variants: ProductVariant[]): ProductVariant | undefined {
 }
 
 export function ProductVariantSection({ product }: ProductVariantSectionProps) {
+  const vatRate = useVatRate();
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
 
@@ -53,19 +55,23 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
               <SelectContent>
                 {variants.map((v) => (
                   <SelectItem key={v.id} value={String(v.id)}>
-                    {v.name}{v.volume ? ` – ${v.volume}` : ''}
+                    {v.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <span className="text-2xl font-bold text-coral">{formatPrice(displayPrice)}</span>
+            <div>
+              <span className="text-2xl font-bold text-coral">{formatPrice(displayPrice)}</span>
+              <p className="text-sm text-muted-foreground">{formatPriceWithoutVat(displayPrice, vatRate)} bez DPH</p>
+            </div>
           </div>
         </div>
       )}
 
       {!hasVariants && (
-        <div className="flex items-center gap-3">
+        <div>
           <span className="text-2xl font-bold text-coral">{formatPrice(displayPrice)}</span>
+          <p className="text-sm text-muted-foreground">{formatPriceWithoutVat(displayPrice, vatRate)} bez DPH</p>
         </div>
       )}
 

@@ -11,11 +11,13 @@ import { CheckoutStepper } from '@/components/checkout/CheckoutStepper';
 import RelatedProducts from '@/components/shop/RelatedProducts';
 import { Container } from '@/components/ui/Container';
 import { useCartStore } from '@/store/cart.store';
-import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { useVatRate } from '@/providers/vat-rate-provider';
 import type { Product } from '@/types/product';
 import { STRAPI_URL } from '@/lib/constants';
 
 export default function CartPage() {
+  const vatRate = useVatRate();
   const { items, removeItem, updateQuantity } = useCartStore();
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
@@ -87,9 +89,10 @@ export default function CartPage() {
                         )}
                       </div>
                     </div>
-                    <span className="w-24 text-center text-sm text-coral font-medium">
-                      {formatPrice(item.price)}
-                    </span>
+                    <div className="w-24 text-center">
+                      <span className="text-sm text-coral font-medium">{formatPrice(item.price)}</span>
+                      <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(item.price, vatRate)} bez DPH</p>
+                    </div>
                     <div className="w-28 flex justify-center">
                       <QuantityControl
                         value={item.quantity}
@@ -100,9 +103,10 @@ export default function CartPage() {
                         bordered
                       />
                     </div>
-                    <span className="w-24 text-right text-sm text-coral font-medium">
-                      {formatPrice(item.price * item.quantity)}
-                    </span>
+                    <div className="w-24 text-right">
+                      <span className="text-sm text-coral font-medium">{formatPrice(item.price * item.quantity)}</span>
+                      <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(item.price * item.quantity, vatRate)} bez DPH</p>
+                    </div>
                   </div>
 
                   {/* Mobile card */}
@@ -131,9 +135,8 @@ export default function CartPage() {
                           <X className="w-4 h-4" />
                         </button>
                       </div>
-                      <p className="text-sm text-coral font-medium mt-1">
-                        {formatPrice(item.price)}
-                      </p>
+                      <p className="text-sm text-coral font-medium mt-1">{formatPrice(item.price)}</p>
+                      <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(item.price, vatRate)} bez DPH</p>
                       <div className="flex items-center justify-between mt-2">
                         <QuantityControl
                           value={item.quantity}
@@ -143,9 +146,10 @@ export default function CartPage() {
                           size="md"
                           bordered
                         />
-                        <span className="text-sm text-coral font-medium">
-                          {formatPrice(item.price * item.quantity)}
-                        </span>
+                        <div className="text-right">
+                          <span className="text-sm text-coral font-medium">{formatPrice(item.price * item.quantity)}</span>
+                          <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(item.price * item.quantity, vatRate)}</p>
+                        </div>
                       </div>
                     </div>
                   </div>

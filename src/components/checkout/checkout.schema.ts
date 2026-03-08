@@ -6,8 +6,8 @@ export const PAYMENT_METHODS = [
   { id: 'ALL', label: 'Comgate', description: 'Všechny platební metody' },
   { id: 'CARD_ALL', label: 'Platební kartou', description: 'Visa, Mastercard' },
   { id: 'GPAY', label: 'Google Pay', description: '' },
+  { id: 'APPLEPAY_REDIRECT', label: 'Apple Pay', description: '' },
   { id: 'BANK_ALL', label: 'Rychlá platba online převodem', description: '' },
-  { id: 'TEST', label: 'Test (bez platby)', description: 'Přeskočí platební bránu' },
 ] as const;
 
 const billingAddressSchema = z.object({

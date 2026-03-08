@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QuantityControl } from '@/components/ui/QuantityControl';
-import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { useVatRate } from '@/providers/vat-rate-provider';
 import type { CartItem as CartItemType } from '@/types/cart';
 
 interface CartItemProps {
@@ -15,6 +16,7 @@ interface CartItemProps {
 }
 
 export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
+  const vatRate = useVatRate();
   const imgUrl = getStrapiImageUrl(item.thumbnail);
 
   return (
@@ -35,6 +37,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
           <p className="text-sm text-muted-foreground">{item.variant.name}</p>
         )}
         <p className="font-semibold mt-1">{formatPrice(item.price)}</p>
+        <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(item.price, vatRate)} bez DPH</p>
 
         <div className="flex items-center gap-2 mt-3">
           <QuantityControl
@@ -57,6 +60,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
 
       <div className="text-right">
         <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
+        <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(item.price * item.quantity, vatRate)} bez DPH</p>
       </div>
     </div>
   );

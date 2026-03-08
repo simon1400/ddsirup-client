@@ -13,6 +13,7 @@ const PAYMENT_ICONS: Record<string, string> = {
   ALL: '/UniAgmoLogo.png',
   CARD_ALL: '/UniAgmoCardAllLogo.png',
   GPAY: '/UniAgmoGooglePayLogo.png',
+  APPLEPAY_REDIRECT: '/UniAgmoApplePayLogo.svg',
   BANK_ALL: '/UniAgmoBankAllLogo.png',
 };
 

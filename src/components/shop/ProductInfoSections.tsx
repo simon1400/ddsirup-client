@@ -64,7 +64,7 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
       )}
 
       {hasFooter && (
-        <div className="text-center text-sm text-muted-foreground space-y-1">
+        <div className="text-center text-sm md:text-lg text-muted-foreground space-y-1">
           {product.ingredients && (
             <p>Složení: {product.ingredients}</p>
           )}

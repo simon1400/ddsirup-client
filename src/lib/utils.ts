@@ -15,6 +15,16 @@ export function formatPrice(amount: number, currency = 'CZK'): string {
   }).format(amount);
 }
 
+/** Calculate price without VAT (prices are stored with VAT included). vatRate in % (e.g. 12) */
+export function priceWithoutVat(amount: number, vatRate: number): number {
+  return Math.round(amount / (1 + vatRate / 100));
+}
+
+/** Format price without VAT. vatRate in % (e.g. 12) */
+export function formatPriceWithoutVat(amount: number, vatRate: number, currency = 'CZK'): string {
+  return formatPrice(priceWithoutVat(amount, vatRate), currency);
+}
+
 export function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -38,8 +48,6 @@ export function getPaymentLabel(method?: string): string {
       return 'Bankovní převod';
     case 'GPAY':
       return 'Google Pay';
-    case 'TEST':
-      return 'Testovací platba';
     case 'ALL':
     default:
       return method ?? 'Comgate';

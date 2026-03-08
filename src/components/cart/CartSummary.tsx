@@ -6,19 +6,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AppliedCouponBadge } from '@/components/cart/AppliedCouponBadge';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat } from '@/lib/utils';
+import { useVatRate } from '@/providers/vat-rate-provider';
 import type { AppliedCoupon } from '@/types/coupon';
 
 export function CartSummary() {
+  const vatRate = useVatRate();
   const { appliedCoupon, applyCoupon, removeCoupon } = useCartStore();
-  const { subtotal, discount, shipping, total, totalWeight, packageCount } = useCartTotals();
+  const { subtotal, discount, shipping, shippingWithoutVat, total, totalWeight, packageCount } = useCartTotals();
 
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
 
-  // TODO: vatRate is hardcoded at 12% — should match globalInfo.vatRate from Strapi
-  const dph = Math.round(total - total / 1.12);
 
   async function handleApplyCoupon() {
     const code = couponInput.trim();
@@ -52,7 +52,10 @@ export function CartSummary() {
       <div className="space-y-3 text-sm">
         <div className="flex justify-between items-center border-b pb-3">
           <span className="font-medium">Mezisoučet</span>
-          <span className="text-coral font-semibold">{formatPrice(subtotal)}</span>
+          <div className="text-right">
+            <span className="text-coral font-semibold">{formatPrice(subtotal)}</span>
+            <p className="text-xs text-muted-foreground">{formatPriceWithoutVat(subtotal, vatRate)} bez DPH</p>
+          </div>
         </div>
 
         {discount > 0 && (
@@ -65,7 +68,10 @@ export function CartSummary() {
         <div className="border-b pb-3">
           <div className="flex justify-between items-center">
             <span className="font-medium">Doprava (Messenger)</span>
-            <span className="font-medium">{formatPrice(shipping)}</span>
+            <div className="text-right">
+              <span className="font-medium">{formatPrice(shipping)}</span>
+              <p className="text-xs text-muted-foreground">{formatPrice(shippingWithoutVat)} bez DPH</p>
+            </div>
           </div>
           {totalWeight > 0 && (
             <p className="text-xs text-muted-foreground mt-1">
@@ -79,8 +85,8 @@ export function CartSummary() {
           <span className="font-semibold text-base">Cena celkem</span>
           <div className="text-right">
             <span className="text-coral font-bold text-lg">{formatPrice(total)}</span>
-            <p className="text-xs text-muted-foreground font-normal">
-              včetně {formatPrice(dph)} 12% DPH
+            <p className="text-sm text-muted-foreground font-normal">
+              {formatPriceWithoutVat(total, vatRate)} bez DPH
             </p>
           </div>
         </div>

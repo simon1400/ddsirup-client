@@ -1,7 +1,10 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types/product';
-import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { useVatRate } from '@/providers/vat-rate-provider';
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +18,7 @@ function getMaxVariantPrice(product: Product): number | null {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const vatRate = useVatRate();
   const thumbnailUrl = getStrapiImageUrl(product.images?.[0]?.url);
   const displayPrice = getMaxVariantPrice(product) ?? product.price;
 
@@ -38,6 +42,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <h3 className="font-bold leading-5 md:leading text-xl md:text-2xl mb-2">{product.name}</h3>
       <p className="text-lg font-semibold text-coral">{formatPrice(displayPrice)}</p>
+      <p className="text-sm text-muted-foreground">{formatPriceWithoutVat(displayPrice, vatRate)} bez DPH</p>
     </Link>
   );
 }
