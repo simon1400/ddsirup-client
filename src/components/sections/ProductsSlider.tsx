@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { ProductsSliderSection } from '@/types/homepage';
@@ -13,14 +13,16 @@ interface Props {
 
 export function ProductsSlider({ section }: Props) {
   const vatRate = useVatRate();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const products = section.products ?? [];
   const animationRef = useRef<number>(0);
   const isPaused = useRef(false);
+  const offsetRef = useRef(0);
+  const [ready, setReady] = useState(false);
 
-  // Show max 4 products, duplicate enough for seamless infinite loop
   const visibleProducts = products.slice(0, 4);
-  const copies = 7;
+  // 3 copies is enough for seamless infinite loop with transform
+  const copies = 3;
   const items = visibleProducts.length > 0
     ? Array.from({ length: copies }, () => visibleProducts).flat()
     : [];
@@ -31,33 +33,35 @@ export function ProductsSlider({ section }: Props) {
   }
 
   useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || visibleProducts.length === 0) return;
+    const track = trackRef.current;
+    if (!track || visibleProducts.length === 0) return;
 
-    // Measure actual card width (card + gap) from the DOM
-    const firstCard = el.querySelector(':scope > a') as HTMLElement | null;
-    const gap = 24;
-    const cardWidth = firstCard ? firstCard.offsetWidth + gap : 344;
+    // Measure one set of cards width
+    const gap = window.innerWidth >= 768 ? 24 : 0;
+    const firstCard = track.querySelector(':scope > a') as HTMLElement | null;
+    const cardWidth = firstCard ? firstCard.offsetWidth + gap : 320 + gap;
     const singleSetWidth = visibleProducts.length * cardWidth;
-    // Start in the middle zone so we have room to scroll both directions
-    const midPoint = Math.floor(copies / 2) * singleSetWidth;
-    el.scrollLeft = midPoint;
 
-    // Wrap scrollLeft to stay in the middle copies zone
-    const wrapScroll = () => {
-      if (el.scrollLeft >= midPoint + singleSetWidth) {
-        el.scrollLeft -= singleSetWidth;
-      } else if (el.scrollLeft <= midPoint - singleSetWidth) {
-        el.scrollLeft += singleSetWidth;
+    // Start in the middle copy
+    offsetRef.current = singleSetWidth;
+    track.style.transform = `translateX(-${offsetRef.current}px)`;
+    setReady(true);
+
+    const wrapOffset = () => {
+      if (offsetRef.current >= singleSetWidth * 2) {
+        offsetRef.current -= singleSetWidth;
+      } else if (offsetRef.current <= 0) {
+        offsetRef.current += singleSetWidth;
       }
     };
 
     const speed = 0.5;
 
     const animate = () => {
-      if (!isPaused.current && el) {
-        el.scrollLeft += speed;
-        wrapScroll();
+      if (!isPaused.current && track) {
+        offsetRef.current += speed;
+        wrapOffset();
+        track.style.transform = `translateX(-${offsetRef.current}px)`;
       }
       animationRef.current = requestAnimationFrame(animate);
     };
@@ -66,58 +70,59 @@ export function ProductsSlider({ section }: Props) {
 
     // Touch drag
     let touchStartX = 0;
-    let touchScrollLeft = 0;
+    let touchOffset = 0;
 
     const onTouchStart = (e: TouchEvent) => {
       isPaused.current = true;
       touchStartX = e.touches[0].pageX;
-      touchScrollLeft = el.scrollLeft;
+      touchOffset = offsetRef.current;
     };
 
     const onTouchMove = (e: TouchEvent) => {
       const dx = e.touches[0].pageX - touchStartX;
-      el.scrollLeft = touchScrollLeft - dx;
-      wrapScroll();
+      offsetRef.current = touchOffset - dx;
+      wrapOffset();
+      track.style.transform = `translateX(-${offsetRef.current}px)`;
       // Update origin so wrap doesn't cause a jump
       touchStartX = e.touches[0].pageX;
-      touchScrollLeft = el.scrollLeft;
+      touchOffset = offsetRef.current;
     };
 
     const onTouchEnd = () => {
       isPaused.current = false;
     };
 
-    // Mouse drag (desktop touch-like behavior)
+    // Mouse drag
     let mouseDown = false;
     let mouseStartX = 0;
-    let mouseScrollLeft = 0;
+    let mouseOffset = 0;
     let hasDragged = false;
 
     const onMouseDown = (e: MouseEvent) => {
       mouseDown = true;
       hasDragged = false;
       mouseStartX = e.pageX;
-      mouseScrollLeft = el.scrollLeft;
+      mouseOffset = offsetRef.current;
       isPaused.current = true;
-      el.style.cursor = 'grabbing';
+      track.style.cursor = 'grabbing';
     };
 
     const onMouseMove = (e: MouseEvent) => {
       if (!mouseDown) return;
       const dx = e.pageX - mouseStartX;
       if (Math.abs(dx) > 3) hasDragged = true;
-      el.scrollLeft = mouseScrollLeft - dx;
-      wrapScroll();
-      // Update origin so wrap doesn't cause a jump
+      offsetRef.current = mouseOffset - dx;
+      wrapOffset();
+      track.style.transform = `translateX(-${offsetRef.current}px)`;
       mouseStartX = e.pageX;
-      mouseScrollLeft = el.scrollLeft;
+      mouseOffset = offsetRef.current;
     };
 
     const onMouseUp = () => {
       if (!mouseDown) return;
       mouseDown = false;
       isPaused.current = false;
-      el.style.cursor = 'grab';
+      track.style.cursor = 'grab';
     };
 
     const onClick = (e: MouseEvent) => {
@@ -128,25 +133,25 @@ export function ProductsSlider({ section }: Props) {
       }
     };
 
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchmove', onTouchMove, { passive: true });
-    el.addEventListener('touchend', onTouchEnd);
-    el.addEventListener('mousedown', onMouseDown);
-    el.addEventListener('mousemove', onMouseMove);
-    el.addEventListener('mouseup', onMouseUp);
-    el.addEventListener('mouseleave', onMouseUp);
-    el.addEventListener('click', onClick, true);
+    track.addEventListener('touchstart', onTouchStart, { passive: true });
+    track.addEventListener('touchmove', onTouchMove, { passive: true });
+    track.addEventListener('touchend', onTouchEnd);
+    track.addEventListener('mousedown', onMouseDown);
+    track.addEventListener('mousemove', onMouseMove);
+    track.addEventListener('mouseup', onMouseUp);
+    track.addEventListener('mouseleave', onMouseUp);
+    track.addEventListener('click', onClick, true);
 
     return () => {
       cancelAnimationFrame(animationRef.current);
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchmove', onTouchMove);
-      el.removeEventListener('touchend', onTouchEnd);
-      el.removeEventListener('mousedown', onMouseDown);
-      el.removeEventListener('mousemove', onMouseMove);
-      el.removeEventListener('mouseup', onMouseUp);
-      el.removeEventListener('mouseleave', onMouseUp);
-      el.removeEventListener('click', onClick, true);
+      track.removeEventListener('touchstart', onTouchStart);
+      track.removeEventListener('touchmove', onTouchMove);
+      track.removeEventListener('touchend', onTouchEnd);
+      track.removeEventListener('mousedown', onMouseDown);
+      track.removeEventListener('mousemove', onMouseMove);
+      track.removeEventListener('mouseup', onMouseUp);
+      track.removeEventListener('mouseleave', onMouseUp);
+      track.removeEventListener('click', onClick, true);
     };
   }, [visibleProducts.length]);
 
@@ -165,51 +170,55 @@ export function ProductsSlider({ section }: Props) {
         </h2>
       )}
 
-      <div
-        ref={scrollRef}
-        className="flex gap-0 md:gap-6 overflow-x-hidden pb-4 cursor-grab select-none"
-      >
-        {items.map((product, idx) => {
-          const price = getMaxPrice(product);
-          const imgUrl = getStrapiImageUrl(product.images?.[0]?.url);
+      <div className="overflow-hidden">
+        <div
+          ref={trackRef}
+          className={`flex gap-0 md:gap-6 cursor-grab select-none will-change-transform ${
+            ready ? '' : 'invisible'
+          }`}
+        >
+          {items.map((product, idx) => {
+            const price = getMaxPrice(product);
+            const imgUrl = getStrapiImageUrl(product.images?.[0]?.url);
 
-          return (
-            <Link
-              key={`${product.documentId}-${idx}`}
-              href={`/produkty/${product.slug}`}
-              className="shrink-0 w-80 snap-start group"
-              draggable={false}
-            >
-              <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white mb-3">
-                {imgUrl ? (
-                  <Image
-                    src={imgUrl}
-                    alt={product.name}
-                    fill
-                    sizes="224px"
-                    className="object-contain p-4 transition group-hover:scale-105"
-                    draggable={false}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
-                    Bez obrázku
-                  </div>
+            return (
+              <Link
+                key={`${product.documentId}-${idx}`}
+                href={`/produkty/${product.slug}`}
+                className="shrink-0 w-80 snap-start group"
+                draggable={false}
+              >
+                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white mb-3">
+                  {imgUrl ? (
+                    <Image
+                      src={imgUrl}
+                      alt={product.name}
+                      fill
+                      sizes="224px"
+                      className="object-contain p-4 transition group-hover:scale-105"
+                      draggable={false}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400">
+                      Bez obrázku
+                    </div>
+                  )}
+                </div>
+                <p className="font-bold text-center text-2xl leading-tight mb-1">{product.name}</p>
+                {price > 0 && (
+                  <>
+                    <p className="text-center text-xl font-bold text-coral">
+                      {formatPrice(price)}
+                    </p>
+                    <p className="text-center text-sm text-muted-foreground">
+                      {formatPriceWithoutVat(price, vatRate)} bez DPH
+                    </p>
+                  </>
                 )}
-              </div>
-              <p className="font-bold text-center text-2xl leading-tight mb-1">{product.name}</p>
-              {price > 0 && (
-                <>
-                  <p className="text-center text-xl font-bold text-coral">
-                    {formatPrice(price)}
-                  </p>
-                  <p className="text-center text-sm text-muted-foreground">
-                    {formatPriceWithoutVat(price, vatRate)} bez DPH
-                  </p>
-                </>
-              )}
-            </Link>
-          );
-        })}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       <div className="flex justify-center mt-20 px-4">

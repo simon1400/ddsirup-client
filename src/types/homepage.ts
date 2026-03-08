@@ -5,6 +5,7 @@ export interface HeroProps {
   title: string;
   subtitle?: string;
   video?: StrapiImage;
+  posterImage?: StrapiImage;
   categories?: Category[];
 }
 
@@ -67,6 +68,7 @@ export interface Homepage {
   heroTitle?: string;
   heroSubtitle?: string;
   heroVideo?: StrapiImage;
+  heroPosterImage?: StrapiImage;
   heroCategories?: Category[];
   sections: HomepageSection[];
   seo?: import('./product').SeoComponent;

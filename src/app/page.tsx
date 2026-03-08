@@ -62,6 +62,7 @@ export default async function HomePage() {
               title: homepage!.heroTitle!,
               subtitle: homepage!.heroSubtitle,
               video: homepage!.heroVideo,
+              posterImage: homepage!.heroPosterImage,
               categories: homepage!.heroCategories,
             }}
           />

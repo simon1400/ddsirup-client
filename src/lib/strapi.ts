@@ -292,6 +292,7 @@ export async function getHomepage(): Promise<Homepage | null> {
     {
       populate: {
         heroVideo: true,
+        heroPosterImage: true,
         heroCategories: { fields: ['name', 'slug', 'color'] },
         seo: { populate: ['metaImage', 'openGraph', 'openGraph.ogImage'] },
         sections: {

@@ -107,6 +107,7 @@ export function NavMenu({ items }: NavMenuProps) {
           side="right"
           className="w-full sm:max-w-sm border-none p-0 [&>button]:text-white/70 [&>button]:hover:text-white"
           style={{ backgroundColor: '#E8635A' }}
+          onOpenAutoFocus={(e) => e.preventDefault()}
         >
           <div className="flex flex-col h-full px-6 pt-14 pb-8 overflow-y-auto">
 
