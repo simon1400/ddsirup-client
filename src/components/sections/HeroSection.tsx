@@ -38,10 +38,15 @@ export function HeroSection({ hero }: Props) {
     }
   }, [videoUrl]);
 
-  // Try to play video once it can play through — detect autoplay block
+  // Try to play video once enough data is loaded — detect autoplay block
   const handleCanPlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
+    // On mobile, the video may already be playing via autoPlay attribute
+    if (!video.paused) {
+      setVideoReady(true);
+      return;
+    }
     video.play().then(() => {
       setVideoReady(true);
     }).catch(() => {
@@ -100,11 +105,12 @@ export function HeroSection({ hero }: Props) {
         <video
           ref={videoRef}
           src={videoUrl!}
+          autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
-          onCanPlayThrough={handleCanPlay}
+          preload="auto"
+          onLoadedData={handleCanPlay}
           onError={handleError}
           className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
           style={{ opacity: videoReady ? 1 : 0 }}
