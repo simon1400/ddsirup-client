@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { HeroProps } from '@/types/homepage';
@@ -29,14 +29,8 @@ export function HeroSection({ hero }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoReady, setVideoReady] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
-  const [canLoadVideo, setCanLoadVideo] = useState(false);
-
-  // After hydration, decide whether to load video based on connection quality
-  useEffect(() => {
-    if (videoUrl && shouldLoadVideo()) {
-      setCanLoadVideo(true);
-    }
-  }, [videoUrl]);
+  // Lazy initializer runs once on mount (client only) — no useEffect needed
+  const [canLoadVideo] = useState(() => !!videoUrl && shouldLoadVideo());
 
   // Try to play video once enough data is loaded — detect autoplay block
   const handleCanPlay = useCallback(() => {
