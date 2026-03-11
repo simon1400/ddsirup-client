@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface AnimatedCollapseProps {
@@ -9,6 +10,13 @@ interface AnimatedCollapseProps {
 }
 
 export function AnimatedCollapse({ open, children, className }: AnimatedCollapseProps) {
+  const [showOverflow, setShowOverflow] = useState(false);
+
+  // When closing, immediately hide overflow
+  useEffect(() => {
+    if (!open) setShowOverflow(false);
+  }, [open]);
+
   return (
     <div
       className={cn(
@@ -16,8 +24,11 @@ export function AnimatedCollapse({ open, children, className }: AnimatedCollapse
         open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
         className
       )}
+      onTransitionEnd={() => {
+        if (open) setShowOverflow(true);
+      }}
     >
-      <div className="overflow-hidden">{children}</div>
+      <div className={showOverflow ? '' : 'overflow-hidden'}>{children}</div>
     </div>
   );
 }

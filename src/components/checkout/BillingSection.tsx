@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FieldError } from './checkout.helpers';
@@ -20,11 +21,77 @@ export function BillingSection({ form }: BillingSectionProps) {
   const errors = form.formState.errors;
   const isCompany = form.watch('isCompany');
 
-  // TODO: enable ARES lookup when ready
-  const aresLoading = false;
-  const aresError = null as string | null;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async function handleIcoLookup(_ico: string) { /* stub */ }
+  const [aresLoading, setAresLoading] = useState(false);
+  const [aresError, setAresError] = useState<string | null>(null);
+  const icoValue = form.watch('billingAddress.ico');
+  const isValidIco = /^\d{8}$/.test((icoValue ?? '').trim());
+
+  async function handleIcoLookup(ico: string) {
+    const trimmed = ico.trim();
+    if (!/^\d{8}$/.test(trimmed)) {
+      setAresError(null);
+      return;
+    }
+
+    setAresLoading(true);
+    setAresError(null);
+
+    try {
+      const res = await fetch(`/api/ares?ico=${trimmed}`);
+      if (!res.ok) {
+        const data = await res.json();
+        setAresError(data.error || 'Chyba při vyhledávání v ARES');
+        return;
+      }
+
+      const data = await res.json();
+
+      // Fill company name
+      if (data.obchodniJmeno) {
+        form.setValue('billingAddress.company', data.obchodniJmeno, { shouldValidate: true });
+      }
+
+      // Fill DIČ
+      if (data.dic) {
+        form.setValue('billingAddress.dic', data.dic, { shouldValidate: true });
+      }
+
+      // Fill address from sidlo (registered office)
+      const sidlo = data.sidlo;
+      if (sidlo) {
+        // Build street: "nazevUlice cisloOrientacni/cisloDomovni" or just the available parts
+        const streetParts: string[] = [];
+        if (sidlo.nazevUlice) {
+          streetParts.push(sidlo.nazevUlice);
+        } else if (sidlo.nazevObce) {
+          streetParts.push(sidlo.nazevObce);
+        }
+        const orientacni = sidlo.cisloOrientacni
+          ? `${sidlo.cisloOrientacni}${sidlo.cisloOrientacniPismeno || ''}`
+          : null;
+        const houseNum = [sidlo.cisloDomovni, orientacni].filter(Boolean).join('/');
+        if (houseNum) streetParts.push(houseNum);
+
+        if (streetParts.length > 0) {
+          form.setValue('billingAddress.street', streetParts.join(' '), { shouldValidate: true });
+        }
+
+        if (sidlo.nazevObce) {
+          form.setValue('billingAddress.city', sidlo.nazevObce, { shouldValidate: true });
+        }
+
+        if (sidlo.psc) {
+          const psc = String(sidlo.psc);
+          const formatted = psc.length === 5 ? `${psc.slice(0, 3)} ${psc.slice(3)}` : psc;
+          form.setValue('billingAddress.zip', formatted, { shouldValidate: true });
+        }
+      }
+    } catch {
+      setAresError('Nepodařilo se spojit s ARES');
+    } finally {
+      setAresLoading(false);
+    }
+  }
 
   return (
     <section className="space-y-4">
@@ -99,16 +166,22 @@ export function BillingSection({ form }: BillingSectionProps) {
                 <Input
                   id="ico"
                   placeholder="12345678"
-                  className={aresError ? 'border-destructive pr-8' : 'pr-8'}
+                  className={aresError ? 'border-destructive pr-24' : 'pr-24'}
                   {...form.register('billingAddress.ico')}
-                  onBlur={(e) => {
-                    form.register('billingAddress.ico').onBlur(e);
-                    handleIcoLookup(e.target.value);
-                  }}
                 />
-                {aresLoading && (
-                  <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-                )}
+                <button
+                  type="button"
+                  disabled={!isValidIco || aresLoading}
+                  onClick={() => handleIcoLookup(icoValue ?? '')}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider transition-colors bg-coral text-white hover:bg-coral/90 disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed"
+                >
+                  {aresLoading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Search className="h-4 w-3.5" />
+                  )}
+                  <span className={'inline-block mt-1'}>Najít</span>
+                </button>
               </div>
               <FieldError message={errors.billingAddress?.ico?.message} />
               {aresError && <p className="text-xs text-destructive mt-1">{aresError}</p>}
