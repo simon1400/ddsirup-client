@@ -48,12 +48,12 @@ export function FeaturesSection({ section }: Props) {
                 style={{ backgroundColor: colors.bg, opacity: 0.9 }}
               >
                 {block.icon?.url && (
-                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+                  <div className="w-18 h-18 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
                     <Image
                       src={block.icon.url}
                       alt={block.title}
-                      width={32}
-                      height={32}
+                      width={48}
+                      height={48}
                       className="object-contain"
                     />
                   </div>
