@@ -37,7 +37,8 @@ export function ProductsSlider({ section }: Props) {
     if (!track || visibleProducts.length === 0) return;
 
     // Measure one set of cards width
-    const gap = window.innerWidth >= 768 ? 24 : 0;
+    const isMobile = window.innerWidth < 768;
+    const gap = isMobile ? 8 : 24;
     const firstCard = track.querySelector(':scope > a') as HTMLElement | null;
     const cardWidth = firstCard ? firstCard.offsetWidth + gap : 320 + gap;
     const singleSetWidth = visibleProducts.length * cardWidth;
@@ -55,7 +56,7 @@ export function ProductsSlider({ section }: Props) {
       }
     };
 
-    const speed = 0.5;
+    const speed = isMobile ? 1 : 0.5;
 
     const animate = () => {
       if (!isPaused.current && track) {
@@ -173,7 +174,7 @@ export function ProductsSlider({ section }: Props) {
       <div className="overflow-hidden">
         <div
           ref={trackRef}
-          className={`flex gap-0 md:gap-6 cursor-grab select-none will-change-transform ${
+          className={`flex gap-2 md:gap-6 cursor-grab select-none will-change-transform ${
             ready ? '' : 'invisible'
           }`}
         >
@@ -185,7 +186,7 @@ export function ProductsSlider({ section }: Props) {
               <Link
                 key={`${product.documentId}-${idx}`}
                 href={`/produkty/${product.slug}`}
-                className="shrink-0 w-80 snap-start group"
+                className="shrink-0 w-56 md:w-80 snap-start group"
                 draggable={false}
               >
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white mb-3">

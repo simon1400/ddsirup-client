@@ -4,6 +4,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FieldError, CountryField } from './checkout.helpers';
+import { AddressSuggest } from './AddressSuggest';
 import type { CheckoutFormValues } from './checkout.schema';
 
 type AddressPrefix = 'billingAddress' | 'shippingAddress';
@@ -35,7 +36,7 @@ export function AddressFields({ prefix, form }: AddressFieldsProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>Ulice a č.p. *</Label>
-          <Input className="mt-1" {...reg('street')} />
+          <AddressSuggest prefix={prefix} form={form} className="mt-1" />
           <FieldError message={errors?.street?.message} />
         </div>
         <div>

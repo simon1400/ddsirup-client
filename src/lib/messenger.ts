@@ -1,8 +1,7 @@
 import type { Address } from '@/types/order';
 
-const MESSENGER_API_URL =
-  process.env.MESSENGER_API_URL ??
-  'https://api.messenger.cz/MessengerWeb/API/REST/public/json';
+const MESSENGER_API_URL_PROD = 'https://api.messenger.cz/MessengerWeb/API/REST/public/json';
+const MESSENGER_API_URL_TEST = 'https://api-test.messenger.cz/MessengerWeb/API/REST/public/json';
 const MESSENGER_IMPORT_KEY = process.env.MESSENGER_IMPORT_KEY ?? '';
 const MESSENGER_CUSTOMER_NUMBER = process.env.MESSENGER_CUSTOMER_NUMBER ?? '';
 const MESSENGER_PASSWORD = process.env.MESSENGER_PASSWORD ?? '';
@@ -43,7 +42,10 @@ export async function createMessengerShipment(params: {
   packageCount: number;
   orderNumber: string;
   notes?: string;
+  testMode?: boolean;
 }): Promise<MessengerShipmentResult> {
+  const isTest = params.testMode ?? false;
+  const apiUrl = isTest ? MESSENGER_API_URL_TEST : MESSENGER_API_URL_PROD;
   const { streetName, houseNumber } = splitStreetAndNumber(params.deliveryAddress.street);
 
   const payload = {
@@ -78,7 +80,7 @@ export async function createMessengerShipment(params: {
     poznamka_kam: params.notes ?? '',
   };
 
-  const res = await fetch(`${MESSENGER_API_URL}/import/importParcel`, {
+  const res = await fetch(`${apiUrl}/import/importParcel`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),

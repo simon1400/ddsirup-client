@@ -14,6 +14,7 @@ export interface GlobalInfo {
   vatRate?: number;
   gtmId?: string;
   comgateTestMode?: boolean;
+  messengerTestMode?: boolean;
   orderFromEmail?: string;
   contactFromEmail?: string;
 }

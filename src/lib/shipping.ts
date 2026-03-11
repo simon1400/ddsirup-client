@@ -4,6 +4,7 @@ import {
   DEFAULT_BOTTLE_WEIGHT,
   MESSENGER_PACKAGE_MAX_KG,
   MESSENGER_PRICE_TABLE,
+  PACKAGING_WEIGHT_KG,
   SHIPPING_VAT_RATE,
 } from './constants';
 
@@ -65,8 +66,11 @@ export function calculateShipping(items: CartItemForShipping[]): ShippingCalcula
   const maxPackages = MESSENGER_PRICE_TABLE.length - 1;
   const clampedPackages = Math.min(packageCount, maxPackages);
 
+  // Add packaging material weight per package
+  const totalWeightWithPackaging = totalWeightKg + packageCount * PACKAGING_WEIGHT_KG;
+
   const priceWithoutVat = MESSENGER_PRICE_TABLE[clampedPackages];
   const priceWithVat = Math.round(priceWithoutVat * (1 + SHIPPING_VAT_RATE));
 
-  return { totalWeightKg, packageCount, priceWithoutVat, priceWithVat };
+  return { totalWeightKg: totalWeightWithPackaging, packageCount, priceWithoutVat, priceWithVat };
 }

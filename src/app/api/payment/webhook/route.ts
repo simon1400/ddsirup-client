@@ -5,11 +5,12 @@ import {
   updateOrderPayment,
   assignInvoiceNumber,
   updateOrderTracking,
+  getGlobalInfo,
 } from '@/lib/strapi';
 import { sendOrderConfirmation } from '@/lib/send-order-confirmation';
 import { createMessengerShipment } from '@/lib/messenger';
 import { getBottleWeight } from '@/lib/shipping';
-import { MESSENGER_PACKAGE_MAX_KG } from '@/lib/constants';
+import { MESSENGER_PACKAGE_MAX_KG, PACKAGING_WEIGHT_KG } from '@/lib/constants';
 
 /**
  * Comgate webhook handler
@@ -102,22 +103,25 @@ async function processOrderPaid(
 
   // 2. Create Messenger shipment
   try {
+    const globalInfo = await getGlobalInfo();
     const shippingAddr = order.shippingAddress ?? order.billingAddress;
     const totalWeight = order.items.reduce(
       (sum, item) => sum + getBottleWeight(item.variantVolume) * item.quantity,
       0,
     );
     const packageCount = Math.max(1, Math.ceil(totalWeight / MESSENGER_PACKAGE_MAX_KG));
+    const weightWithPackaging = totalWeight + packageCount * PACKAGING_WEIGHT_KG;
 
     const shipment = await createMessengerShipment({
       deliveryAddress: shippingAddr,
       customerName: `${order.customerFirstName} ${order.customerLastName}`,
       customerPhone: order.customerPhone,
       customerEmail: order.customerEmail,
-      weightKg: totalWeight,
+      weightKg: weightWithPackaging,
       packageCount,
       orderNumber: order.orderNumber,
       notes: order.notes,
+      testMode: globalInfo?.messengerTestMode,
     });
 
     await updateOrderTracking(order.documentId, {
