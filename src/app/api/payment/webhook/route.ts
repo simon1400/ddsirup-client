@@ -57,6 +57,12 @@ export async function POST(req: NextRequest) {
       return new NextResponse('ORDER_NOT_FOUND', { status: 404 });
     }
 
+    // Skip if order is already in this status (duplicate webhook)
+    if (order.orderStatus === orderStatus) {
+      console.log(`[webhook] Order ${refId} already ${orderStatus}, skipping`);
+      return new NextResponse('OK', { status: 200 });
+    }
+
     // Update payment status in Strapi (fast operation — do before responding)
     await updateOrderPayment(
       order.documentId,
@@ -68,7 +74,7 @@ export async function POST(req: NextRequest) {
     console.log(`[webhook] Order ${refId} → ${status} (transId: ${transId})`);
 
     // Fire-and-forget: process email, invoice, messenger in background
-    if (status === 'PAID' && order.orderStatus !== 'paid') {
+    if (status === 'PAID') {
       processOrderPaid(order, refId).catch((err) =>
         console.error(`[webhook] Background processing failed for ${refId}:`, err)
       );
@@ -135,6 +141,7 @@ async function processOrderPaid(
   try {
     const globalInfo = await getGlobalInfo();
     const shippingAddr = order.shippingAddress ?? order.billingAddress;
+    console.log(`[webhook] Messenger: addr=${shippingAddr?.city ?? 'NO_ADDRESS'}, items=${order.items?.length ?? 0}, testMode=${globalInfo?.messengerTestMode}`);
     const totalWeight = order.items.reduce(
       (sum, item) => sum + getBottleWeight(item.variantVolume) * item.quantity,
       0,
