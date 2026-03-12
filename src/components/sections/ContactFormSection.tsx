@@ -44,7 +44,7 @@ export function ContactFormSection({ section }: Props) {
   };
 
   return (
-    <section className="py-20">
+    <section className="pb-20">
       <Container size="default">
         <div className="rounded-3xl p-8 md:p-12 border border-coral/30">
           {/* Header */}

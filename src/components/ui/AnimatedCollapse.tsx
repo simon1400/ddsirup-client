@@ -14,7 +14,7 @@ export function AnimatedCollapse({ open, children, className }: AnimatedCollapse
 
   // When closing, immediately hide overflow
   useEffect(() => {
-    if (!open) setShowOverflow(false);
+    if (!open) requestAnimationFrame(() => setShowOverflow(false));
   }, [open]);
 
   return (

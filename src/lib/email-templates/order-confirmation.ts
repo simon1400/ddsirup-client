@@ -1,6 +1,6 @@
 import type { Order } from '@/types/order';
 import type { GlobalInfo } from '@/types/global-info';
-import { getPaymentLabel, formatPriceFixed, formatDate, getShippingLabel, getStrapiImageUrl } from '@/lib/utils';
+import { getPaymentLabel, formatPriceFixed, formatDate, getStrapiImageUrl } from '@/lib/utils';
 import { SITE_URL } from '@/lib/constants';
 
 export function buildOrderConfirmationHtml(

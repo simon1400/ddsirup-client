@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: InfoPageProps): Promise<Metad
   return buildPageMetadata({
     title: page.seo?.metaTitle ?? page.title,
     description: page.seo?.metaDescription ?? (page.content ? stripHtml(page.content).slice(0, 160) : undefined),
-    path: page.seo?.canonicalURL ?? `/informace/${slug}`,
+    path: page.seo?.canonicalURL ?? `/clanek/${slug}`,
     ogImage: page.seo?.metaImage ?? null,
   });
 }

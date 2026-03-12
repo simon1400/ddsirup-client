@@ -33,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const infoPageEntries: MetadataRoute.Sitemap = infoPages.map((p) => ({
-    url: `${SITE_URL}/informace/${p.slug}`,
+    url: `${SITE_URL}/clanek/${p.slug}`,
     changeFrequency: 'monthly' as const,
     priority: 0.5,
   }));

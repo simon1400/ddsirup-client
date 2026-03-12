@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { Product, ProductInfoBox } from '@/types/product';
 import RelatedProducts from '@/components/shop/RelatedProducts';
 
@@ -20,24 +21,40 @@ function isDarkBackground(hex: string): boolean {
 
 const FALLBACK_COLORS = ['#F08080', '#A8D5A2', '#F08080', '#C8D84E'];
 
-function InfoBox({ box, index }: { box: ProductInfoBox; index: number }) {
+function InfoBox({ box, index, hasSplash, splashSide }: { box: ProductInfoBox; index: number; hasSplash: boolean; splashSide: 'left' | 'right' }) {
   const bg = box.color || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
   const textColor = isDarkBackground(bg) ? '#FFFFFF' : '#1a1a1a';
   const lines = box.content.split('\n').filter(Boolean);
 
   return (
-    <div className="rounded-2xl p-6 break-inside-avoid" style={{ backgroundColor: bg }}>
-      <h3 className="font-bold text-2xl md:text-3xl mb-3" style={{ color: textColor }}>
-        {box.title}
-      </h3>
-      <ul className="space-y-1">
-        {lines.map((line, i) => (
-          <li key={i} className="text-md md:text-lg flex gap-2" style={{ color: textColor }}>
-            <span>•</span>
-            <span>{line.replace(/^[-•]\s*/, '')}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="relative break-inside-avoid">
+      {hasSplash && (
+        <Image
+          src="/pouze flek_result_result.webp"
+          alt=""
+          width={300}
+          height={300}
+          aria-hidden
+          className={`absolute z-0 pointer-events-none hidden md:block w-62.5 h-auto ${
+            splashSide === 'left'
+              ? '-left-24 top-1/2 -translate-y-1/2'
+              : '-right-24 top-1/2 -translate-y-1/2 -scale-x-100'
+          }`}
+        />
+      )}
+      <div className="rounded-3xl p-8 relative z-10" style={{ backgroundColor: bg, opacity: 0.9 }}>
+        <h3 className="font-bold text-2xl md:text-3xl mb-3" style={{ color: textColor }}>
+          {box.title}
+        </h3>
+        <ul className="space-y-1">
+          {lines.map((line, i) => (
+            <li key={i} className="text-md md:text-lg flex gap-2" style={{ color: textColor }}>
+              <span>•</span>
+              <span>{line.replace(/^[-•]\s*/, '')}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -53,12 +70,21 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
 
   if (!hasBoxes && !hasFooter && !hasRelated) return null;
 
+  const boxes = product.infoBoxes ?? [];
+  const lastIndex = boxes.length - 1;
+
   return (
-    <div className="mt-15 md:mt-25 space-y-10">
+    <div className="mt-15 md:mt-35">
       {hasBoxes && (
-        <div className="columns-1 sm:columns-2 gap-4 space-y-4">
-          {product.infoBoxes!.map((box, i) => (
-            <InfoBox key={box.id} box={box} index={i} />
+        <div className="columns-1 sm:columns-2 gap-6 space-y-6">
+          {boxes.map((box, i) => (
+            <InfoBox
+              key={box.id}
+              box={box}
+              index={i}
+              hasSplash={i === 0 || i === lastIndex}
+              splashSide={i === 0 ? 'left' : 'right'}
+            />
           ))}
         </div>
       )}

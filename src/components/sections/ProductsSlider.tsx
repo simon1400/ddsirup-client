@@ -46,7 +46,7 @@ export function ProductsSlider({ section }: Props) {
     // Start in the middle copy
     offsetRef.current = singleSetWidth;
     track.style.transform = `translateX(-${offsetRef.current}px)`;
-    setReady(true);
+    requestAnimationFrame(() => setReady(true));
 
     const wrapOffset = () => {
       if (offsetRef.current >= singleSetWidth * 2) {
@@ -157,14 +157,7 @@ export function ProductsSlider({ section }: Props) {
   }, [visibleProducts.length]);
 
   return (
-    <section className="py-20 relative overflow-hidden">
-      {/* Wave top */}
-      <div className="absolute top-0 left-0 right-0">
-        <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <path d="M0,40 C360,0 1080,80 1440,40 L1440,0 L0,0 Z" fill="white" />
-        </svg>
-      </div>
-
+    <section className="py-20 overflow-hidden">
       {section.title && (
         <h2 className="text-3xl md:text-4xl font-black uppercase text-center mb-12 px-4">
           {section.title}
@@ -189,7 +182,7 @@ export function ProductsSlider({ section }: Props) {
                 className="shrink-0 w-56 md:w-80 snap-start group"
                 draggable={false}
               >
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-white mb-3">
+                <div className="relative aspect-3/4 rounded-2xl overflow-hidden bg-white mb-3">
                   {imgUrl ? (
                     <Image
                       src={imgUrl}
@@ -229,13 +222,6 @@ export function ProductsSlider({ section }: Props) {
         >
           Máme jich víc, koukni
         </Link>
-      </div>
-
-      {/* Wave bottom */}
-      <div className="absolute bottom-0 left-0 right-0">
-        <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="white" />
-        </svg>
       </div>
     </section>
   );
