@@ -73,14 +73,11 @@ export async function POST(req: NextRequest) {
 
     console.log(`[webhook] Order ${refId} → ${status} (transId: ${transId})`);
 
-    // Fire-and-forget: process email, invoice, messenger in background
+    // Process paid order synchronously to prevent duplicate emails from concurrent webhooks
     if (status === 'PAID') {
-      processOrderPaid(order, refId).catch((err) =>
-        console.error(`[webhook] Background processing failed for ${refId}:`, err)
-      );
+      await processOrderPaid(order, refId);
     }
 
-    // Respond immediately so Comgate doesn't time out
     return new NextResponse('OK', { status: 200 });
   } catch (err) {
     console.error('[webhook] Error:', err);
