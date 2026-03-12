@@ -98,6 +98,12 @@ async function processOrderPaid(
   order: Awaited<ReturnType<typeof getOrderByNumber>> & {},
   refId: string
 ) {
+  // Guard: if invoice already assigned, this order was already processed
+  if (order.invoiceNumber) {
+    console.log(`[webhook] Order ${refId} already has invoice ${order.invoiceNumber}, skipping`);
+    return;
+  }
+
   // 1. Assign invoice number + send email
   try {
     const invoiceNumber = await assignInvoiceNumber(order.documentId);

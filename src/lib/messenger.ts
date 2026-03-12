@@ -80,9 +80,14 @@ export async function createMessengerShipment(params: {
     poznamka_kam: params.notes ?? '',
   };
 
+  const basicAuth = Buffer.from(`${MESSENGER_CUSTOMER_NUMBER}:${MESSENGER_PASSWORD}`).toString('base64');
+
   const res = await fetch(`${apiUrl}/import/importParcel`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Basic ${basicAuth}`,
+    },
     body: JSON.stringify(payload),
   });
 
