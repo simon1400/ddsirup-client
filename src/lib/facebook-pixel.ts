@@ -1,6 +1,7 @@
 'use client';
 
 import type { FbCustomData } from './facebook-capi';
+import { isTrackingAllowed } from './consent';
 
 /**
  * Client-side Facebook tracking helpers.
@@ -9,6 +10,9 @@ import type { FbCustomData } from './facebook-capi';
  * - GTM fires the Facebook Pixel with the event_id via dataLayer
  * - Simultaneously, we POST to /api/fb-events for server-side CAPI
  * - Facebook deduplicates based on matching event_id + event_name
+ *
+ * All tracking is gated by cookie consent — nothing fires unless
+ * the user has accepted cookies via the CMP banner.
  */
 
 /** Generate a unique event ID for deduplication */
@@ -49,6 +53,9 @@ export function trackFbEvent(
   customData?: FbCustomData,
   options?: TrackOptions
 ) {
+  // Block all tracking unless user accepted cookies
+  if (!isTrackingAllowed()) return;
+
   const eventId = generateEventId();
 
   // 1. Client-side: call fbq() directly (loaded by GTM's Facebook Pixel tag)

@@ -5,16 +5,15 @@ import { QueryProvider } from '@/providers/query-provider';
 import { CartDrawer } from '@/components/shop/CartDrawer';
 import { Toaster } from '@/components/ui/sonner';
 import { getGlobalInfo } from '@/lib/strapi';
-import {
-  GoogleTagManager,
-  GoogleTagManagerNoscript,
-} from '@/components/layout/GoogleTagManager';
+import { GoogleTagManagerNoscript } from '@/components/layout/GoogleTagManager';
 import { VatRateProvider } from '@/providers/vat-rate-provider';
 import { SITE_URL } from '@/lib/constants';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Suspense } from 'react';
 import { FacebookPageView } from '@/components/tracking/FacebookPageView';
+import { TrackingScripts } from '@/components/tracking/TrackingScripts';
+import { CookieConsent } from '@/components/layout/CookieConsent';
 
 const josefinSans = Josefin_Sans({
   variable: '--font-josefin-sans',
@@ -61,10 +60,10 @@ export default async function RootLayout({
   const globalInfo = await getGlobalInfo();
   const gtmId = globalInfo?.gtmId;
   const vatRate = globalInfo?.vatRate ?? 12;
+  const fbPixelId = process.env.NEXT_PUBLIC_FB_PIXEL_ID;
 
   return (
     <html lang="cs" suppressHydrationWarning>
-      {gtmId && <GoogleTagManager gtmId={gtmId} />}
       <body className={`${josefinSans.variable} font-sans antialiased`}>
         {gtmId && <GoogleTagManagerNoscript gtmId={gtmId} />}
         <QueryProvider>
@@ -79,6 +78,8 @@ export default async function RootLayout({
               <FacebookPageView />
             </Suspense>
             <Toaster richColors />
+            <TrackingScripts gtmId={gtmId} fbPixelId={fbPixelId} />
+            <CookieConsent />
           </VatRateProvider>
         </QueryProvider>
       </body>
