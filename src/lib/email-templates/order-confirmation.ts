@@ -10,7 +10,7 @@ export function buildOrderConfirmationHtml(
   const vatPercent = globalInfo.vatRate ?? 12;
   const taxableTotal = order.subtotal - (order.discountAmount ?? 0) + (order.shippingCost ?? 0);
   const vatAmount = taxableTotal - taxableTotal / (1 + vatRate);
-  const logoUrl = 'https://ik.imagekit.io/vkkv0buihc/doe_deer_napis_bile_d7a7a96308_nOopqct0T.svg';
+  const logoUrl = 'https://ik.imagekit.io/vkkv0buihc/doe_deer_napis_bile_d7a7a96308_nOopqct0T.svg?f=png&w=400';
   const orderDate = formatDate(order.createdAt);
 
   // Build items HTML
