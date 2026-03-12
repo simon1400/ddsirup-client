@@ -22,9 +22,10 @@ interface AddressSuggestProps {
   prefix: AddressPrefix;
   form: UseFormReturn<CheckoutFormValues>;
   className?: string;
+  error?: boolean;
 }
 
-export function AddressSuggest({ prefix, form, className }: AddressSuggestProps) {
+export function AddressSuggest({ prefix, form, className, error }: AddressSuggestProps) {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -122,7 +123,7 @@ export function AddressSuggest({ prefix, form, className }: AddressSuggestProps)
     <div ref={containerRef} className="relative">
       <div className="relative">
         <Input
-          className={className}
+          className={`${className || ''} ${error ? 'border-destructive' : ''}`}
           value={streetValue || ''}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}

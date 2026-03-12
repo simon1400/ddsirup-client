@@ -5,7 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FieldError } from './checkout.helpers';
+import { FieldError, inputError } from './checkout.helpers';
 import { AddressFields } from './AddressFields';
 import { AnimatedCollapse } from '@/components/ui/AnimatedCollapse';
 import type { CheckoutFormValues } from './checkout.schema';
@@ -100,12 +100,12 @@ export function BillingSection({ form }: BillingSectionProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="firstName">Křestní jméno *</Label>
-          <Input id="firstName" className="mt-1" {...form.register('firstName')} />
+          <Input id="firstName" className={`mt-1 ${inputError(errors.firstName?.message)}`} {...form.register('firstName')} />
           <FieldError message={errors.firstName?.message} />
         </div>
         <div>
           <Label htmlFor="lastName">Příjmení *</Label>
-          <Input id="lastName" className="mt-1" {...form.register('lastName')} />
+          <Input id="lastName" className={`mt-1 ${inputError(errors.lastName?.message)}`} {...form.register('lastName')} />
           <FieldError message={errors.lastName?.message} />
         </div>
       </div>
@@ -114,13 +114,13 @@ export function BillingSection({ form }: BillingSectionProps) {
 
       <div>
         <Label htmlFor="phone">Telefon *</Label>
-        <Input id="phone" type="tel" className="mt-1" {...form.register('phone')} />
+        <Input id="phone" type="tel" className={`mt-1 ${inputError(errors.phone?.message)}`} {...form.register('phone')} />
         <FieldError message={errors.phone?.message} />
       </div>
 
       <div>
         <Label htmlFor="email">E-mailová adresa *</Label>
-        <Input id="email" type="email" className="mt-1" {...form.register('email')} />
+        <Input id="email" type="email" className={`mt-1 ${inputError(errors.email?.message)}`} {...form.register('email')} />
         <FieldError message={errors.email?.message} />
       </div>
 
@@ -155,7 +155,7 @@ export function BillingSection({ form }: BillingSectionProps) {
         <div className="space-y-4 pt-2">
           <div>
             <Label htmlFor="company">Název firmy *</Label>
-            <Input id="company" className="mt-1" {...form.register('billingAddress.company')} />
+            <Input id="company" className={`mt-1 ${inputError(errors.billingAddress?.company?.message)}`} {...form.register('billingAddress.company')} />
             <FieldError message={errors.billingAddress?.company?.message} />
           </div>
 
@@ -166,7 +166,7 @@ export function BillingSection({ form }: BillingSectionProps) {
                 <Input
                   id="ico"
                   placeholder="12345678"
-                  className={aresError ? 'border-destructive pr-24' : 'pr-24'}
+                  className={`pr-24 ${inputError(errors.billingAddress?.ico?.message) || (aresError ? 'border-destructive' : '')}`}
                   {...form.register('billingAddress.ico')}
                 />
                 <button
