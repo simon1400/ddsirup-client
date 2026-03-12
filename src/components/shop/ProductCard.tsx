@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Product } from '@/types/product';
-import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 
 interface ProductCardProps {
@@ -23,7 +23,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const displayPrice = getMaxVariantPrice(product) ?? product.price;
 
   return (
-    <Link href={`/produkty/${product.slug}`} className="group flex flex-col items-center text-center">
+    <Link href={getProductUrl(product.slug, product.category?.slug)} className="group flex flex-col items-center text-center">
       <div className="relative w-full aspect-2/3 mb-4 overflow-hidden">
         {thumbnailUrl ? (
           <Image

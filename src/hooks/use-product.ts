@@ -5,7 +5,7 @@ import axios from 'axios';
 import type { Product } from '@/types/product';
 import type { StrapiListResponse } from '@/types/strapi';
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+import { STRAPI_URL } from '@/lib/constants';
 
 async function fetchProduct(slug: string, locale = 'cs'): Promise<Product | null> {
   const params = new URLSearchParams({

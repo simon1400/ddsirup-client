@@ -1,10 +1,6 @@
 import Link from 'next/link';
 import type { Order } from '@/types/order';
-import { formatPrice, getPaymentLabel } from '@/lib/utils';
-
-function getShippingLabel(cost: number): string {
-  return `Messenger (${cost} Kč)`;
-}
+import { formatPrice, getPaymentLabel, getShippingLabel, getProductUrl } from '@/lib/utils';
 
 export function OrderDetailsCard({ order }: { order: Order }) {
   return (
@@ -29,7 +25,7 @@ export function OrderDetailsCard({ order }: { order: Order }) {
             >
               <div className="col-span-12 sm:col-span-6">
                 <Link
-                  href={`/produkty/${item.productSlug}`}
+                  href={getProductUrl(item.productSlug, item.productCategorySlug)}
                   className="font-bold text-coral underline hover:underline"
                 >
                   {item.productName}

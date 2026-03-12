@@ -71,13 +71,16 @@ export function buildProductJsonLd(product: {
   description?: string;
   price: number;
   images?: { url: string; alternativeText?: string | null }[];
-  variants?: { sku?: string; name: string; price?: number; stock: number }[];
-  category?: { name: string };
-  stock: number;
+  variants?: { sku?: string; name: string; price?: number }[];
+  category?: { name: string; slug?: string };
 }) {
   const imageUrl = product.images?.[0]?.url
     ? getStrapiImageUrl(product.images[0].url)
     : null;
+
+  const productUrl = getCanonicalUrl(
+    product.category?.slug ? `/${product.category.slug}/${product.slug}` : `/produkty/${product.slug}`
+  );
 
   const offers = product.variants?.length
     ? product.variants.map((v) => ({
@@ -86,24 +89,34 @@ export function buildProductJsonLd(product: {
         sku: v.sku ?? undefined,
         price: v.price ?? product.price,
         priceCurrency: 'CZK',
-        availability:
-          v.stock > 0
-            ? 'https://schema.org/InStock'
-            : 'https://schema.org/OutOfStock',
-        url: getCanonicalUrl(`/produkty/${product.slug}`),
+        availability: 'https://schema.org/InStock',
+        url: productUrl,
       }))
     : [
         {
           '@type': 'Offer' as const,
           price: product.price,
           priceCurrency: 'CZK',
-          availability:
-            product.stock > 0
-              ? 'https://schema.org/InStock'
-              : 'https://schema.org/OutOfStock',
-          url: getCanonicalUrl(`/produkty/${product.slug}`),
+          availability: 'https://schema.org/InStock',
+          url: productUrl,
         },
       ];
+
+  // Use AggregateOffer when multiple variants with different prices exist
+  let offersSchema: Record<string, unknown>;
+  if (offers.length > 1) {
+    const prices = offers.map((o) => o.price);
+    offersSchema = {
+      '@type': 'AggregateOffer',
+      lowPrice: Math.min(...prices),
+      highPrice: Math.max(...prices),
+      priceCurrency: 'CZK',
+      offerCount: offers.length,
+      offers,
+    };
+  } else {
+    offersSchema = offers[0];
+  }
 
   return {
     '@context': 'https://schema.org',
@@ -115,24 +128,27 @@ export function buildProductJsonLd(product: {
     image: imageUrl ?? undefined,
     brand: { '@type': 'Brand', name: 'DD Sirup' },
     category: product.category?.name ?? 'Sirupy',
-    offers: offers.length === 1 ? offers[0] : offers,
+    offers: offersSchema,
   };
 }
 
-export function buildOrganizationJsonLd(globalInfo: {
+export function buildLocalBusinessJsonLd(globalInfo: {
   companyName: string;
   email?: string;
   phone?: string;
+  phoneHours?: string;
   street?: string;
   city?: string;
   ico?: string;
 }) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    '@type': 'LocalBusiness',
+    '@id': `${SITE_URL}/#localbusiness`,
     name: globalInfo.companyName,
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
+    image: `${SITE_URL}/og-default.jpg`,
     email: globalInfo.email ?? undefined,
     telephone: globalInfo.phone ?? undefined,
     address:
@@ -145,6 +161,7 @@ export function buildOrganizationJsonLd(globalInfo: {
           }
         : undefined,
     taxID: globalInfo.ico ?? undefined,
+    priceRange: '$$',
   };
 }
 
@@ -158,7 +175,7 @@ export function buildWebSiteJsonLd() {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${SITE_URL}/produkty?search={search_term_string}`,
+        urlTemplate: `${SITE_URL}/pro-kazdeho?search={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },

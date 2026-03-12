@@ -100,6 +100,7 @@ export function CheckoutForm() {
           items: items.map((item) => ({
             productName: item.name,
             productSlug: item.slug,
+            productCategorySlug: item.categorySlug,
             unitPrice: item.price,
             quantity: item.quantity,
             totalPrice: item.price * item.quantity,

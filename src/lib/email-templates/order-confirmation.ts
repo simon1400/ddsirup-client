@@ -1,33 +1,7 @@
 import type { Order } from '@/types/order';
 import type { GlobalInfo } from '@/types/global-info';
-import { getPaymentLabel } from '@/lib/utils';
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://ddsirup.co';
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
-
-function formatPrice(amount: number): string {
-  return new Intl.NumberFormat('cs-CZ', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount) + ' Kč';
-}
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return `${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`;
-}
-
-
-
-function getShippingLabel(cost: number): string {
-  return `Messenger (${formatPrice(cost)})`;
-}
-
-function getThumbnailUrl(thumbnail?: string): string {
-  if (!thumbnail) return '';
-  if (thumbnail.startsWith('http')) return thumbnail;
-  return `${STRAPI_URL}${thumbnail}`;
-}
+import { getPaymentLabel, formatPriceFixed, formatDate, getShippingLabel, getStrapiImageUrl } from '@/lib/utils';
+import { SITE_URL } from '@/lib/constants';
 
 export function buildOrderConfirmationHtml(
   order: Order,
@@ -37,13 +11,13 @@ export function buildOrderConfirmationHtml(
   const vatPercent = globalInfo.vatRate ?? 12;
   const taxableTotal = order.subtotal - (order.discountAmount ?? 0) + (order.shippingCost ?? 0);
   const vatAmount = taxableTotal - taxableTotal / (1 + vatRate);
-  const logoUrl = `${BASE_URL}/logo.png`;
+  const logoUrl = `${SITE_URL}/logo.png`;
   const orderDate = formatDate(order.createdAt);
 
   // Build items HTML
   const itemsHtml = order.items
     .map((item) => {
-      const thumbUrl = getThumbnailUrl(item.thumbnail);
+      const thumbUrl = getStrapiImageUrl(item.thumbnail) ?? '';
       const thumbHtml = thumbUrl
         ? `<td style="width:48px;padding:12px 12px 12px 0;vertical-align:middle;">
             <img src="${thumbUrl}" alt="" width="48" height="48" style="display:block;border-radius:6px;object-fit:cover;" />
@@ -62,7 +36,7 @@ export function buildOrderConfirmationHtml(
             &times;${item.quantity}
           </td>
           <td style="padding:12px 0;vertical-align:middle;color:#ffffff;font-size:14px;text-align:right;font-weight:600;white-space:nowrap;">
-            ${formatPrice(item.totalPrice)}
+            ${formatPriceFixed(item.totalPrice)}
           </td>
         </tr>`;
     })
@@ -73,7 +47,7 @@ export function buildOrderConfirmationHtml(
     order.discountAmount && order.discountAmount > 0
       ? `<tr>
           <td style="padding:4px 0;color:#4ade80;font-size:14px;">Sleva${order.couponCode ? ` (${order.couponCode})` : ''}</td>
-          <td style="padding:4px 0;color:#4ade80;font-size:14px;text-align:right;">-${formatPrice(order.discountAmount)}</td>
+          <td style="padding:4px 0;color:#4ade80;font-size:14px;text-align:right;">-${formatPriceFixed(order.discountAmount)}</td>
         </tr>`
       : '';
 
@@ -188,20 +162,20 @@ export function buildOrderConfirmationHtml(
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #333333;">
                 <tr>
                   <td style="padding:12px 0 4px 0;color:#aaaaaa;font-size:14px;">Mezisoučet:</td>
-                  <td style="padding:12px 0 4px 0;color:#ffffff;font-size:14px;text-align:right;font-weight:600;">${formatPrice(order.subtotal)}</td>
+                  <td style="padding:12px 0 4px 0;color:#ffffff;font-size:14px;text-align:right;font-weight:600;">${formatPriceFixed(order.subtotal)}</td>
                 </tr>
                 ${discountHtml}
                 <tr>
                   <td style="padding:4px 0;color:#aaaaaa;font-size:14px;">Doprava (Messenger):</td>
-                  <td style="padding:4px 0;color:#ffffff;font-size:14px;text-align:right;font-weight:600;">${formatPrice(order.shippingCost ?? 0)}</td>
+                  <td style="padding:4px 0;color:#ffffff;font-size:14px;text-align:right;font-weight:600;">${formatPriceFixed(order.shippingCost ?? 0)}</td>
                 </tr>
                 <tr>
                   <td style="padding:8px 0 4px 0;font-size:16px;font-weight:700;color:#ffffff;">Cena celkem:</td>
-                  <td style="padding:8px 0 4px 0;font-size:20px;font-weight:700;color:#E07878;text-align:right;">${formatPrice(order.total)}</td>
+                  <td style="padding:8px 0 4px 0;font-size:20px;font-weight:700;color:#E07878;text-align:right;">${formatPriceFixed(order.total)}</td>
                 </tr>
                 <tr>
                   <td colspan="2" style="padding:0 0 4px 0;font-size:13px;color:#888888;text-align:right;">
-                    (včetně ${formatPrice(vatAmount)} ${vatPercent}% DPH)
+                    (včetně ${formatPriceFixed(vatAmount)} ${vatPercent}% DPH)
                   </td>
                 </tr>
                 <tr>

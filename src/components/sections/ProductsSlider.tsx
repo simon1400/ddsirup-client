@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { ProductsSliderSection } from '@/types/homepage';
-import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 
 interface Props {
@@ -185,7 +185,7 @@ export function ProductsSlider({ section }: Props) {
             return (
               <Link
                 key={`${product.documentId}-${idx}`}
-                href={`/produkty/${product.slug}`}
+                href={getProductUrl(product.slug, product.category?.slug)}
                 className="shrink-0 w-56 md:w-80 snap-start group"
                 draggable={false}
               >
@@ -224,7 +224,7 @@ export function ProductsSlider({ section }: Props) {
 
       <div className="flex justify-center mt-20 px-4">
         <Link
-          href="/produkty"
+          href="/pro-kazdeho"
           className="px-10 py-4 rounded-full font-bold uppercase text-sm tracking-widest text-white transition-opacity hover:opacity-90 bg-coral"
         >
           Máme jich víc, koukni

@@ -16,12 +16,14 @@ import {
   stripHtml,
 } from '@/lib/seo';
 
+export const revalidate = 3600;
+
 interface ProductPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ category: string; slug: string }>;
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const { slug } = await params;
+  const { category, slug } = await params;
   const product = await getProduct(slug).catch(() => null);
   if (!product) return { title: 'Produkt nenalezen' };
   return buildPageMetadata({
@@ -29,18 +31,20 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     description:
       product.seo?.metaDescription ??
       (product.description ? stripHtml(product.description).slice(0, 160) : undefined),
-    path: product.seo?.canonicalURL ?? `/produkty/${slug}`,
+    path: product.seo?.canonicalURL ?? `/${category}/${slug}`,
     ogImage: product.seo?.metaImage ?? product.images?.[0] ?? null,
   });
 }
 
 export async function generateStaticParams() {
   const res = await getProducts({ pageSize: 100 }).catch(() => ({ data: [] }));
-  return res.data.map((p) => ({ slug: p.slug }));
+  return res.data
+    .filter((p) => p.category?.slug)
+    .map((p) => ({ category: p.category!.slug, slug: p.slug }));
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const { slug } = await params;
+  const { category: categorySlug, slug } = await params;
   const product = await getProduct(slug, 'cs');
   if (!product) notFound();
 
@@ -56,14 +60,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const breadcrumbItems = [
     { name: 'Úvod', url: getCanonicalUrl('/') },
-    { name: 'Produkty', url: getCanonicalUrl('/produkty') },
     ...(parentCategory
-      ? [{ name: parentCategory.name, url: getCanonicalUrl(`/produkty?tab=${parentCategory.slug}`) }]
+      ? [{ name: parentCategory.name, url: getCanonicalUrl(`/${parentCategory.slug}`) }]
       : []),
     ...(category
-      ? [{ name: category.name, url: getCanonicalUrl(`/produkty?tab=${parentCategory?.slug ?? category.slug}&sub=${category.slug}`) }]
+      ? [{ name: category.name, url: getCanonicalUrl(`/${category.slug}`) }]
       : []),
-    { name: product.name, url: getCanonicalUrl(`/produkty/${product.slug}`) },
+    { name: product.name, url: getCanonicalUrl(`/${categorySlug}/${product.slug}`) },
   ];
 
   const breadcrumbJsonLd = {
@@ -93,15 +96,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <li>
             <Link href="/" className="hover:text-foreground transition-colors">Úvod</Link>
           </li>
-          <li><ChevronRight className="h-3.5 w-3.5" /></li>
-          <li>
-            <Link href="/produkty" className="hover:text-foreground transition-colors">Produkty</Link>
-          </li>
           {parentCategory && (
             <>
               <li><ChevronRight className="h-3.5 w-3.5" /></li>
               <li>
-                <Link href={`/produkty?tab=${parentCategory.slug}`} className="hover:text-foreground transition-colors">
+                <Link href={`/${parentCategory.slug}`} className="hover:text-foreground transition-colors">
                   {parentCategory.name}
                 </Link>
               </li>
@@ -112,7 +111,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <li><ChevronRight className="h-3.5 w-3.5" /></li>
               <li>
                 <Link
-                  href={`/produkty?tab=${parentCategory?.slug ?? category.slug}&sub=${category.slug}`}
+                  href={`/${category.slug}`}
                   className="hover:text-foreground transition-colors"
                 >
                   {category.name}

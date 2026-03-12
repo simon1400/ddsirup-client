@@ -6,7 +6,7 @@ import { X, ShoppingBag } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { QuantityControl } from '@/components/ui/QuantityControl';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
-import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 
 export function CartDrawer() {
@@ -39,7 +39,7 @@ export function CartDrawer() {
             <ShoppingBag className="h-16 w-16 text-muted-foreground/30" />
             <p className="text-lg text-muted-foreground">Košík je prázdný</p>
             <Link
-              href="/produkty"
+              href="/pro-kazdeho"
               onClick={closeCart}
               className="bg-coral text-white font-bold uppercase text-sm tracking-widest px-8 py-3 rounded-full hover:bg-coral/90 transition-colors"
             >
@@ -56,7 +56,7 @@ export function CartDrawer() {
                 return (
                   <div key={item.id} className="flex gap-4 pb-4 border-b border-muted last:border-0">
                     <Link
-                      href={`/produkty/${item.slug}`}
+                      href={getProductUrl(item.slug, item.categorySlug)}
                       onClick={closeCart}
                       className="relative h-28 w-22 shrink-0"
                     >
@@ -70,7 +70,7 @@ export function CartDrawer() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <Link
-                          href={`/produkty/${item.slug}`}
+                          href={getProductUrl(item.slug, item.categorySlug)}
                           onClick={closeCart}
                           className="font-semibold text-sm leading-tight hover:underline"
                         >
@@ -97,7 +97,6 @@ export function CartDrawer() {
                           value={item.quantity}
                           onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
                           onIncrement={() => updateQuantity(item.id, item.quantity + 1)}
-                          max={item.stock}
                           size="sm"
                         />
                       </div>

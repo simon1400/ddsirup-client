@@ -4,17 +4,12 @@ import { PDFDocument, rgb, PDFFont, PDFPage } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { Order } from '@/types/order';
 import type { GlobalInfo } from '@/types/global-info';
-import { getPaymentLabel } from '@/lib/utils';
+import { getPaymentLabel, formatDate } from '@/lib/utils';
 
 // ---- Helpers ----
 
 function formatCzk(amount: number): string {
   return `${amount.toFixed(2).replace('.', ',')} Kč`;
-}
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return `${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`;
 }
 
 

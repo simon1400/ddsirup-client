@@ -107,7 +107,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
             asChild
             className="bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-12 px-8"
           >
-            <Link href="/produkty">
+            <Link href="/pro-kazdeho">
               Pokračovat v nákupu
               <ArrowRight className="w-4 h-4 ml-2" />
             </Link>

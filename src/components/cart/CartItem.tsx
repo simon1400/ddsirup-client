@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QuantityControl } from '@/components/ui/QuantityControl';
-import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 import type { CartItem as CartItemType } from '@/types/cart';
 
@@ -30,7 +30,7 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
       </div>
 
       <div className="flex-1">
-        <Link href={`/produkty/${item.slug}`} className="font-medium hover:underline">
+        <Link href={getProductUrl(item.slug, item.categorySlug)} className="font-medium hover:underline">
           {item.name}
         </Link>
         {item.variant && (
@@ -44,7 +44,6 @@ export function CartItem({ item, onUpdateQuantity, onRemove }: CartItemProps) {
             value={item.quantity}
             onDecrement={() => onUpdateQuantity(item.id, item.quantity - 1)}
             onIncrement={() => onUpdateQuantity(item.id, item.quantity + 1)}
-            max={item.stock}
             size="md"
           />
           <Button

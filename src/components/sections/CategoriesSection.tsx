@@ -56,7 +56,7 @@ export function CategoriesSection({ section }: Props) {
                   <div key={group.parent.slug}>
                     {/* Parent category */}
                     <Link
-                      href={`/produkty?tab=${group.parent.slug}`}
+                      href={`/${group.parent.slug}`}
                       className="inline-block px-7 py-3 rounded-full font-black uppercase text-base tracking-wide transition-all hover:scale-105 mb-3"
                       style={{ backgroundColor: color, color: '#1a1a1a' }}
                     >
@@ -69,7 +69,7 @@ export function CategoriesSection({ section }: Props) {
                         {group.children.map((child) => (
                           <Link
                             key={child.documentId}
-                            href={`/produkty?tab=${group.parent.slug}&sub=${child.slug}`}
+                            href={`/${child.slug}`}
                             className="px-4 py-1.5 rounded-full text-md font-medium transition-all hover:scale-105"
                             style={{ backgroundColor: '#f5f5f0', color: '#555' }}
                           >

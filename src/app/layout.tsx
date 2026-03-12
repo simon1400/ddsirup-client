@@ -10,14 +10,15 @@ import {
   GoogleTagManagerNoscript,
 } from '@/components/layout/GoogleTagManager';
 import { VatRateProvider } from '@/providers/vat-rate-provider';
+import { SITE_URL } from '@/lib/constants';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 const josefinSans = Josefin_Sans({
   variable: '--font-josefin-sans',
   subsets: ['latin', 'latin-ext'],
   weight: ['100', '300', '400', '600', '700'],
 });
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ddsirup.cz';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -31,6 +32,15 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'cs_CZ',
     siteName: 'DD Sirup',
+    url: SITE_URL,
+    images: [
+      {
+        url: `${SITE_URL}/og-default.jpg`,
+        width: 1200,
+        height: 630,
+        alt: 'DD Sirup — Prémiové české sirupy',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
@@ -57,7 +67,11 @@ export default async function RootLayout({
         {gtmId && <GoogleTagManagerNoscript gtmId={gtmId} />}
         <QueryProvider>
           <VatRateProvider vatRate={vatRate}>
-            {children}
+            <div className="min-h-screen flex flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
             <CartDrawer />
             <Toaster richColors />
           </VatRateProvider>

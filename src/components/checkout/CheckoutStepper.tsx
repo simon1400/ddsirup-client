@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 const steps = [
-  { label: 'E-SHOP', href: '/produkty', icon: ShoppingBag },
+  { label: 'E-SHOP', href: '/pro-kazdeho', icon: ShoppingBag },
   { label: 'KOŠÍK', href: '/kosik', icon: Building2 },
   { label: 'POKLADNA', href: '/pokladna', icon: CreditCard },
 ] as const;

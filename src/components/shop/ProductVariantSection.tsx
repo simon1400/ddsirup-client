@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import { QuantityControl } from '@/components/ui/QuantityControl';
 import { AddToCartButton } from '@/components/shop/AddToCartButton';
 import { formatPrice, formatPriceWithoutVat } from '@/lib/utils';
@@ -30,8 +29,6 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
   const [quantity, setQuantity] = useState(1);
 
   const displayPrice = selectedVariant?.price ?? product.price;
-  const isOutOfStock = (selectedVariant?.stock ?? product.stock) <= 0;
-  const stockCount = selectedVariant?.stock ?? product.stock;
 
   function handleVariantChange(variantId: string) {
     const v = variants.find((v) => String(v.id) === variantId);
@@ -78,19 +75,12 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
       <Separator />
 
       <div className="space-y-3">
-        {isOutOfStock ? (
-          <Badge variant="secondary" className="text-sm px-3 py-1">Vyprodáno</Badge>
-        ) : (
-          <p className="text-sm text-green-600">Skladem ({stockCount} ks)</p>
-        )}
-
         <div className="flex items-center gap-3">
           <QuantityControl
             value={quantity}
             onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
-            onIncrement={() => setQuantity((q) => Math.min(stockCount, q + 1))}
+            onIncrement={() => setQuantity((q) => q + 1)}
             min={1}
-            max={stockCount}
             size="lg"
             bordered
           />

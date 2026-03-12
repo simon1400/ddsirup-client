@@ -35,7 +35,6 @@ export interface ProductVariant {
   volume?: string;
   sku?: string;
   price?: number;
-  stock: number;
 }
 
 export interface Product {
@@ -45,7 +44,6 @@ export interface Product {
   slug: string;
   description?: string;
   price: number;
-  stock: number;
   images?: StrapiImage[];
   category?: Category;
   variants?: ProductVariant[];
@@ -83,7 +81,7 @@ export interface ProductsFilter {
   search?: string;
   minPrice?: number;
   maxPrice?: number;
-  inStock?: boolean;
+
   page?: number;
   pageSize?: number;
   sortBy?: 'name' | 'price' | 'createdAt';

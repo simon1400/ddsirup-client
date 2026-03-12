@@ -6,8 +6,7 @@ import {
   getGlobalInfo,
 } from '@/lib/strapi';
 import type { CreateOrderPayload } from '@/types/order';
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
+import { SITE_URL } from '@/lib/constants';
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,9 +34,9 @@ export async function POST(req: NextRequest) {
       refId: body.orderNumber,
       email: body.customerEmail,
       method: body.paymentMethod ?? 'ALL',
-      returnUrl: `${BASE_URL}/pokladna/uspech?order=${body.orderNumber}`,
-      cancelUrl: `${BASE_URL}/pokladna?cancelled=1`,
-      notifUrl: `${BASE_URL}/api/payment/webhook`,
+      returnUrl: `${SITE_URL}/pokladna/uspech?order=${body.orderNumber}`,
+      cancelUrl: `${SITE_URL}/pokladna?cancelled=1`,
+      notifUrl: `${SITE_URL}/api/payment/webhook`,
       test: globalInfo?.comgateTestMode,
     });
 

@@ -4,6 +4,8 @@ import { getInfoPage, getInfoPages } from '@/lib/strapi';
 import { Container } from '@/components/ui/Container';
 import { buildPageMetadata, stripHtml } from '@/lib/seo';
 
+export const revalidate = 3600;
+
 interface InfoPageProps {
   params: Promise<{ slug: string }>;
 }

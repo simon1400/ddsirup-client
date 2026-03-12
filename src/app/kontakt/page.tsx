@@ -4,6 +4,8 @@ import { ContactForm } from '@/components/contact/ContactForm';
 import { Container } from '@/components/ui/Container';
 import { buildPageMetadata } from '@/lib/seo';
 
+export const revalidate = 3600;
+
 export async function generateMetadata(): Promise<Metadata> {
   const contactPage = await getContactPage().catch(() => null);
   return buildPageMetadata({

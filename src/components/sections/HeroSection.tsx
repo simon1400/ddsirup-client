@@ -137,7 +137,7 @@ export function HeroSection({ hero }: Props) {
             {categories.slice(0, 2).map((cat, i) => (
               <Link
                 key={cat.documentId}
-                href={`/produkty?tab=${cat.slug}`}
+                href={`/${cat.slug}`}
                 className="px-20 md:px-30 py-6 rounded-full font-bold uppercase text-lg tracking-widest text-gray-900 transition-opacity hover:opacity-90"
                 style={{
                   backgroundColor: cat.color ?? CATEGORY_COLORS[i] ?? '#F0D060',

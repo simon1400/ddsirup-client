@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
   const suggestions = data.map((p) => ({
     name: p.name,
     slug: p.slug,
+    categorySlug: p.category?.slug ?? null,
     price: p.price,
     image: p.images?.[0]?.formats?.thumbnail?.url ?? p.images?.[0]?.url ?? null,
   }));

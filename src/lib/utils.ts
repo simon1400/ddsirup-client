@@ -6,6 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Build product URL: /{categorySlug}/{productSlug} with fallback */
+export function getProductUrl(productSlug: string, categorySlug?: string): string {
+  return categorySlug ? `/${categorySlug}/${productSlug}` : `/produkty/${productSlug}`;
+}
+
 export function formatPrice(amount: number, currency = 'CZK'): string {
   return new Intl.NumberFormat('cs-CZ', {
     style: 'currency',
@@ -52,6 +57,25 @@ export function getPaymentLabel(method?: string): string {
     default:
       return method ?? 'Comgate';
   }
+}
+
+/** Format price with exactly 2 decimal places (for invoices/emails). */
+export function formatPriceFixed(amount: number): string {
+  return new Intl.NumberFormat('cs-CZ', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount) + ' Kč';
+}
+
+/** Format a date string as "D. M. YYYY". */
+export function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getDate()}. ${d.getMonth() + 1}. ${d.getFullYear()}`;
+}
+
+/** Shipping label for Messenger with price. */
+export function getShippingLabel(cost: number): string {
+  return `Messenger (${formatPriceFixed(cost)})`;
 }
 
 export function generateOrderNumber(): string {

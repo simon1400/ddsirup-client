@@ -6,11 +6,11 @@ export interface CartItem {
   documentId: string;
   name: string;
   slug: string;
+  categorySlug?: string;
   price: number;
   quantity: number;
   thumbnail?: string;
   variant?: Pick<ProductVariant, 'id' | 'name' | 'volume'>;
-  stock: number;
 }
 
 export interface CartState {
@@ -41,12 +41,12 @@ export function cartItemFromProduct(
     documentId: product.documentId,
     name: product.name,
     slug: product.slug,
+    categorySlug: product.category?.slug,
     price: variant?.price ?? product.price,
     quantity,
     thumbnail: product.images?.[0]?.url,
     variant: variant
       ? { id: variant.id, name: variant.name, volume: variant.volume }
       : undefined,
-    stock: variant?.stock ?? product.stock,
   };
 }

@@ -2,6 +2,7 @@ export interface OrderItem {
   id: number;
   productName: string;
   productSlug: string;
+  productCategorySlug?: string;
   unitPrice: number;
   quantity: number;
   totalPrice: number;

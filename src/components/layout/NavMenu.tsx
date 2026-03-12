@@ -6,12 +6,13 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Menu, ChevronUp, ChevronDown, Search } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import type { NavigationItem } from '@/types/navigation';
 
 interface SearchSuggestion {
   name: string;
   slug: string;
+  categorySlug: string | null;
   price: number;
   image: string | null;
 }
@@ -62,7 +63,7 @@ export function NavMenu({ items }: NavMenuProps) {
     e.preventDefault();
     if (search.trim()) {
       setShowSuggestions(false);
-      router.push(`/produkty?search=${encodeURIComponent(search.trim())}`);
+      router.push(`/pro-kazdeho?search=${encodeURIComponent(search.trim())}`);
       handleClose();
     }
   }
@@ -77,7 +78,7 @@ export function NavMenu({ items }: NavMenuProps) {
       setActiveIndex((i) => (i > 0 ? i - 1 : suggestions.length - 1));
     } else if (e.key === 'Enter' && activeIndex >= 0) {
       e.preventDefault();
-      router.push(`/produkty/${suggestions[activeIndex].slug}`);
+      router.push(getProductUrl(suggestions[activeIndex].slug, suggestions[activeIndex].categorySlug ?? undefined));
       handleClose();
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
@@ -133,7 +134,7 @@ export function NavMenu({ items }: NavMenuProps) {
                   {suggestions.map((item, i) => (
                     <li key={item.slug}>
                       <Link
-                        href={`/produkty/${item.slug}`}
+                        href={getProductUrl(item.slug, item.categorySlug ?? undefined)}
                         onClick={handleClose}
                         className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-gray-100 ${
                           i === activeIndex ? 'bg-gray-100' : ''
@@ -172,7 +173,7 @@ export function NavMenu({ items }: NavMenuProps) {
                     <div key={item.id}>
                       <div className="flex items-center justify-between border-b border-white/20">
                         <Link
-                          href={`/produkty?tab=${parentSlug}`}
+                          href={`/${parentSlug}`}
                           className="flex-1 font-bold text-base py-3 text-white"
                           onClick={handleClose}
                         >
@@ -199,7 +200,7 @@ export function NavMenu({ items }: NavMenuProps) {
                           {item.category.children!.map((child) => (
                             <Link
                               key={child.id}
-                              href={`/produkty?tab=${parentSlug}&sub=${child.slug}`}
+                              href={`/${child.slug}`}
                               className="py-2.5 text-sm border-b border-white/20 text-white/75 hover:text-white transition-colors"
                               onClick={handleClose}
                             >

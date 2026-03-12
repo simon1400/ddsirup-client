@@ -18,8 +18,6 @@ export function AddToCartButton({ product, variant, quantity = 1 }: AddToCartBut
   const [isAdding, setIsAdding] = useState(false);
   const { addItem, openCart } = useCartStore();
 
-  const isOutOfStock = (variant?.stock ?? product.stock) <= 0;
-
   function handleAdd() {
     setIsAdding(true);
     addItem(cartItemFromProduct(product, quantity, variant));
@@ -33,10 +31,10 @@ export function AddToCartButton({ product, variant, quantity = 1 }: AddToCartBut
       size="lg"
       className="w-full bg-coral hover:bg-coral/90 text-white"
       onClick={handleAdd}
-      disabled={isOutOfStock || isAdding}
+      disabled={isAdding}
     >
       <ShoppingCart className="h-5 w-5 mr-2" />
-      {isOutOfStock ? 'Vyprodáno' : 'Přidat do košíku'}
+      Přidat do košíku
     </Button>
   );
 }

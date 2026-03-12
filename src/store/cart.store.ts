@@ -35,7 +35,7 @@ export const useCartStore = create<CartStore>()(
             return {
               items: state.items.map((i) =>
                 i.id === newItem.id
-                  ? { ...i, quantity: Math.min(i.quantity + newItem.quantity, i.stock) }
+                  ? { ...i, quantity: i.quantity + newItem.quantity }
                   : i
               ),
             };
@@ -52,7 +52,7 @@ export const useCartStore = create<CartStore>()(
             quantity <= 0
               ? state.items.filter((i) => i.id !== id)
               : state.items.map((i) =>
-                  i.id === id ? { ...i, quantity: Math.min(quantity, i.stock) } : i
+                  i.id === id ? { ...i, quantity } : i
                 ),
         })),
 

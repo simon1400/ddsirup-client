@@ -12,7 +12,7 @@ import type { Homepage } from '@/types/homepage';
 import type { ContactPage } from '@/types/contact-page';
 import type { InfoPage } from '@/types/info-page';
 
-const STRAPI_URL = process.env.NEXT_PUBLIC_STRAPI_URL ?? 'http://localhost:1337';
+import { STRAPI_URL } from './constants';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
 
 async function strapiRequest<T>(
@@ -49,7 +49,7 @@ export async function getProducts(
     search,
     minPrice,
     maxPrice,
-    inStock,
+
     page = 1,
     pageSize = 24,
     sortBy = 'createdAt',
@@ -63,7 +63,7 @@ export async function getProducts(
   if (search) filters.name = { $containsi: search };
   if (minPrice !== undefined) filters.price = { ...((filters.price as object) ?? {}), $gte: minPrice };
   if (maxPrice !== undefined) filters.price = { ...((filters.price as object) ?? {}), $lte: maxPrice };
-  if (inStock) filters.stock = { $gt: 0 };
+
 
   const query = qs.stringify(
     {
@@ -139,7 +139,7 @@ export async function getCategory(slug: string, locale = 'cs'): Promise<Category
   const query = qs.stringify(
     {
       filters: { slug: { $eq: slug } },
-      populate: ['image', 'children', 'parent', 'seo', 'seo.metaImage', 'seo.openGraph'],
+      populate: ['image', 'children', 'parent', 'parent.children', 'seo', 'seo.metaImage', 'seo.openGraph'],
       locale,
     },
     { encodeValuesOnly: true }
@@ -311,7 +311,7 @@ export async function getHomepage(): Promise<Homepage | null> {
             'sections.products-slider': {
               populate: {
                 products: {
-                  populate: ['images', 'variants'],
+                  populate: ['images', 'variants', 'category'],
                   filters: { publishedAt: { $notNull: true } },
                 },
               },

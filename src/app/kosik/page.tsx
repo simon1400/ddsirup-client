@@ -11,7 +11,7 @@ import { CheckoutStepper } from '@/components/checkout/CheckoutStepper';
 import RelatedProducts from '@/components/shop/RelatedProducts';
 import { Container } from '@/components/ui/Container';
 import { useCartStore } from '@/store/cart.store';
-import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 import type { Product } from '@/types/product';
 import { STRAPI_URL } from '@/lib/constants';
@@ -36,7 +36,7 @@ export default function CartPage() {
           <h1 className="text-3xl font-bold mb-4">Košík</h1>
           <p className="text-muted-foreground mb-8">Váš košík je prázdný</p>
           <Button asChild>
-            <Link href="/produkty">Pokračovat v nákupu</Link>
+            <Link href="/pro-kazdeho">Pokračovat v nákupu</Link>
           </Button>
         </div>
       </Container>
@@ -81,7 +81,7 @@ export default function CartPage() {
                         )}
                       </div>
                       <div>
-                        <Link href={`/produkty/${item.slug}`} className="font-medium hover:underline text-sm">
+                        <Link href={getProductUrl(item.slug, item.categorySlug)} className="font-medium hover:underline text-sm">
                           {item.name}
                         </Link>
                         {item.variant && (
@@ -98,7 +98,6 @@ export default function CartPage() {
                         value={item.quantity}
                         onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
                         onIncrement={() => updateQuantity(item.id, item.quantity + 1)}
-                        max={item.stock}
                         size="md"
                         bordered
                       />
@@ -121,7 +120,7 @@ export default function CartPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <Link href={`/produkty/${item.slug}`} className="font-medium hover:underline text-sm leading-tight">
+                          <Link href={getProductUrl(item.slug, item.categorySlug)} className="font-medium hover:underline text-sm leading-tight">
                             {item.name}
                           </Link>
                           {item.variant && (
@@ -142,7 +141,6 @@ export default function CartPage() {
                           value={item.quantity}
                           onDecrement={() => updateQuantity(item.id, item.quantity - 1)}
                           onIncrement={() => updateQuantity(item.id, item.quantity + 1)}
-                          max={item.stock}
                           size="md"
                           bordered
                         />

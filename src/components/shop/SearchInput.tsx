@@ -3,13 +3,14 @@
 import { Search } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useRef, useState, useEffect } from 'react';
-import { formatPrice, getStrapiImageUrl } from '@/lib/utils';
+import { formatPrice, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 
 interface Suggestion {
   name: string;
   slug: string;
+  categorySlug: string | null;
   price: number;
   image: string | null;
 }
@@ -17,6 +18,7 @@ interface Suggestion {
 export function SearchInput() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -67,7 +69,7 @@ export function SearchInput() {
     if (q) params.set('search', q);
     else params.delete('search');
     params.delete('page');
-    router.push(`/produkty?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -82,7 +84,7 @@ export function SearchInput() {
     } else if (e.key === 'Enter' && activeIndex >= 0) {
       e.preventDefault();
       setOpen(false);
-      router.push(`/produkty/${suggestions[activeIndex].slug}`);
+      router.push(getProductUrl(suggestions[activeIndex].slug, suggestions[activeIndex].categorySlug ?? undefined));
     } else if (e.key === 'Escape') {
       setOpen(false);
     }
@@ -109,7 +111,7 @@ export function SearchInput() {
           {suggestions.map((item, i) => (
             <li key={item.slug}>
               <Link
-                href={`/produkty/${item.slug}`}
+                href={getProductUrl(item.slug, item.categorySlug ?? undefined)}
                 onClick={() => setOpen(false)}
                 className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-muted/50 ${
                   i === activeIndex ? 'bg-muted/50' : ''
