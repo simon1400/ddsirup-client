@@ -197,12 +197,8 @@ export async function generateInvoicePdf(
     const lineBase = unitBase * item.quantity;
     const lineVat = item.totalPrice - lineBase;
     const label = item.productName + (item.variantName ? ` - ${item.variantName}` : '');
-    const sku = item.variantVolume ? `SKU: ${item.variantVolume}` : '';
 
     drawText(page, label, colX[0], y, regular, 9);
-    if (sku) {
-      drawText(page, sku, colX[0], y - 11, regular, 7, GRAY);
-    }
 
     const vals = [
       formatCzk(item.unitPrice),
@@ -218,7 +214,7 @@ export async function generateInvoicePdf(
       drawText(page, vals[i], colX[i + 1] - tw + (i < 2 ? 30 : 40), y, regular, 9);
     }
 
-    y -= sku ? 26 : 18;
+    y -= 18;
   }
 
   drawLine(page, margin - 4, y + 4, rightEdge + 4, y + 4);
@@ -237,59 +233,58 @@ export async function generateInvoicePdf(
   const summaryValX = rightEdge;
   let sy = y + (order.notes ? 29 : 0);
 
+  const shippingCost = order.shippingCost ?? 0;
+  const discountAmt = order.discountAmount ?? 0;
+  const totalWithVat = order.total;
+  const totalBase = totalWithVat / (1 + vatRate);
+  const totalVat = totalWithVat - totalBase;
+
   const summaryLines: [string, string, boolean][] = [
     ['Mezisoučet', formatCzk(order.subtotal), false],
   ];
 
-  if (order.discountAmount && order.discountAmount > 0) {
+  if (discountAmt > 0) {
     summaryLines.push([
       `Sleva${order.couponCode ? ` (${order.couponCode})` : ''}`,
-      `- ${formatCzk(order.discountAmount)}`,
+      `- ${formatCzk(discountAmt)}`,
       false,
     ]);
   }
 
-  const shippingCost = order.shippingCost ?? 0;
-  const discountAmt = order.discountAmount ?? 0;
-  const taxableTotal = order.subtotal - discountAmt + shippingCost;
   summaryLines.push(
-    [`DPH ${vatPercent} %`, formatCzk(vatAmount(taxableTotal, vatRate)), true],
-    ['Základ', formatCzk(taxableTotal / (1 + vatRate)), true],
     ['Doprava', formatCzk(shippingCost), false],
-    ['Celkem', formatCzk(order.total), true],
+  );
+
+  // Separator before VAT breakdown
+  summaryLines.push(
+    [`Základ bez DPH`, formatCzk(totalBase), false],
+    [`DPH ${vatPercent} %`, formatCzk(totalVat), false],
+  );
+
+  // Total
+  summaryLines.push(
+    ['Celkem s DPH', formatCzk(totalWithVat), true],
   );
 
   for (const [label, value, isBold] of summaryLines) {
     const f = isBold ? bold : regular;
-    const size = label === 'Celkem' ? 11 : 9;
+    const size = label === 'Celkem s DPH' ? 11 : 9;
+
+    // Draw separator line before "Základ bez DPH"
+    if (label === 'Základ bez DPH') {
+      drawLine(page, summaryX, sy + 10, rightEdge, sy + 10);
+      sy -= 4;
+    }
+    // Draw separator line before "Celkem s DPH"
+    if (label === 'Celkem s DPH') {
+      drawLine(page, summaryX, sy + 10, rightEdge, sy + 10);
+      sy -= 4;
+    }
+
     drawText(page, label, summaryX, sy, f, size);
     const tw = textWidth(value, f, size);
     drawText(page, value, summaryValX - tw, sy, f, size);
     sy -= size + 5;
-  }
-
-  // ---- VAT recap ----
-  sy -= 10;
-  drawLine(page, summaryX, sy + 14, rightEdge, sy + 14);
-  sy -= 2;
-
-  drawText(page, 'Rekapitulace DPH', summaryX + 30, sy, bold, 9);
-  sy -= 14;
-
-  const taxableTotalForRecap = order.subtotal - (order.discountAmount ?? 0) + (order.shippingCost ?? 0);
-  const vatBase = taxableTotalForRecap / (1 + vatRate);
-  const vatAmt = taxableTotalForRecap - vatBase;
-  const recapRows: [string, string][] = [
-    ['% DPH:', `${vatPercent}%`],
-    ['Základ:', formatCzk(vatBase)],
-    ['DPH:', formatCzk(vatAmt)],
-  ];
-
-  for (const [label, value] of recapRows) {
-    drawText(page, label, summaryX, sy, bold, 9);
-    const tw = textWidth(value, regular, 9);
-    drawText(page, value, summaryValX - tw, sy, regular, 9);
-    sy -= 14;
   }
 
   // Generate PDF bytes
@@ -297,6 +292,3 @@ export async function generateInvoicePdf(
   return Buffer.from(pdfBytes);
 }
 
-function vatAmount(subtotal: number, vatRate: number): number {
-  return subtotal - subtotal / (1 + vatRate);
-}

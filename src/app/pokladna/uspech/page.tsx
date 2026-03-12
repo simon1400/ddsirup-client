@@ -16,7 +16,7 @@ import { CheckoutStepper } from '@/components/checkout/CheckoutStepper';
 import { OrderMetaCard } from '@/components/checkout/success/OrderMetaCard';
 import { OrderDetailsCard } from '@/components/checkout/success/OrderDetailsCard';
 import { OrderAddresses } from '@/components/checkout/success/OrderAddresses';
-import { getOrderByNumber } from '@/lib/strapi';
+import { getOrderByNumber, getGlobalInfo } from '@/lib/strapi';
 import { formatPrice, getPaymentLabel } from '@/lib/utils';
 import { FacebookPurchase } from '@/components/tracking/FacebookPurchase';
 
@@ -31,7 +31,11 @@ interface SuccessPageProps {
 
 export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const params = await searchParams;
-  const order = params.order ? await getOrderByNumber(params.order) : null;
+  const [order, globalInfo] = await Promise.all([
+    params.order ? getOrderByNumber(params.order) : null,
+    getGlobalInfo(),
+  ]);
+  const vatRate = globalInfo?.vatRate ?? 12;
 
   return (
     <div className="py-8 min-h-screen">
@@ -97,7 +101,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
 
         {order && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-            <OrderDetailsCard order={order} />
+            <OrderDetailsCard order={order} vatRate={vatRate} />
             <OrderAddresses order={order} />
           </div>
         )}

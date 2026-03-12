@@ -1,7 +1,6 @@
 import type { Order } from '@/types/order';
 import type { GlobalInfo } from '@/types/global-info';
 import { getPaymentLabel, formatPriceFixed, formatDate, getStrapiImageUrl } from '@/lib/utils';
-import { SITE_URL } from '@/lib/constants';
 
 export function buildOrderConfirmationHtml(
   order: Order,
@@ -11,7 +10,7 @@ export function buildOrderConfirmationHtml(
   const vatPercent = globalInfo.vatRate ?? 12;
   const taxableTotal = order.subtotal - (order.discountAmount ?? 0) + (order.shippingCost ?? 0);
   const vatAmount = taxableTotal - taxableTotal / (1 + vatRate);
-  const logoUrl = `${SITE_URL}/logo.png`;
+  const logoUrl = 'https://ik.imagekit.io/vkkv0buihc/doe_deer_napis_bile_d7a7a96308_nOopqct0T.svg';
   const orderDate = formatDate(order.createdAt);
 
   // Build items HTML

@@ -2,7 +2,10 @@ import Link from 'next/link';
 import type { Order } from '@/types/order';
 import { formatPrice, getPaymentLabel, getShippingLabel, getProductUrl } from '@/lib/utils';
 
-export function OrderDetailsCard({ order }: { order: Order }) {
+export function OrderDetailsCard({ order, vatRate = 12 }: { order: Order; vatRate?: number }) {
+  const taxableTotal = order.total;
+  const vatAmount = taxableTotal - taxableTotal / (1 + vatRate / 100);
+  const totalWithoutVat = taxableTotal - vatAmount;
   return (
     <div className="lg:col-span-2 space-y-6">
       <div className="bg-white rounded-2xl border p-6">
@@ -55,7 +58,7 @@ export function OrderDetailsCard({ order }: { order: Order }) {
             <span className="text-muted-foreground">Mezisoučet</span>
             <span>{formatPrice(order.subtotal)}</span>
           </div>
-          {order.discountAmount && order.discountAmount > 0 && (
+          {order.discountAmount != null && order.discountAmount > 0 && (
             <div className="flex justify-between text-green-600">
               <span>
                 Sleva{order.couponCode ? ` (${order.couponCode})` : ''}
@@ -74,6 +77,14 @@ export function OrderDetailsCard({ order }: { order: Order }) {
           <div className="flex justify-between font-bold text-lg pt-2 border-t">
             <span>Cena celkem</span>
             <span className="text-coral">{formatPrice(order.total)}</span>
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Cena bez DPH</span>
+            <span>{formatPrice(totalWithoutVat)}</span>
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>DPH {vatRate} %</span>
+            <span>{formatPrice(vatAmount)}</span>
           </div>
         </div>
       </div>
