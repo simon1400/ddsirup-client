@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { trackLead } from '@/lib/facebook-pixel';
 
 export function ContactForm() {
   const [name, setName] = useState('');
@@ -26,6 +27,7 @@ export function ContactForm() {
         throw new Error(data.error ?? 'Chyba při odeslání');
       }
 
+      trackLead({ email, firstName: name });
       setStatus('success');
       setName('');
       setEmail('');

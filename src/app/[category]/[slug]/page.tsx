@@ -15,6 +15,7 @@ import {
   getCanonicalUrl,
   stripHtml,
 } from '@/lib/seo';
+import { FacebookViewContent } from '@/components/tracking/FacebookViewContent';
 
 export const revalidate = 3600;
 
@@ -162,6 +163,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </div>
 
       <ProductInfoSections product={product} />
+
+      <FacebookViewContent
+        contentId={String(product.id)}
+        contentName={product.name}
+        contentCategory={category?.name}
+        value={product.variants?.[0]?.price ?? product.price}
+      />
     </Container>
   );
 }

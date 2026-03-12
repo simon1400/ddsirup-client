@@ -13,6 +13,8 @@ import { VatRateProvider } from '@/providers/vat-rate-provider';
 import { SITE_URL } from '@/lib/constants';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { Suspense } from 'react';
+import { FacebookPageView } from '@/components/tracking/FacebookPageView';
 
 const josefinSans = Josefin_Sans({
   variable: '--font-josefin-sans',
@@ -73,6 +75,9 @@ export default async function RootLayout({
               <Footer />
             </div>
             <CartDrawer />
+            <Suspense fallback={null}>
+              <FacebookPageView />
+            </Suspense>
             <Toaster richColors />
           </VatRateProvider>
         </QueryProvider>

@@ -11,6 +11,7 @@ import { sendOrderConfirmation } from '@/lib/send-order-confirmation';
 import { createMessengerShipment } from '@/lib/messenger';
 import { getBottleWeight } from '@/lib/shipping';
 import { MESSENGER_PACKAGE_MAX_KG, PACKAGING_WEIGHT_KG } from '@/lib/constants';
+import { sendFbEvents, hashForFb, type FbEvent } from '@/lib/facebook-capi';
 
 /**
  * Comgate webhook handler
@@ -101,7 +102,36 @@ async function processOrderPaid(
     console.error('[webhook] Failed to send confirmation email:', emailErr);
   }
 
-  // 2. Create Messenger shipment
+  // 2. Send Facebook CAPI Purchase event
+  try {
+    const purchaseEvent: FbEvent = {
+      event_name: 'Purchase',
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: `purchase_${order.orderNumber}`,
+      action_source: 'website',
+      user_data: {
+        em: await hashForFb(order.customerEmail),
+        ph: order.customerPhone ? await hashForFb(order.customerPhone.replace(/\s/g, '')) : undefined,
+        fn: await hashForFb(order.customerFirstName),
+        ln: await hashForFb(order.customerLastName),
+        country: await hashForFb('cz'),
+      },
+      custom_data: {
+        value: order.total,
+        currency: 'CZK',
+        content_type: 'product',
+        content_ids: order.items.map((item: { productSlug: string }) => item.productSlug),
+        num_items: order.items.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0),
+        order_id: order.orderNumber,
+      },
+    };
+    await sendFbEvents([purchaseEvent]);
+    console.log(`[webhook] Facebook CAPI Purchase sent for order ${refId}`);
+  } catch (fbErr) {
+    console.error('[webhook] Failed to send Facebook CAPI Purchase:', fbErr);
+  }
+
+  // 3. Create Messenger shipment
   try {
     const globalInfo = await getGlobalInfo();
     const shippingAddr = order.shippingAddress ?? order.billingAddress;

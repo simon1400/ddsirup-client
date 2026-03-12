@@ -18,6 +18,7 @@ import { OrderDetailsCard } from '@/components/checkout/success/OrderDetailsCard
 import { OrderAddresses } from '@/components/checkout/success/OrderAddresses';
 import { getOrderByNumber } from '@/lib/strapi';
 import { formatPrice, getPaymentLabel } from '@/lib/utils';
+import { FacebookPurchase } from '@/components/tracking/FacebookPurchase';
 
 export const metadata: Metadata = {
   title: 'Objednávka přijata',
@@ -99,6 +100,23 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
             <OrderDetailsCard order={order} />
             <OrderAddresses order={order} />
           </div>
+        )}
+
+        {order && (
+          <FacebookPurchase
+            orderId={order.orderNumber}
+            value={order.total}
+            items={order.items.map((i: { productSlug: string; quantity: number }) => ({
+              productSlug: i.productSlug,
+              quantity: i.quantity,
+            }))}
+            email={order.customerEmail}
+            phone={order.customerPhone}
+            firstName={order.customerFirstName}
+            lastName={order.customerLastName}
+            city={order.billingAddress?.city}
+            zip={order.billingAddress?.zip}
+          />
         )}
 
         {/* CTAs */}

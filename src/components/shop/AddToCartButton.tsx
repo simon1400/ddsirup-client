@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/cart.store';
 import { cartItemFromProduct } from '@/types/cart';
+import { trackAddToCart } from '@/lib/facebook-pixel';
 import type { Product, ProductVariant } from '@/types/product';
 
 interface AddToCartButtonProps {
@@ -20,7 +21,14 @@ export function AddToCartButton({ product, variant, quantity = 1 }: AddToCartBut
 
   function handleAdd() {
     setIsAdding(true);
+    const price = variant?.price ?? product.price;
     addItem(cartItemFromProduct(product, quantity, variant));
+    trackAddToCart({
+      contentId: String(product.id),
+      contentName: product.name,
+      value: price * quantity,
+      quantity,
+    });
     toast.success(`${product.name} přidán do košíku`);
     openCart();
     setTimeout(() => setIsAdding(false), 500);
