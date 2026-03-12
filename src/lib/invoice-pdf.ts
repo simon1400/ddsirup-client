@@ -119,32 +119,7 @@ export async function generateInvoicePdf(
   drawText(page, 'FAKTURA', margin, y, bold, 24);
   y -= 40;
 
-  // ---- Customer info (left) + Invoice metadata (right) ----
-  const billing = order.billingAddress;
-  const customerName = `${order.customerFirstName} ${order.customerLastName}`;
-  const custLines: string[] = [
-    customerName,
-    ...(billing.company ? [billing.company] : []),
-    billing.street,
-    ...(billing.streetLine2 ? [billing.streetLine2] : []),
-    `${billing.zip} ${billing.city}`,
-    billing.country || 'Česká republika',
-    order.customerEmail,
-    order.customerPhone ?? '',
-  ].filter(Boolean);
-
-  if (billing.ico) custLines.push(`IČO: ${billing.ico}`);
-  if (billing.dic) custLines.push(`DIČ: ${billing.dic}`);
-
-  let custY = y;
-  for (let i = 0; i < custLines.length; i++) {
-    const f = i === 0 ? bold : regular;
-    const s = i === 0 ? 10 : 9;
-    drawText(page, custLines[i], margin, custY, f, s);
-    custY -= s + 3;
-  }
-
-  // Invoice metadata (right column)
+  // ---- Invoice metadata (right column) ----
   const metaData = [
     ['Číslo faktury:', invoiceNumber],
     ['Číslo objednávky:', order.orderNumber],
@@ -159,6 +134,35 @@ export async function generateInvoicePdf(
     drawText(page, label, metaLabelX, metaY, bold, 9);
     drawText(page, value, metaValX, metaY, regular, 9);
     metaY -= 14;
+  }
+
+  // ---- Billing address (left) ----
+  const billing = order.billingAddress;
+  const customerName = `${order.customerFirstName} ${order.customerLastName}`;
+  const resolveCountry = (c?: string) =>
+    !c || c === 'CZ' ? 'Česká republika' : c;
+
+  drawText(page, 'Fakturační adresa', margin, y, bold, 9);
+  y -= 14;
+
+  const billingLines: string[] = [
+    customerName,
+    ...(billing.company ? [billing.company] : []),
+    billing.street,
+    ...(billing.streetLine2 ? [billing.streetLine2] : []),
+    `${billing.zip} ${billing.city}`,
+    resolveCountry(billing.country),
+    order.customerEmail,
+    order.customerPhone ?? '',
+  ].filter(Boolean);
+
+  if (billing.ico) billingLines.push(`IČO: ${billing.ico}`);
+  if (billing.dic) billingLines.push(`DIČ: ${billing.dic}`);
+
+  let custY = y;
+  for (const line of billingLines) {
+    drawText(page, line, margin, custY, regular, 9);
+    custY -= 12;
   }
 
   y = Math.min(custY, metaY) - 20;

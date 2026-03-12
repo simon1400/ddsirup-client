@@ -54,6 +54,7 @@ export function getPaymentLabel(method?: string): string {
     case 'GPAY':
       return 'Google Pay';
     case 'ALL':
+      return 'Online platba';
     default:
       return method ?? 'Comgate';
   }

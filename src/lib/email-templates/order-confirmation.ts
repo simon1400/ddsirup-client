@@ -101,7 +101,7 @@ export function buildOrderConfirmationHtml(
           <!-- Logo header -->
           <tr>
             <td style="padding:24px 32px 16px 32px;">
-              <img src="${logoUrl}" alt="Doe &amp; Deer Sirup" height="40" style="display:block;height:40px;width:auto;" />
+              <img src="${logoUrl}" alt="Doe &amp; Deer Sirup" width="200" style="display:block;width:200px;height:auto;" />
             </td>
           </tr>
 
