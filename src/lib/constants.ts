@@ -22,10 +22,10 @@ export const FEATURE_BLOCK_COLORS = [
 
 /** Weight in kg per bottle volume (liters) */
 export const BOTTLE_WEIGHTS: Record<number, number> = {
-  1: 1.63,    // 1L bottle
-  0.5: 0.860, // 0.5L bottle
+  1: 1.55,    // 1L bottle
+  0.5: 0.830, // 0.5L bottle
 };
-export const DEFAULT_BOTTLE_WEIGHT = 1.63;
+export const DEFAULT_BOTTLE_WEIGHT = 1.55;
 
 /** Max weight per Messenger package in kg */
 export const MESSENGER_PACKAGE_MAX_KG = 10;
@@ -33,8 +33,8 @@ export const MESSENGER_PACKAGE_MAX_KG = 10;
 /** Max bottles per Messenger package (7+ bottles = 2 packages) */
 export const BOTTLES_PER_PACKAGE = 6;
 
-/** Weight of packaging material per package in kg */
-export const PACKAGING_WEIGHT_KG = 0.25;
+/** Weight of packaging material per package in kg (included in bottle weights) */
+export const PACKAGING_WEIGHT_KG = 0;
 
 /** Shipping price table per number of packages (bez DPH). Index = package count. */
 export const MESSENGER_PRICE_TABLE = [
