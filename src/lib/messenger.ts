@@ -1,7 +1,7 @@
 import type { Address } from '@/types/order';
 
-const MESSENGER_API_URL_PROD = 'https://api.messenger.cz/MessengerWeb/api/json';
-const MESSENGER_API_URL_TEST = 'https://api-test.messenger.cz/MessengerWeb/API/REST/public/json';
+const MESSENGER_API_URL_PROD = 'https://api.messenger.cz/MessengerWeb/PublicREST/JSON';
+const MESSENGER_API_URL_TEST = 'https://api-test.messenger.cz/MessengerWeb/PublicREST/JSON';
 const MESSENGER_IMPORT_KEY = process.env.MESSENGER_IMPORT_KEY ?? '';
 const MESSENGER_CUSTOMER_NUMBER = process.env.MESSENGER_CUSTOMER_NUMBER ?? '';
 const MESSENGER_PASSWORD = process.env.MESSENGER_PASSWORD ?? '';
@@ -31,7 +31,8 @@ function splitStreetAndNumber(street: string): { streetName: string; houseNumber
 }
 
 /**
- * Create a shipment in Messenger via their REST importer API.
+ * Create a shipment in Messenger via their PublicREST importer API.
+ * Uses parameter-based auth (customerNumber + password in body).
  */
 export async function createMessengerShipment(params: {
   deliveryAddress: Address;
@@ -49,7 +50,8 @@ export async function createMessengerShipment(params: {
   const { streetName, houseNumber } = splitStreetAndNumber(params.deliveryAddress.street);
 
   const payload = {
-    customerNumber: MESSENGER_CUSTOMER_NUMBER,
+    // Auth (parameter-based, no HTTP Basic Auth)
+    customerNumber: Number(MESSENGER_CUSTOMER_NUMBER),
     password: MESSENGER_PASSWORD,
     importKey: MESSENGER_IMPORT_KEY,
 
@@ -73,40 +75,45 @@ export async function createMessengerShipment(params: {
 
     // Shipment details
     dobirka: 0, // no cash-on-delivery
-    typ_prepravy: MESSENGER_SHIPPING_TYPE,
+    typ_prepravy: Number(MESSENGER_SHIPPING_TYPE),
     hmotnost: params.weightKg.toFixed(1),
     pocet_kusu: params.packageCount,
     kod_zasilky: params.orderNumber,
     poznamka_kam: params.notes ?? '',
   };
 
-  const basicAuth = Buffer.from(`${MESSENGER_CUSTOMER_NUMBER}:${MESSENGER_PASSWORD}`).toString('base64');
+  const url = `${apiUrl}/importParcel`;
+  console.log(`[messenger] POST ${url}`, JSON.stringify(payload, null, 2));
 
-  const res = await fetch(`${apiUrl}/import/importParcel`, {
+  const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Basic ${basicAuth}`,
     },
     body: JSON.stringify(payload),
   });
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
+    console.error(`[messenger] HTTP ${res.status}: ${text}`);
     throw new Error(`Messenger API error ${res.status}: ${text}`);
   }
 
   const data = await res.json();
-  const result = data.importResult;
+  console.log('[messenger] Response:', JSON.stringify(data, null, 2));
 
-  if (!result?.success) {
-    const errors = result?.dataErrors?.join(', ') ?? 'Unknown error';
+  if (!data.success) {
+    const authOk = data.authentification?.success;
+    const keyOk = data.importKey?.success;
+    const pairsOk = data.pairs?.success;
+    const errors = data.dataErrors?.join(', ') ?? 'Unknown error';
+    console.error(`[messenger] Import failed — auth:${authOk} key:${keyOk} pairs:${pairsOk} errors:${errors}`);
     throw new Error(`Messenger import failed: ${errors}`);
   }
 
   return {
-    shipmentId: String(result.ids?.[0] ?? ''),
-    trackingCode: result.trackingCodes?.[0] ?? '',
-    trackingUrl: result.trackingURL ?? '',
+    shipmentId: String(data.ids?.[0] ?? ''),
+    trackingCode: data.trackingCodes?.[0] ?? '',
+    trackingUrl: data.trackingURL ?? '',
   };
 }
