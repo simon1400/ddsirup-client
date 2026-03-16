@@ -63,6 +63,7 @@ export async function sendOrderConfirmation(order: Order): Promise<void> {
   await resend.emails.send({
     from: globalInfo.orderFromEmail || process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
     to: order.customerEmail,
+    bcc: 'objednavkyeshop@ddsirup.co',
     subject: `Potvrzení objednávky ${order.orderNumber} — DD Sirup`,
     html: htmlBody,
     attachments: [
