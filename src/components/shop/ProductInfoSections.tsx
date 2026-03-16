@@ -90,16 +90,30 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
       )}
 
       {hasFooter && (
-        <div className="text-center text-sm md:text-lg text-muted-foreground space-y-1">
+        <div className="relative mt-10 md:mt-0 rounded-3xl bg-muted p-8 md:p-10 space-y-4">
           {product.ingredients && (
-            <p>Složení: {product.ingredients}</p>
+            <div>
+              <h3 className="font-bold text-lg md:text-xl mb-1">Složení</h3>
+              <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                {product.ingredients}
+              </p>
+            </div>
           )}
           {(product.countryOfOrigin || product.madeIn) && (
-            <p>
-              {product.countryOfOrigin && `Země původu: ${product.countryOfOrigin}`}
-              {product.countryOfOrigin && product.madeIn && '  '}
-              {product.madeIn && `Vyrobeno: ${product.madeIn}`}
-            </p>
+            <div className="flex flex-wrap gap-x-8 gap-y-2">
+              {product.countryOfOrigin && (
+                <div>
+                  <span className=" text-md md:text-lg">Země původu: </span>
+                  <span className="text-md md:text-lg text-coral font-bold">{product.countryOfOrigin}</span>
+                </div>
+              )}
+              {product.madeIn && (
+                <div>
+                  <span className=" text-md md:text-lg">Vyrobeno: </span>
+                  <span className="text-md md:text-lg text-coral font-bold">{product.madeIn}</span>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}

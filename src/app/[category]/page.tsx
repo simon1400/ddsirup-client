@@ -134,6 +134,18 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
         {category.name}
       </h1>
 
+      {/* Category description block */}
+      {category.description && (
+        <div
+          className="rounded-3xl p-8 mb-15 max-w-3xl mx-auto prose prose-lg"
+          style={{
+            backgroundColor: category.color || tabColor || '#F08080',
+            opacity: 0.9,
+          }}
+          dangerouslySetInnerHTML={{ __html: category.description }}
+        />
+      )}
+
       {/* Search */}
       <div className="flex justify-center mb-15">
         <Suspense>
