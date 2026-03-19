@@ -13,9 +13,10 @@ interface AddToCartButtonProps {
   product: Product;
   variant?: ProductVariant;
   quantity?: number;
+  disabled?: boolean;
 }
 
-export function AddToCartButton({ product, variant, quantity = 1 }: AddToCartButtonProps) {
+export function AddToCartButton({ product, variant, quantity = 1, disabled }: AddToCartButtonProps) {
   const [isAdding, setIsAdding] = useState(false);
   const { addItem, openCart } = useCartStore();
 
@@ -39,7 +40,7 @@ export function AddToCartButton({ product, variant, quantity = 1 }: AddToCartBut
       size="lg"
       className="w-full bg-coral hover:bg-coral/90 text-white"
       onClick={handleAdd}
-      disabled={isAdding}
+      disabled={isAdding || disabled}
     >
       <ShoppingCart className="h-5 w-5 mr-2" />
       Přidat do košíku

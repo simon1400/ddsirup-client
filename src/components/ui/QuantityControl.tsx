@@ -22,6 +22,7 @@ interface QuantityControlProps {
   size?: Size;
   /** Wrap with a border rounded-md container (product detail style) */
   bordered?: boolean;
+  disabled?: boolean;
 }
 
 export function QuantityControl({
@@ -32,6 +33,7 @@ export function QuantityControl({
   max,
   size = 'md',
   bordered = false,
+  disabled = false,
 }: QuantityControlProps) {
   const s = SIZE_MAP[size];
   const variant = bordered ? 'ghost' : 'outline';
@@ -43,7 +45,7 @@ export function QuantityControl({
         size="icon"
         className={cn(s.btn, bordered && 'rounded-r-none')}
         onClick={onDecrement}
-        disabled={value <= min}
+        disabled={disabled || value <= min}
       >
         <Minus className={s.icon} />
       </Button>
@@ -53,7 +55,7 @@ export function QuantityControl({
         size="icon"
         className={cn(s.btn, bordered && 'rounded-l-none')}
         onClick={onIncrement}
-        disabled={max !== undefined && value >= max}
+        disabled={disabled || (max !== undefined && value >= max)}
       >
         <Plus className={s.icon} />
       </Button>

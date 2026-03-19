@@ -51,6 +51,7 @@ export interface Product {
   ingredients?: string;
   countryOfOrigin?: string;
   madeIn?: string;
+  inStock?: boolean;
   relatedProducts?: Product[];
   seo?: SeoComponent;
   createdAt: string;

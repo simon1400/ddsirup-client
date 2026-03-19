@@ -7,6 +7,8 @@ export interface HeroProps {
   video?: StrapiImage;
   posterImage?: StrapiImage;
   categories?: Category[];
+  customButtonText?: string;
+  customButtonUrl?: string;
 }
 
 export interface CategoriesSection {
@@ -70,6 +72,8 @@ export interface Homepage {
   heroVideo?: StrapiImage;
   heroPosterImage?: StrapiImage;
   heroCategories?: Category[];
+  heroCustomButtonText?: string;
+  heroCustomButtonUrl?: string;
   sections: HomepageSection[];
   seo?: import('./product').SeoComponent;
   createdAt: string;

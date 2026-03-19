@@ -11,6 +11,7 @@ import type { Product, ProductVariant } from '@/types/product';
 
 interface ProductVariantSectionProps {
   product: Product;
+  disabled?: boolean;
 }
 
 function getMaxVariant(variants: ProductVariant[]): ProductVariant | undefined {
@@ -19,7 +20,7 @@ function getMaxVariant(variants: ProductVariant[]): ProductVariant | undefined {
     .sort((a, b) => (b.price ?? 0) - (a.price ?? 0))[0];
 }
 
-export function ProductVariantSection({ product }: ProductVariantSectionProps) {
+export function ProductVariantSection({ product, disabled }: ProductVariantSectionProps) {
   const vatRate = useVatRate();
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
@@ -83,9 +84,10 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
             min={1}
             size="lg"
             bordered
+            disabled={disabled}
           />
           <div className="flex-1">
-            <AddToCartButton product={product} variant={selectedVariant} quantity={quantity} />
+            <AddToCartButton product={product} variant={selectedVariant} quantity={quantity} disabled={disabled} />
           </div>
         </div>
       </div>

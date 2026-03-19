@@ -131,14 +131,14 @@ export function HeroSection({ hero }: Props) {
           </p>
         )}
 
-        {/* Category buttons */}
-        {categories.length > 0 && (
-          <div className="flex flex-wrap gap-5 md:gap-10 justify-center">
+        {/* Category buttons + custom button */}
+        {(categories.length > 0 || hero.customButtonText) && (
+          <div className="flex flex-col md:flex-row flex-wrap gap-5 md:gap-10 justify-center">
             {categories.slice(0, 2).map((cat, i) => (
               <Link
                 key={cat.documentId}
                 href={`/${cat.slug}`}
-                className="px-20 md:px-30 py-6 rounded-full font-bold uppercase text-lg tracking-widest text-gray-900 transition-opacity hover:opacity-90"
+                className="md:px-30 py-6 rounded-full font-bold uppercase text-lg tracking-widest text-gray-900 transition-opacity hover:opacity-90"
                 style={{
                   backgroundColor: cat.color ?? CATEGORY_COLORS[i] ?? '#F0D060',
                   boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3)',
@@ -147,6 +147,18 @@ export function HeroSection({ hero }: Props) {
                 {cat.name}
               </Link>
             ))}
+            {hero.customButtonText && hero.customButtonUrl && (
+              <Link
+                href={hero.customButtonUrl}
+                className="md:px-30 py-6 w-full md:w-auto rounded-full font-bold uppercase whitespace-nowrap text-lg tracking-widest text-gray-900 transition-opacity hover:opacity-90"
+                style={{
+                  backgroundColor: '#A8C98E',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3)',
+                }}
+              >
+                {hero.customButtonText}
+              </Link>
+            )}
           </div>
         )}
       </div>

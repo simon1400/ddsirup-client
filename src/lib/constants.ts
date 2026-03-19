@@ -30,9 +30,6 @@ export const DEFAULT_BOTTLE_WEIGHT = 1.55;
 /** Max weight per Messenger package in kg */
 export const MESSENGER_PACKAGE_MAX_KG = 10;
 
-/** Max bottles per Messenger package (7+ bottles = 2 packages) */
-export const BOTTLES_PER_PACKAGE = 6;
-
 /** Weight of packaging material per package in kg (included in bottle weights) */
 export const PACKAGING_WEIGHT_KG = 0;
 

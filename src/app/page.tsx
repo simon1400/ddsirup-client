@@ -63,6 +63,8 @@ export default async function HomePage() {
             video: homepage!.heroVideo,
             posterImage: homepage!.heroPosterImage,
             categories: homepage!.heroCategories,
+            customButtonText: homepage!.heroCustomButtonText,
+            customButtonUrl: homepage!.heroCustomButtonUrl,
           }}
         />
       )}

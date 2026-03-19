@@ -11,6 +11,7 @@ import type { GlobalInfo } from '@/types/global-info';
 import type { Homepage } from '@/types/homepage';
 import type { ContactPage } from '@/types/contact-page';
 import type { InfoPage } from '@/types/info-page';
+import type { WholesalePage } from '@/types/wholesale-page';
 
 import { STRAPI_URL } from './constants';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
@@ -349,6 +350,20 @@ export async function getContactPage(): Promise<ContactPage | null> {
   );
   const res = await strapiRequest<StrapiResponse<ContactPage>>(`/contact-page?${query}`, {
     next: { revalidate: 0, tags: ['contact-page'] },
+  }).catch(() => null);
+
+  return res?.data ?? null;
+}
+
+// ---- Wholesale Page ----
+
+export async function getWholesalePage(): Promise<WholesalePage | null> {
+  const query = qs.stringify(
+    { populate: ['seo', 'seo.metaImage', 'seo.openGraph'] },
+    { encodeValuesOnly: true }
+  );
+  const res = await strapiRequest<StrapiResponse<WholesalePage>>(`/wholesale-page?${query}`, {
+    next: { revalidate: 0, tags: ['wholesale-page'] },
   }).catch(() => null);
 
   return res?.data ?? null;
