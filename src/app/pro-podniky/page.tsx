@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata({
     title: page?.seo?.metaTitle ?? page?.title ?? 'Pro podniky',
     description: page?.seo?.metaDescription ?? 'Velkoobchodní spolupráce s DD Sirup. Nabízíme zákaznický servis, ochutnávky, barové poradenství a školení.',
-    path: page?.seo?.canonicalURL ?? '/velkoobchod',
+    path: page?.seo?.canonicalURL ?? '/pro-podniky',
     ogImage: page?.seo?.metaImage ?? null,
   });
 }

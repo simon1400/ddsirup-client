@@ -11,7 +11,6 @@ import type { Product, ProductVariant } from '@/types/product';
 
 interface ProductVariantSectionProps {
   product: Product;
-  disabled?: boolean;
 }
 
 function getMaxVariant(variants: ProductVariant[]): ProductVariant | undefined {
@@ -20,7 +19,19 @@ function getMaxVariant(variants: ProductVariant[]): ProductVariant | undefined {
     .sort((a, b) => (b.price ?? 0) - (a.price ?? 0))[0];
 }
 
-export function ProductVariantSection({ product, disabled }: ProductVariantSectionProps) {
+function StockBadge({ inStock }: { inStock: boolean }) {
+  return inStock ? (
+    <span className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold bg-green-soft text-green-text">
+      Skladem
+    </span>
+  ) : (
+    <span className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold bg-coral text-coral-text">
+      Vyprodáno
+    </span>
+  );
+}
+
+export function ProductVariantSection({ product }: ProductVariantSectionProps) {
   const vatRate = useVatRate();
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
@@ -30,6 +41,7 @@ export function ProductVariantSection({ product, disabled }: ProductVariantSecti
   const [quantity, setQuantity] = useState(1);
 
   const displayPrice = selectedVariant?.price ?? product.price;
+  const isOutOfStock = selectedVariant?.inStock === false;
 
   function handleVariantChange(variantId: string) {
     const v = variants.find((v) => String(v.id) === variantId);
@@ -73,6 +85,8 @@ export function ProductVariantSection({ product, disabled }: ProductVariantSecti
         </div>
       )}
 
+      {hasVariants && <StockBadge inStock={!isOutOfStock} />}
+
       <Separator />
 
       <div className="space-y-3">
@@ -84,10 +98,10 @@ export function ProductVariantSection({ product, disabled }: ProductVariantSecti
             min={1}
             size="lg"
             bordered
-            disabled={disabled}
+            disabled={isOutOfStock}
           />
           <div className="flex-1">
-            <AddToCartButton product={product} variant={selectedVariant} quantity={quantity} disabled={disabled} />
+            <AddToCartButton product={product} variant={selectedVariant} quantity={quantity} disabled={isOutOfStock} />
           </div>
         </div>
       </div>

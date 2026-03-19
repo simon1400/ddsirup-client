@@ -35,6 +35,7 @@ export interface ProductVariant {
   volume?: string;
   sku?: string;
   price?: number;
+  inStock?: boolean;
 }
 
 export interface Product {
@@ -51,7 +52,6 @@ export interface Product {
   ingredients?: string;
   countryOfOrigin?: string;
   madeIn?: string;
-  inStock?: boolean;
   relatedProducts?: Product[];
   seo?: SeoComponent;
   createdAt: string;

@@ -148,17 +148,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="space-y-4">
           <h1 className="text-4xl md:text-6xl font-bold">{product.name}</h1>
 
-          {product.inStock === false ? (
-            <span className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold bg-coral text-coral-text">
-              Vyprodáno
-            </span>
-          ) : (
-            <span className="inline-block px-4 py-1.5 rounded-full text-sm font-semibold bg-green-soft text-green-text">
-              Skladem
-            </span>
-          )}
-
-          <ProductVariantSection product={product} disabled={product.inStock === false} />
+          <ProductVariantSection product={product} />
 
           {product.description && (
             <>
