@@ -101,17 +101,28 @@ async function processOrderPaid(
     return;
   }
 
-  // 1. Assign invoice number + send email
+  // 1. Assign invoice number
+  let invoiceNumber: string | null = null;
   try {
-    const invoiceNumber = await assignInvoiceNumber(order.documentId);
-    const orderWithInvoice = { ...order, invoiceNumber };
-    await sendOrderConfirmation(orderWithInvoice);
-    console.log(`[webhook] Confirmation email sent for order ${refId}`);
+    invoiceNumber = await assignInvoiceNumber(order.documentId);
+  } catch (invoiceErr) {
+    console.error('[webhook] Failed to assign invoice number:', invoiceErr);
+  }
+
+  // 2. Send confirmation email (even if invoice failed, try with whatever we have)
+  try {
+    const orderWithInvoice = { ...order, invoiceNumber: invoiceNumber ?? order.invoiceNumber };
+    if (orderWithInvoice.invoiceNumber) {
+      await sendOrderConfirmation(orderWithInvoice);
+      console.log(`[webhook] Confirmation email sent for order ${refId}`);
+    } else {
+      console.error(`[webhook] Cannot send email for ${refId}: no invoice number`);
+    }
   } catch (emailErr) {
     console.error('[webhook] Failed to send confirmation email:', emailErr);
   }
 
-  // 2. Send Facebook CAPI Purchase event
+  // 3. Send Facebook CAPI Purchase event
   try {
     const purchaseEvent: FbEvent = {
       event_name: 'Purchase',
@@ -140,7 +151,7 @@ async function processOrderPaid(
     console.error('[webhook] Failed to send Facebook CAPI Purchase:', fbErr);
   }
 
-  // 3. Create Messenger shipment
+  // 4. Create Messenger shipment
   try {
     const globalInfo = await getGlobalInfo();
     const shippingAddr = order.shippingAddress ?? order.billingAddress;
