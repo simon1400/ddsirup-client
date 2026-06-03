@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { SectionRenderer } from '@/components/sections/SectionRenderer';
-import { getHomepage, getGlobalInfo } from '@/lib/strapi';
+import { getHomepage, getGlobalInfo, getProduct, getCategory } from '@/lib/strapi';
 import {
   buildPageMetadata,
   buildLocalBusinessJsonLd,

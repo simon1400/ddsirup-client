@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { Product, ProductInfoBox } from '@/types/product';
 import RelatedProducts from '@/components/shop/RelatedProducts';
+import { RecipeSection } from '@/components/shop/RecipeSection';
 
 /**
  * Returns true if the background color is dark (text should be white).
@@ -65,10 +66,11 @@ interface ProductInfoSectionsProps {
 
 export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
   const hasBoxes = product.infoBoxes && product.infoBoxes.length > 0;
+  const hasRecipes = product.recipes && product.recipes.length > 0;
   const hasFooter = product.ingredients || product.countryOfOrigin || product.madeIn;
   const hasRelated = product.relatedProducts && product.relatedProducts.length > 0;
 
-  if (!hasBoxes && !hasFooter && !hasRelated) return null;
+  if (!hasBoxes && !hasFooter && !hasRelated && !hasRecipes) return null;
 
   const boxes = product.infoBoxes ?? [];
   const lastIndex = boxes.length - 1;
@@ -88,6 +90,28 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
           ))}
         </div>
       )}
+      {hasRecipes && (() => {
+        let displayRecipes = product.recipes!;
+        if (displayRecipes.length > 2) {
+          const shuffled = [...displayRecipes];
+          for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+          }
+          displayRecipes = shuffled.slice(0, 2);
+        }
+
+        return (
+          <div className="mt-12 md:mt-20">
+            <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Recepty</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {displayRecipes.map((recipe) => (
+                <RecipeSection key={recipe.id} recipe={recipe} />
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {hasFooter && (
         <div className="relative mt-10 md:mt-0 rounded-3xl bg-muted p-8 md:p-10 space-y-4">

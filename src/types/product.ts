@@ -29,6 +29,24 @@ export interface ProductInfoBox {
   color?: string;
 }
 
+export interface RecipeBadge {
+  id: number;
+  documentId: string;
+  badgeName: string;
+  badgeColor?: string;
+}
+
+export interface ProductRecipe {
+  id: number;
+  documentId: string;
+  recipeName: string;
+  recipeType: string;
+  recipe: string;
+  badge?: RecipeBadge;
+  recipeBg?: string;
+  badgeColor?: string;
+}
+
 export interface ProductVariant {
   id: number;
   name: string;
@@ -49,6 +67,7 @@ export interface Product {
   category?: Category;
   variants?: ProductVariant[];
   infoBoxes?: ProductInfoBox[];
+  recipes?: ProductRecipe[];
   ingredients?: string;
   countryOfOrigin?: string;
   madeIn?: string;

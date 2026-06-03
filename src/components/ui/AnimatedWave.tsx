@@ -20,54 +20,99 @@ const BREATHE_2_VALUES = [
 const EASE_SPLINES = '0.42 0 0.58 1;0.42 0 0.58 1;0.42 0 0.58 1';
 
 interface AnimatedWaveProps {
-  position: 'top' | 'bottom';
+  position: 'top' | 'bottom' | 'left' | 'right';
+  size?: 'default' | 'small';
+  absolute?: boolean;
 }
 
-export function AnimatedWave({ position }: AnimatedWaveProps) {
+export function AnimatedWave({ position, size = 'default', absolute = false }: AnimatedWaveProps) {
   const isTop = position === 'top';
+  const heightStyle = size === 'small' ? 'clamp(15px, 3vw, 30px)' : 'clamp(60px, 10vw, 140px)';
+
+  const svg = (
+    <svg
+      viewBox="0 0 1920 120"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="none"
+      className="block w-full"
+      style={{ height: heightStyle }}
+    >
+      <path
+        d="M0,40 C120,80 200,80 320,35 S520,-10 640,40 S840,85 960,35 S1160,-10 1280,40 S1480,85 1600,35 S1800,-5 1920,40 L1920,120 L0,120 Z"
+        fill="white"
+      >
+        <animate
+          attributeName="d"
+          dur="4.5s"
+          repeatCount="indefinite"
+          values={BREATHE_1_VALUES}
+          keyTimes="0;0.33;0.66;1"
+          calcMode="spline"
+          keySplines={EASE_SPLINES}
+        />
+      </path>
+      <path
+        d="M0,45 C150,85 250,90 400,35 S650,-5 800,45 S1050,90 1200,35 S1450,-5 1600,45 S1800,80 1920,45 L1920,120 L0,120 Z"
+        fill="rgba(255,255,255,0.5)"
+      >
+        <animate
+          attributeName="d"
+          dur="5.5s"
+          repeatCount="indefinite"
+          values={BREATHE_2_VALUES}
+          keyTimes="0;0.33;0.66;1"
+          calcMode="spline"
+          keySplines={EASE_SPLINES}
+        />
+      </path>
+    </svg>
+  );
+
+  if (position === 'left') {
+    return (
+      <div 
+        className="absolute left-0 top-full origin-top-left -rotate-90 overflow-hidden leading-none z-0 pointer-events-none"
+        style={{ width: '100cqh' }}
+      >
+        <div className="rotate-180">{svg}</div>
+      </div>
+    );
+  }
+
+  if (position === 'right') {
+    return (
+      <div 
+        className="absolute left-full top-0 origin-top-left rotate-90 overflow-hidden leading-none z-0 pointer-events-none"
+        style={{ width: '100cqh' }}
+      >
+        <div className="rotate-180">{svg}</div>
+      </div>
+    );
+  }
+
+  if (position === 'top' && absolute) {
+    return (
+      <div className="absolute top-0 left-0 w-full overflow-hidden leading-none z-0 pointer-events-none rotate-180 -translate-y-px">
+        {svg}
+      </div>
+    );
+  }
+
+  if (position === 'bottom' && absolute) {
+    return (
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-0 pointer-events-none translate-y-px">
+        {svg}
+      </div>
+    );
+  }
 
   return (
     <div
-      className={`relative w-full overflow-hidden leading-none ${
+      className={`relative w-full overflow-hidden leading-none z-0 pointer-events-none ${
         isTop ? '-top-px rotate-180' : '-bottom-px'
       }`}
     >
-      <svg
-        viewBox="0 0 1920 120"
-        xmlns="http://www.w3.org/2000/svg"
-        preserveAspectRatio="none"
-        className="block w-full"
-        style={{ height: 'clamp(60px, 10vw, 140px)' }}
-      >
-        <path
-          d="M0,40 C120,80 200,80 320,35 S520,-10 640,40 S840,85 960,35 S1160,-10 1280,40 S1480,85 1600,35 S1800,-5 1920,40 L1920,120 L0,120 Z"
-          fill="white"
-        >
-          <animate
-            attributeName="d"
-            dur="4.5s"
-            repeatCount="indefinite"
-            values={BREATHE_1_VALUES}
-            keyTimes="0;0.33;0.66;1"
-            calcMode="spline"
-            keySplines={EASE_SPLINES}
-          />
-        </path>
-        <path
-          d="M0,45 C150,85 250,90 400,35 S650,-5 800,45 S1050,90 1200,35 S1450,-5 1600,45 S1800,80 1920,45 L1920,120 L0,120 Z"
-          fill="rgba(255,255,255,0.5)"
-        >
-          <animate
-            attributeName="d"
-            dur="5.5s"
-            repeatCount="indefinite"
-            values={BREATHE_2_VALUES}
-            keyTimes="0;0.33;0.66;1"
-            calcMode="spline"
-            keySplines={EASE_SPLINES}
-          />
-        </path>
-      </svg>
+      {svg}
     </div>
   );
 }

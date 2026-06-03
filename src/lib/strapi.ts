@@ -92,6 +92,7 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
         'category.parent',
         'variants',
         'infoBoxes',
+        'recipes.badge',
         'relatedProducts.images',
         'relatedProducts.variants',
         'seo',
