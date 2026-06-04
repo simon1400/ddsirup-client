@@ -30,7 +30,7 @@ export function RecipeSection({ recipe }: RecipeSectionProps) {
             {recipe.badge && (
               <span 
                 className="text-xs md:text-sm font-normal uppercase tracking-wider"
-                style={{ color: recipe.badgeColor || recipe.badge.badgeColor || 'rgba(255, 255, 255, 0.9)' }}
+                style={{ color: recipe.badge.badgeColor || 'rgba(255, 255, 255, 0.9)' }}
               >
                 {recipe.badge.badgeName}
               </span>
@@ -42,8 +42,7 @@ export function RecipeSection({ recipe }: RecipeSectionProps) {
           {recipe.recipeName}
         </h3>
 
-        <div className="text-md md:text-lg text-white leading-relaxed font-medium whitespace-pre-wrap grow">
-          {recipe.recipe}
+        <div dangerouslySetInnerHTML={{ __html: recipe.recipe }} className="text-md md:text-lg text-white leading-relaxed font-medium whitespace-pre-wrap grow">
         </div>
       </div>
     </div>

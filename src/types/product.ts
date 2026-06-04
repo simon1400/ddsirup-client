@@ -44,7 +44,6 @@ export interface ProductRecipe {
   recipe: string;
   badge?: RecipeBadge;
   recipeBg?: string;
-  badgeColor?: string;
 }
 
 export interface ProductVariant {

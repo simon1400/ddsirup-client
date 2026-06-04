@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import Image from 'next/image';
 import type { Product, ProductInfoBox } from '@/types/product';
 import RelatedProducts from '@/components/shop/RelatedProducts';
@@ -36,11 +37,10 @@ function InfoBox({ box, index, hasSplash, splashSide }: { box: ProductInfoBox; i
           width={300}
           height={300}
           aria-hidden
-          className={`absolute z-0 pointer-events-none hidden md:block w-62.5 h-auto ${
-            splashSide === 'left'
+          className={`absolute z-0 pointer-events-none hidden md:block w-62.5 h-auto ${splashSide === 'left'
               ? '-left-24 top-1/2 -translate-y-1/2'
               : '-right-24 top-1/2 -translate-y-1/2 -scale-x-100'
-          }`}
+            }`}
         />
       )}
       <div className="rounded-3xl p-8 relative z-10" style={{ backgroundColor: bg, opacity: 0.9 }}>
@@ -70,6 +70,17 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
   const hasFooter = product.ingredients || product.countryOfOrigin || product.madeIn;
   const hasRelated = product.relatedProducts && product.relatedProducts.length > 0;
 
+  const displayRecipes = useMemo(() => {
+    const recipes = product.recipes ?? [];
+    if (recipes.length <= 2) return recipes;
+    const shuffled = [...recipes];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, 2);
+  }, [product.recipes]);
+
   if (!hasBoxes && !hasFooter && !hasRelated && !hasRecipes) return null;
 
   const boxes = product.infoBoxes ?? [];
@@ -90,28 +101,16 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
           ))}
         </div>
       )}
-      {hasRecipes && (() => {
-        let displayRecipes = product.recipes!;
-        if (displayRecipes.length > 2) {
-          const shuffled = [...displayRecipes];
-          for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-          }
-          displayRecipes = shuffled.slice(0, 2);
-        }
-
-        return (
-          <div className="mt-12 md:mt-20">
-            <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Recepty</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {displayRecipes.map((recipe) => (
-                <RecipeSection key={recipe.id} recipe={recipe} />
-              ))}
-            </div>
+      {hasRecipes && (
+        <div className="mt-12 md:mt-20">
+          <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Recepty</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {displayRecipes.map((recipe) => (
+              <RecipeSection key={recipe.id} recipe={recipe} />
+            ))}
           </div>
-        );
-      })()}
+        </div>
+      )}
 
       {hasFooter && (
         <div className="relative mt-10 md:mt-0 rounded-3xl bg-muted p-8 md:p-10 space-y-4">
