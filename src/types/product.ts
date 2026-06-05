@@ -45,6 +45,14 @@ export interface ProductRecipe {
   badge?: RecipeBadge;
 }
 
+export interface ProductDirection {
+  id: number;
+  documentId: string;
+  beverageName: string;
+  amount: string;
+  addIn?: string;
+}
+
 export interface ProductVariant {
   id: number;
   name: string;
@@ -66,6 +74,7 @@ export interface Product {
   variants?: ProductVariant[];
   infoBoxes?: ProductInfoBox[];
   recipes?: ProductRecipe[];
+  directions?: ProductDirection[];
   ingredients?: string;
   countryOfOrigin?: string;
   madeIn?: string;

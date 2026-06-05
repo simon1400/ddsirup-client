@@ -3,6 +3,7 @@ import Image from 'next/image';
 import type { Product, ProductInfoBox } from '@/types/product';
 import RelatedProducts from '@/components/shop/RelatedProducts';
 import { RecipeSection } from '@/components/shop/RecipeSection';
+import { DirectionSection } from '@/components/shop/DirectionSection';
 
 /**
  * Returns true if the background color is dark (text should be white).
@@ -38,8 +39,8 @@ function InfoBox({ box, index, hasSplash, splashSide }: { box: ProductInfoBox; i
           height={300}
           aria-hidden
           className={`absolute z-0 pointer-events-none hidden md:block w-62.5 h-auto ${splashSide === 'left'
-              ? '-left-24 top-1/2 -translate-y-1/2'
-              : '-right-24 top-1/2 -translate-y-1/2 -scale-x-100'
+            ? '-left-24 top-1/2 -translate-y-1/2'
+            : '-right-24 top-1/2 -translate-y-1/2 -scale-x-100'
             }`}
         />
       )}
@@ -67,6 +68,7 @@ interface ProductInfoSectionsProps {
 export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
   const hasBoxes = product.infoBoxes && product.infoBoxes.length > 0;
   const hasRecipes = product.recipes && product.recipes.length > 0;
+  const hasDirections = product.directions && product.directions.length > 0;
   const hasFooter = product.ingredients || product.countryOfOrigin || product.madeIn;
   const hasRelated = product.relatedProducts && product.relatedProducts.length > 0;
 
@@ -81,7 +83,7 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
     return shuffled.slice(0, 2);
   }, [product.recipes]);
 
-  if (!hasBoxes && !hasFooter && !hasRelated && !hasRecipes) return null;
+  if (!hasBoxes && !hasFooter && !hasRelated && !hasRecipes && !hasDirections) return null;
 
   const boxes = product.infoBoxes ?? [];
   const lastIndex = boxes.length - 1;
@@ -107,6 +109,16 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {displayRecipes.map((recipe) => (
               <RecipeSection key={recipe.id} recipe={recipe} />
+            ))}
+          </div>
+        </div>
+      )}
+      {hasDirections && (
+        <div className="mt-12 md:mt-20 mb-12 md:mb-20">
+          <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Jak použít</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {product.directions!.map((direction) => (
+              <DirectionSection key={direction.id} direction={direction} />
             ))}
           </div>
         </div>

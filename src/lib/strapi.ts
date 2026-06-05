@@ -93,6 +93,7 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
         'variants',
         'infoBoxes',
         'recipes.badge',
+        'directions',
         'relatedProducts.images',
         'relatedProducts.variants',
         'seo',
