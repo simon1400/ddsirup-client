@@ -23,9 +23,11 @@ interface AnimatedWaveProps {
   position: 'top' | 'bottom' | 'left' | 'right';
   size?: 'default' | 'small';
   absolute?: boolean;
+  /** SMIL begin value — use a negative offset (e.g. "-1.7s") to start mid-cycle and desync waves */
+  begin?: string;
 }
 
-export function AnimatedWave({ position, size = 'default', absolute = false }: AnimatedWaveProps) {
+export function AnimatedWave({ position, size = 'default', absolute = false, begin = '0s' }: AnimatedWaveProps) {
   const isTop = position === 'top';
   const heightStyle = size === 'small' ? 'clamp(15px, 3vw, 30px)' : 'clamp(60px, 10vw, 140px)';
 
@@ -44,6 +46,7 @@ export function AnimatedWave({ position, size = 'default', absolute = false }: A
         <animate
           attributeName="d"
           dur="4.5s"
+          begin={begin}
           repeatCount="indefinite"
           values={BREATHE_1_VALUES}
           keyTimes="0;0.33;0.66;1"
@@ -58,6 +61,7 @@ export function AnimatedWave({ position, size = 'default', absolute = false }: A
         <animate
           attributeName="d"
           dur="5.5s"
+          begin={begin}
           repeatCount="indefinite"
           values={BREATHE_2_VALUES}
           keyTimes="0;0.33;0.66;1"

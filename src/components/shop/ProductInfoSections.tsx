@@ -102,7 +102,7 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
         </div>
       )}
       {hasRecipes && (
-        <div className="mt-12 md:mt-20">
+        <div className="mt-12 md:mt-20 mb-12 md:mb-20">
           <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Recepty</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {displayRecipes.map((recipe) => (

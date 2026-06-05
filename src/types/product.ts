@@ -43,7 +43,6 @@ export interface ProductRecipe {
   recipeType: string;
   recipe: string;
   badge?: RecipeBadge;
-  recipeBg?: string;
 }
 
 export interface ProductVariant {
