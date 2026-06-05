@@ -3,7 +3,6 @@ import Image from 'next/image';
 import type { Product, ProductInfoBox } from '@/types/product';
 import RelatedProducts from '@/components/shop/RelatedProducts';
 import { RecipeSection } from '@/components/shop/RecipeSection';
-import { DirectionSection } from '@/components/shop/DirectionSection';
 
 /**
  * Returns true if the background color is dark (text should be white).
@@ -22,7 +21,7 @@ function isDarkBackground(hex: string): boolean {
   return luminance < 0.55;
 }
 
-const FALLBACK_COLORS = ['#F08080', '#A8D5A2', '#F08080', '#C8D84E'];
+const FALLBACK_COLORS = ["#F08080", "#A8D5A2", "#F08080", "#C8D84E"];
 
 function InfoBox({ box, index, hasSplash, splashSide }: { box: ProductInfoBox; index: number; hasSplash: boolean; splashSide: 'left' | 'right' }) {
   const bg = box.color || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
@@ -113,12 +112,28 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
           </div>
         </div>
       )}
+
       {hasDirections && (
         <div className="mt-12 md:mt-20 mb-12 md:mb-20">
-          <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Jak použít</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {product.directions!.map((direction) => (
-              <DirectionSection key={direction.id} direction={direction} />
+          <h3 className="font-bold text-2xl md:text-4xl mb-6 md:mb-8">
+            Jak použít
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+            {product.directions!.map((dir) => (
+              <div
+                key={dir.id}
+                className="bg-gray-300 rounded-2xl p-6 md:p-8 flex flex-col gap-2"
+              >
+                <span className="text-sm md:text-2xl text-gray-500">
+                  {dir.beverageName}
+                </span>
+                <span className="font-bold text-lg md:text-3xl text-black">
+                  {dir.amount}
+                </span>
+                <span className="text-xl text-gray-500 font-medium tracking-wide">
+                  {dir.addIn ? dir.addIn : "\u00A0"}
+                </span>
+              </div>
             ))}
           </div>
         </div>

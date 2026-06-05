@@ -47,7 +47,6 @@ export interface ProductRecipe {
 
 export interface ProductDirection {
   id: number;
-  documentId: string;
   beverageName: string;
   amount: string;
   addIn?: string;
