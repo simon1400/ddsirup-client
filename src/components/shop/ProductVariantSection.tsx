@@ -1,13 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { QuantityControl } from '@/components/ui/QuantityControl';
-import { AddToCartButton } from '@/components/shop/AddToCartButton';
-import { formatPrice, formatPriceWithoutVat } from '@/lib/utils';
-import { useVatRate } from '@/providers/vat-rate-provider';
-import type { Product, ProductVariant } from '@/types/product';
+import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { QuantityControl } from "@/components/ui/QuantityControl";
+import { AddToCartButton } from "@/components/shop/AddToCartButton";
+import { formatPrice, formatPriceWithoutVat } from "@/lib/utils";
+import { useVatRate } from "@/providers/vat-rate-provider";
+import type { Product, ProductVariant } from "@/types/product";
+import { ProductCalculation } from "@/components/shop/ProductCalculation";
 
 interface ProductVariantSectionProps {
   product: Product;
@@ -15,7 +22,7 @@ interface ProductVariantSectionProps {
 
 function getMaxVariant(variants: ProductVariant[]): ProductVariant | undefined {
   return variants
-    .filter((v) => typeof v.price === 'number' && v.price > 0)
+    .filter((v) => typeof v.price === "number" && v.price > 0)
     .sort((a, b) => (b.price ?? 0) - (a.price ?? 0))[0];
 }
 
@@ -35,9 +42,13 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
   const vatRate = useVatRate();
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
+  const hasCalculation = product.calculation && product.calculation.length > 0;
+  if (!hasCalculation) return null;
 
   const defaultVariant = hasVariants ? getMaxVariant(variants) : undefined;
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(defaultVariant);
+  const [selectedVariant, setSelectedVariant] = useState<
+    ProductVariant | undefined
+  >(defaultVariant);
   const [quantity, setQuantity] = useState(1);
 
   const displayPrice = selectedVariant?.price ?? product.price;
@@ -53,7 +64,9 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
     <>
       {hasVariants && (
         <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Vyberte objem</label>
+          <label className="text-sm font-medium text-muted-foreground">
+            Vyberte objem
+          </label>
           <div className="flex items-center gap-4">
             <Select
               value={selectedVariant ? String(selectedVariant.id) : undefined}
@@ -71,8 +84,12 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
               </SelectContent>
             </Select>
             <div>
-              <span className="text-2xl font-bold text-coral">{formatPrice(displayPrice)}</span>
-              <p className="text-sm text-muted-foreground">{formatPriceWithoutVat(displayPrice, vatRate)} bez DPH</p>
+              <span className="text-2xl font-bold text-coral">
+                {formatPrice(displayPrice)}
+              </span>
+              <p className="text-sm text-muted-foreground">
+                {formatPriceWithoutVat(displayPrice, vatRate)} bez DPH
+              </p>
             </div>
           </div>
         </div>
@@ -80,8 +97,12 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
 
       {!hasVariants && (
         <div>
-          <span className="text-2xl font-bold text-coral">{formatPrice(displayPrice)}</span>
-          <p className="text-sm text-muted-foreground">{formatPriceWithoutVat(displayPrice, vatRate)} bez DPH</p>
+          <span className="text-2xl font-bold text-coral">
+            {formatPrice(displayPrice)}
+          </span>
+          <p className="text-sm text-muted-foreground">
+            {formatPriceWithoutVat(displayPrice, vatRate)} bez DPH
+          </p>
         </div>
       )}
 
@@ -101,10 +122,27 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
             disabled={isOutOfStock}
           />
           <div className="flex-1">
-            <AddToCartButton product={product} variant={selectedVariant} quantity={quantity} disabled={isOutOfStock} />
+            <AddToCartButton
+              product={product}
+              variant={selectedVariant}
+              quantity={quantity}
+              disabled={isOutOfStock}
+            />
           </div>
         </div>
       </div>
+      {hasCalculation && (
+        <div className="mt-10 mb-8 md:mb-12">
+        <div className="mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-4 md:gap-6">
+            {product.calculation!.map((calc, i) => (
+              <ProductCalculation key={calc.id} calculation={calc} index={i} />
+            ))}
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground">Z 1 litru při doporučeném ředění</p>
+      </div>
+      )}
     </>
   );
 }

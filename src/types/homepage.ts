@@ -74,6 +74,7 @@ export interface Homepage {
   heroCategories?: Category[];
   heroCustomButtonText?: string;
   heroCustomButtonUrl?: string;
+  partnersNumber?: number;
   sections: HomepageSection[];
   seo?: import('./product').SeoComponent;
   createdAt: string;

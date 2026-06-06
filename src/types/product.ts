@@ -1,4 +1,5 @@
 import type { StrapiImage } from './strapi';
+import type { Review } from './review';
 
 export interface SeoOpenGraph {
   id: number;
@@ -52,6 +53,12 @@ export interface ProductDirection {
   addIn?: string;
 }
 
+export interface ProductCalculation {
+  id: number;
+  amount: number;
+  beverageName: string;
+}
+
 export interface ProductVariant {
   id: number;
   name: string;
@@ -77,6 +84,8 @@ export interface Product {
   ingredients?: string;
   countryOfOrigin?: string;
   madeIn?: string;
+  calculation?: ProductCalculation[];
+  reviews?: Review[];
   relatedProducts?: Product[];
   seo?: SeoComponent;
   createdAt: string;

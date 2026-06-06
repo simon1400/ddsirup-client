@@ -12,6 +12,7 @@ import type { Homepage } from '@/types/homepage';
 import type { ContactPage } from '@/types/contact-page';
 import type { InfoPage } from '@/types/info-page';
 import type { WholesalePage } from '@/types/wholesale-page';
+import type { Review } from '@/types/review';
 
 import { STRAPI_URL } from './constants';
 const STRAPI_TOKEN = process.env.STRAPI_API_TOKEN ?? '';
@@ -94,6 +95,8 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
         'infoBoxes',
         'recipes.badge',
         'directions',
+        'calculation',
+        'reviews',
         'relatedProducts.images',
         'relatedProducts.variants',
         'seo',
@@ -286,6 +289,23 @@ export async function incrementCouponUsage(code: string): Promise<void> {
     method: 'POST',
     body: JSON.stringify({ code }),
   });
+}
+
+// ---- Reviews ----
+
+export async function getReviews(): Promise<Review[]> {
+  const query = qs.stringify(
+    {
+      sort: ['createdAt:desc'],
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiListResponse<Review>>(`/reviews?${query}`, {
+    next: { revalidate: 0, tags: ['reviews'] },
+  }).catch(() => null);
+
+  return res?.data ?? [];
 }
 
 // ---- Homepage ----

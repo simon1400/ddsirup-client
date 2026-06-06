@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 import Image from 'next/image';
 import type { Product, ProductInfoBox } from '@/types/product';
+import type { Review } from '@/types/review';
 import RelatedProducts from '@/components/shop/RelatedProducts';
 import { RecipeSection } from '@/components/shop/RecipeSection';
+import { ReviewsSection } from '@/components/shop/ReviewsSection';
 
 /**
  * Returns true if the background color is dark (text should be white).
@@ -62,13 +64,26 @@ function InfoBox({ box, index, hasSplash, splashSide }: { box: ProductInfoBox; i
 
 interface ProductInfoSectionsProps {
   product: Product;
+  allReviews?: Review[];
 }
 
-export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
+export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSectionsProps) {
   const hasBoxes = product.infoBoxes && product.infoBoxes.length > 0;
   const hasRecipes = product.recipes && product.recipes.length > 0;
   const hasDirections = product.directions && product.directions.length > 0;
   const hasFooter = product.ingredients || product.countryOfOrigin || product.madeIn;
+
+  const displayReviews = useMemo(() => {
+    const productReviews = product.reviews ?? [];
+    if (productReviews.length > 0) return productReviews;
+    if (allReviews.length === 0) return [];
+    const shuffled = [...allReviews];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, 1);
+  }, [product.reviews, allReviews]);
   const hasRelated = product.relatedProducts && product.relatedProducts.length > 0;
 
   const displayRecipes = useMemo(() => {
@@ -138,6 +153,8 @@ export function ProductInfoSections({ product }: ProductInfoSectionsProps) {
           </div>
         </div>
       )}
+
+      <ReviewsSection reviews={displayReviews} />
 
       {hasFooter && (
         <div className="relative mt-10 md:mt-0 rounded-3xl bg-muted p-8 md:p-10 space-y-4">

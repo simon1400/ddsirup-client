@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
-import { getProduct, getProducts } from '@/lib/strapi';
+import { getProduct, getProducts, getReviews } from '@/lib/strapi';
 import { ProductVariantSection } from '@/components/shop/ProductVariantSection';
 import { ProductInfoSections } from '@/components/shop/ProductInfoSections';
 import { Separator } from '@/components/ui/separator';
@@ -46,7 +46,10 @@ export async function generateStaticParams() {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { category: categorySlug, slug } = await params;
-  const product = await getProduct(slug, 'cs');
+  const [product, allReviews] = await Promise.all([
+    getProduct(slug, 'cs'),
+    getReviews(),
+  ]);
   if (!product) notFound();
 
   const mainImage = product.images?.[0];
@@ -162,7 +165,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
-      <ProductInfoSections product={product} />
+      <ProductInfoSections product={product} allReviews={allReviews} />
 
       <FacebookViewContent
         contentId={String(product.id)}
