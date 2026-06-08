@@ -5,6 +5,7 @@ import type { Review } from '@/types/review';
 import RelatedProducts from '@/components/shop/RelatedProducts';
 import { RecipeSection } from '@/components/shop/RecipeSection';
 import { ReviewsSection } from '@/components/shop/ReviewsSection';
+import { MaintenanceSection } from '@/components/shop/MaintenanceSection';
 
 /**
  * Returns true if the background color is dark (text should be white).
@@ -70,6 +71,7 @@ interface ProductInfoSectionsProps {
 export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSectionsProps) {
   const hasBoxes = product.infoBoxes && product.infoBoxes.length > 0;
   const hasRecipes = product.recipes && product.recipes.length > 0;
+  const hasMaintenance = product.maintenance && product.maintenance.maintenance && product.maintenance.maintenance.trim().length > 0;
   const hasDirections = product.directions && product.directions.length > 0;
   const hasFooter = product.ingredients || product.countryOfOrigin || product.madeIn;
 
@@ -97,7 +99,7 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
     return shuffled.slice(0, 2);
   }, [product.recipes]);
 
-  if (!hasBoxes && !hasFooter && !hasRelated && !hasRecipes && !hasDirections) return null;
+  if (!hasBoxes && !hasFooter && !hasRelated && !hasRecipes && !hasDirections && !hasMaintenance) return null;
 
   const boxes = product.infoBoxes ?? [];
   const lastIndex = boxes.length - 1;
@@ -133,7 +135,7 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
           <h3 className="font-bold text-2xl md:text-4xl mb-6 md:mb-8">
             Jak použít
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 px-4 md:px-6">
             {product.directions!.map((dir) => (
               <div
                 key={dir.id}
@@ -155,6 +157,17 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
       )}
 
       <ReviewsSection reviews={displayReviews} />
+
+      {hasMaintenance && product.maintenance && (
+        <div className="mt-12 md:mt-20 mb-12 md:mb-20">
+          <h3 className="font-bold text-2xl md:text-4xl mb-6 md:mb-8">
+            PÉČE O SIRUP
+          </h3>
+          <div className="px-4 md:px-6">
+            <MaintenanceSection maintenance={product.maintenance} />
+          </div>
+        </div>
+      )}
 
       {hasFooter && (
         <div className="relative mt-10 md:mt-0 rounded-3xl bg-muted p-8 md:p-10 space-y-4">

@@ -99,6 +99,7 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
         'reviews',
         'relatedProducts.images',
         'relatedProducts.variants',
+        'maintenance',
         'seo',
         'seo.metaImage',
         'seo.openGraph',

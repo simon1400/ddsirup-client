@@ -68,6 +68,12 @@ export interface ProductVariant {
   inStock?: boolean;
 }
 
+export interface ProductMaintenance {
+  id: number;
+  maintenance: string;
+  additionalInfo?: string;
+}
+
 export interface Product {
   id: number;
   documentId: string;
@@ -87,6 +93,7 @@ export interface Product {
   calculation?: ProductCalculation[];
   reviews?: Review[];
   relatedProducts?: Product[];
+  maintenance?: ProductMaintenance;
   seo?: SeoComponent;
   createdAt: string;
   updatedAt: string;
