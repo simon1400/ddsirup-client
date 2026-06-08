@@ -52,8 +52,8 @@ export const useCartStore = create<CartStore>()(
             quantity <= 0
               ? state.items.filter((i) => i.id !== id)
               : state.items.map((i) =>
-                  i.id === id ? { ...i, quantity } : i
-                ),
+                i.id === id ? { ...i, quantity } : i
+              ),
         })),
 
       clearCart: () => set({ items: [], appliedCoupon: null }),
@@ -81,8 +81,6 @@ export function useCartTotals(): CartTotals {
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   const shippingCalc = calculateShipping(items);
-  const shipping = itemCount === 0 ? 0 : shippingCalc.priceWithVat;
-  const shippingWithoutVat = itemCount === 0 ? 0 : shippingCalc.priceWithoutVat;
 
   let discount = 0;
   if (appliedCoupon) {
@@ -92,6 +90,10 @@ export function useCartTotals(): CartTotals {
       discount = Math.min(appliedCoupon.discountValue, subtotal);
     }
   }
+
+  const isFreeShipping = (subtotal - discount) > 999;
+  const shipping = itemCount === 0 || isFreeShipping ? 0 : shippingCalc.priceWithVat;
+  const shippingWithoutVat = itemCount === 0 || isFreeShipping ? 0 : shippingCalc.priceWithoutVat;
 
   const total = Math.max(0, subtotal - discount + shipping);
   return {

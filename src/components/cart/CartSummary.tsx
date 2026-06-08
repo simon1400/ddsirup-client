@@ -9,6 +9,7 @@ import { useCartStore, useCartTotals } from '@/store/cart.store';
 import { formatPrice, formatPriceWithoutVat } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 import type { AppliedCoupon } from '@/types/coupon';
+import { FreeShippingProgress } from '@/components/shop/FreeShippingProgress';
 
 export function CartSummary() {
   const vatRate = useVatRate();
@@ -48,6 +49,8 @@ export function CartSummary() {
   return (
     <div className="bg-muted/50 rounded-2xl p-6 space-y-5 sticky top-24">
       <h2 className="text-2xl font-bold text-coral">Celkem k platbě</h2>
+
+      <FreeShippingProgress />
 
       <div className="space-y-3 text-sm">
         <div className="flex justify-between items-center border-b pb-3">

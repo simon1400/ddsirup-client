@@ -16,6 +16,7 @@ import { ShippingSection } from './ShippingSection';
 import { CouponSection } from './CouponSection';
 import { OrderSummary } from './OrderSummary';
 import { PaymentSection } from './PaymentSection';
+import { FreeShippingProgress } from '@/components/shop/FreeShippingProgress';
 
 export function CheckoutForm() {
   const router = useRouter();
@@ -179,6 +180,8 @@ export function CheckoutForm() {
           {/* Order summary card */}
           <div className="bg-muted/50 rounded-2xl p-6 space-y-5">
             <h2 className="text-2xl font-bold italic text-coral">Vaše objednávka</h2>
+
+            <FreeShippingProgress />
 
             <OrderSummary
               subtotal={subtotal}

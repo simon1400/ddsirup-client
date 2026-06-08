@@ -8,6 +8,7 @@ import { QuantityControl } from '@/components/ui/QuantityControl';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
 import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
+import { FreeShippingProgress } from './FreeShippingProgress';
 
 export function CartDrawer() {
   const vatRate = useVatRate();
@@ -108,6 +109,7 @@ export function CartDrawer() {
 
             {/* Summary */}
             <div className="bg-muted/40 px-6 py-5 space-y-3 border-t">
+              <FreeShippingProgress />
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Mezisoučet</span>
                 <span className="font-medium">{formatPrice(subtotal)}</span>
