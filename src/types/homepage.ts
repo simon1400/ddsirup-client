@@ -1,5 +1,6 @@
 import type { StrapiImage } from './strapi';
 import type { Category, Product } from './product';
+import { Review } from './review';
 
 export interface HeroProps {
   title: string;
@@ -57,12 +58,21 @@ export interface ContactFormSection {
   icon?: StrapiImage;
 }
 
+export interface ReviewsSection {
+  __component: 'sections.reviews-section';
+  id: number;
+  title?: string;
+  reviews: Review[];
+  partnersNumber?: number;
+}
+
 export type HomepageSection =
   | CategoriesSection
   | TextSection
   | ProductsSliderSection
   | FeaturesSection
-  | ContactFormSection;
+  | ContactFormSection
+  | ReviewsSection;
 
 export interface Homepage {
   id: number;
@@ -76,6 +86,7 @@ export interface Homepage {
   heroCustomButtonUrl?: string;
   partnersNumber?: number;
   sections: HomepageSection[];
+  reviews?: import('./review').Review[];
   seo?: import('./product').SeoComponent;
   createdAt: string;
   updatedAt: string;

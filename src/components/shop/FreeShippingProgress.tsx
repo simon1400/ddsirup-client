@@ -6,8 +6,7 @@ import { formatPrice } from '@/lib/utils';
 export function FreeShippingProgress() {
   const { subtotal, discount } = useCartTotals();
   const currentTotal = subtotal - discount;
-  const threshold = 1000; // Free shipping threshold is > 999 CZK (effectively 1000 CZK)
-
+  const threshold = 1000; 
   if (currentTotal <= 0) return null;
 
   const isFree = currentTotal >= threshold;

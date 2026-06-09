@@ -319,6 +319,7 @@ export async function getHomepage(): Promise<Homepage | null> {
         heroPosterImage: true,
         heroCategories: { fields: ['name', 'slug', 'color'] },
         seo: { populate: ['metaImage', 'openGraph', 'openGraph.ogImage'] },
+        reviews: true,
         sections: {
           on: {
             'sections.categories-section': {

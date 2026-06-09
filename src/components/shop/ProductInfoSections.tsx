@@ -135,23 +135,53 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
           <h3 className="font-bold text-2xl md:text-4xl mb-6 md:mb-8">
             Jak použít
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 px-4 md:px-6">
-            {product.directions!.map((dir) => (
-              <div
-                key={dir.id}
-                className="bg-gray-300 rounded-2xl p-6 md:p-8 flex flex-col gap-2"
-              >
-                <span className="text-sm md:text-2xl text-gray-500">
-                  {dir.beverageName}
-                </span>
-                <span className="font-bold text-lg md:text-3xl text-black">
-                  {dir.amount}
-                </span>
-                <span className="text-xl text-gray-500 font-medium tracking-wide">
-                  {dir.addIn ? dir.addIn : "\u00A0"}
-                </span>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+            {product.directions!.map((dir, index) => {
+              const borderColors = ['#8cafd4', '#eda561', '#769d73', '#6bc4c8'];
+              const borderColor = borderColors[index % borderColors.length];
+              return (
+                <div
+                  key={dir.id}
+                  className="relative bg-white rounded-2xl p-6 md:p-8 flex flex-col gap-2 overflow-hidden"
+                >
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    <style>{`
+                      @keyframes marching-ants-${dir.id} {
+                        0% { stroke-dashoffset: 28; }
+                        100% { stroke-dashoffset: 0; }
+                      }
+                      .marching-ants-rect-${dir.id} {
+                        animation: marching-ants-${dir.id} 1.5s linear infinite;
+                      }
+                    `}</style>
+                    <rect
+                      className={`marching-ants-rect-${dir.id}`}
+                      fill="none"
+                      stroke={borderColor}
+                      strokeWidth="2"
+                      strokeDasharray="8, 6"
+                      style={{
+                        width: 'calc(100% - 6px)',
+                        height: 'calc(100% - 6px)',
+                        x: '3px',
+                        y: '3px',
+                        rx: '16px',
+                      }}
+                    />
+                  </svg>
+
+                  <span className="relative z-10 text-sm md:text-2xl text-gray-500">
+                    {dir.beverageName}
+                  </span>
+                  <span className="relative z-10 font-bold text-lg md:text-3xl text-black">
+                    {dir.amount}
+                  </span>
+                  <span className="relative z-10 text-xl text-gray-500 font-medium tracking-wide">
+                    {dir.addIn ? dir.addIn : "\u00A0"}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -163,9 +193,7 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
           <h3 className="font-bold text-2xl md:text-4xl mb-6 md:mb-8">
             PÉČE O SIRUP
           </h3>
-          <div className="px-4 md:px-6">
             <MaintenanceSection maintenance={product.maintenance} />
-          </div>
         </div>
       )}
 

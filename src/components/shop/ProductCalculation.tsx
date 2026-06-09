@@ -10,7 +10,7 @@ const CALC_PALETTE = [
     '#6bc4c8',
 ] as const;
 
-const ANIMATION_DURATION = 1500;
+const ANIMATION_DURATION = 4500;
 
 function useCountUp(target: number, duration = ANIMATION_DURATION) {
     const [value, setValue] = useState(0);

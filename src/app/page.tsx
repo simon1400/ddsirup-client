@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { SectionRenderer } from '@/components/sections/SectionRenderer';
-import { ReviewsSection } from '@/components/sections/ReviewsSection';
-import { getHomepage, getGlobalInfo, getReviews } from '@/lib/strapi';
+import { getHomepage, getGlobalInfo } from '@/lib/strapi';
 import {
   buildPageMetadata,
   buildLocalBusinessJsonLd,
@@ -24,10 +23,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [homepage, globalInfo, reviews] = await Promise.all([
+  const [homepage, globalInfo] = await Promise.all([
     getHomepage(),
     getGlobalInfo(),
-    getReviews(),
   ]);
 
   const hasHero = !!homepage?.heroTitle;
@@ -70,8 +68,7 @@ export default async function HomePage() {
           }}
         />
       )}
-      {reviews.length > 0 && <ReviewsSection reviews={reviews} partnersNumber={homepage?.partnersNumber} />}
-      {hasSections && <SectionRenderer sections={homepage!.sections} />}
+      {hasSections && <SectionRenderer sections={homepage!.sections} reviews={homepage?.reviews} partnersNumber={homepage?.partnersNumber} />}
       {!hasHero && !hasSections && (
         <div className="flex items-center justify-center min-h-[60vh] text-gray-400 px-4 text-center">
           <p>Stránka ještě není nakonfigurována. Přidejte obsah v Strapi Admin.</p>
