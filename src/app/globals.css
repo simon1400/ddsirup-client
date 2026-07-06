@@ -95,6 +95,34 @@
   100% { transform: translateX(-50%); }
 }
 
+/* Announcement bar — soft diagonal sheen sweeping across the strip */
+@keyframes announce-shine {
+  0%   { transform: translateX(-150%); }
+  100% { transform: translateX(150%); }
+}
+
+.announce-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 70%
+  );
+  transform: translateX(-150%);
+  animation: announce-shine 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .announce-bar::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* WYSIWYG / rich-text links */
 .prose a,
 .rich-content a {
@@ -154,4 +182,83 @@
 
 .czech-quotes > *:last-child::after {
   content: "“";
+}
+
+/* Rising carbonation bubbles for recipe cards.
+   Uses container-query height (cqh) so the rise distance adapts to each card.
+   Per-bubble variation is passed via CSS custom properties (set inline). */
+@keyframes recipe-bubble-rise {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.6);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--bubble-o, 0.25);
+  }
+  85% {
+    opacity: var(--bubble-o, 0.25);
+  }
+  100% {
+    transform: translate3d(var(--bubble-drift, 0), calc(-100cqh - 56px), 0) scale(1);
+    opacity: 0;
+  }
+}
+
+.recipe-bubble {
+  position: absolute;
+  bottom: -28px;
+  border-radius: 9999px;
+  background: var(--bubble-bg, #ffffff);
+  will-change: transform, opacity;
+  animation: recipe-bubble-rise var(--bubble-dur, 9s) linear infinite;
+  animation-delay: var(--bubble-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recipe-bubble {
+    /* Freeze mid-cycle (negative delays scatter them) for a calm static look */
+    animation-play-state: paused;
+  }
+}
+
+/* "Syrup glass" stat number — splash droplets that pop above the number once it
+   finishes filling. Each droplet arcs up, drifts sideways, then falls back. */
+@keyframes syrup-drop {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.4);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  55% {
+    transform: translate3d(var(--drop-x, 0), var(--drop-rise, -34px), 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(calc(var(--drop-x, 0) * 1.4), 6px, 0) scale(0.5);
+    opacity: 0;
+  }
+}
+
+/* Gentle pop when the syrup finishes filling the number. */
+@keyframes syrup-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.045); }
+  100% { transform: scale(1); }
+}
+
+.syrup-drop {
+  position: absolute;
+  top: 0;
+  border-radius: 9999px;
+  background: var(--color-coral);
+  animation: syrup-drop var(--drop-dur, 1.1s) cubic-bezier(0.22, 0.7, 0.3, 1) forwards;
+  animation-delay: var(--drop-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .syrup-drop {
+    display: none;
+  }
 }

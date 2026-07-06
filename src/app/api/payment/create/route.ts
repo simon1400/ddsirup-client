@@ -5,6 +5,7 @@ import {
   incrementCouponUsage,
   getGlobalInfo,
 } from '@/lib/strapi';
+import { computeAuthoritativeOrder, OrderPricingError } from '@/lib/order-pricing';
 import type { CreateOrderPayload } from '@/types/order';
 import { SITE_URL } from '@/lib/constants';
 
@@ -12,23 +13,38 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json() as CreateOrderPayload;
 
-    // 1. Create order in Strapi
+    // 1. Recompute all monetary values server-side from authoritative Strapi
+    //    data. Client-sent prices / shipping / discount / total are ignored —
+    //    they cannot be trusted (a tampered request could otherwise pay less).
+    const priced = await computeAuthoritativeOrder({
+      items: body.items,
+      couponCode: body.couponCode,
+    });
+
+    // 2. Create order in Strapi with the verified figures.
     const order = await createOrder({
       ...body,
+      items: priced.items,
+      subtotal: priced.subtotal,
+      shippingCost: priced.shippingCost,
+      totalWeight: priced.totalWeight,
+      total: priced.total,
+      couponCode: priced.couponCode,
+      discountAmount: priced.discountAmount > 0 ? priced.discountAmount : undefined,
       orderStatus: 'pending',
     });
 
-    // 2. Increment coupon usage if a coupon was applied
-    if (body.couponCode) {
-      await incrementCouponUsage(body.couponCode).catch((err) =>
+    // 3. Increment coupon usage only if the coupon was actually valid & applied.
+    if (priced.couponCode) {
+      await incrementCouponUsage(priced.couponCode).catch((err) =>
         console.error('[payment/create] Failed to increment coupon usage:', err)
       );
     }
 
-    // 3. Create Comgate payment
+    // 4. Create Comgate payment for the verified total.
     const globalInfo = await getGlobalInfo();
     const payment = await createPayment({
-      price: Math.round(body.total * 100), // to cents
+      price: Math.round(priced.total * 100), // to cents
       curr: body.currency || 'CZK',
       label: body.orderNumber.slice(0, 16),
       refId: body.orderNumber,
@@ -54,6 +70,9 @@ export async function POST(req: NextRequest) {
       redirect: payment.redirect,
     });
   } catch (err) {
+    if (err instanceof OrderPricingError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
     console.error('[payment/create]', err);
     return NextResponse.json(
       { error: 'Interní chyba serveru' },

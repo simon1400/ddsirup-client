@@ -12,6 +12,7 @@ import type { Homepage } from '@/types/homepage';
 import type { ContactPage } from '@/types/contact-page';
 import type { InfoPage } from '@/types/info-page';
 import type { WholesalePage } from '@/types/wholesale-page';
+import type { WithdrawalPage } from '@/types/withdrawal-page';
 import type { Review } from '@/types/review';
 
 import { STRAPI_URL } from './constants';
@@ -70,7 +71,7 @@ export async function getProducts(
   const query = qs.stringify(
     {
       filters,
-      populate: ['images', 'category', 'variants'],
+      populate: ['images', 'category', 'variants', 'badges'],
       pagination: { page, pageSize },
       sort: [`${sortBy}:${sortOrder}`],
       locale,
@@ -99,7 +100,10 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
         'reviews',
         'relatedProducts.images',
         'relatedProducts.variants',
+        'relatedProducts.badges',
         'maintenance',
+        'usages',
+        'badges',
         'seo',
         'seo.metaImage',
         'seo.openGraph',
@@ -112,6 +116,31 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
 
   const res = await strapiRequest<StrapiListResponse<Product>>(`/products?${query}`, {
     next: { revalidate: 0, tags: ['products', `product-${slug}`] },
+  });
+
+  return res.data[0] ?? null;
+}
+
+/**
+ * Lean product fetch for server-side price verification at checkout.
+ * Only the authoritative pricing fields are populated — never trust client-sent prices.
+ */
+export async function getProductPricing(
+  slug: string,
+  locale = 'cs'
+): Promise<Pick<Product, 'name' | 'slug' | 'price' | 'variants'> | null> {
+  const query = qs.stringify(
+    {
+      filters: { slug: { $eq: slug } },
+      fields: ['name', 'slug', 'price'],
+      populate: { variants: { fields: ['name', 'volume', 'sku', 'price'] } },
+      locale,
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiListResponse<Product>>(`/products?${query}`, {
+    cache: 'no-store',
   });
 
   return res.data[0] ?? null;
@@ -322,21 +351,21 @@ export async function getHomepage(): Promise<Homepage | null> {
         reviews: true,
         sections: {
           on: {
-            'sections.categories-section': {
-              populate: {
-                categories: {
-                  populate: ['image', 'parent'],
-                  fields: ['name', 'slug', 'color'],
-                },
-              },
-            },
-            'sections.text-section': {
-              populate: '*',
-            },
+            // 'sections.categories-section': { // section disabled
+            //   populate: {
+            //     categories: {
+            //       populate: ['image', 'parent'],
+            //       fields: ['name', 'slug', 'color'],
+            //     },
+            //   },
+            // },
+            // 'sections.text-section': { // section disabled
+            //   populate: '*',
+            // },
             'sections.products-slider': {
               populate: {
                 products: {
-                  populate: ['images', 'variants', 'category'],
+                  populate: ['images', 'variants', 'category', 'badges'],
                   filters: { publishedAt: { $notNull: true } },
                 },
               },
@@ -350,6 +379,9 @@ export async function getHomepage(): Promise<Homepage | null> {
             },
             'sections.contact-form': {
               populate: ['icon'],
+            },
+            'sections.bottle-usage': {
+              populate: ['bottleImage', 'items'],
             },
           },
         },
@@ -388,6 +420,56 @@ export async function getWholesalePage(): Promise<WholesalePage | null> {
   );
   const res = await strapiRequest<StrapiResponse<WholesalePage>>(`/wholesale-page?${query}`, {
     next: { revalidate: 0, tags: ['wholesale-page'] },
+  }).catch(() => null);
+
+  return res?.data ?? null;
+}
+
+// ---- Withdrawal Requests ----
+
+export async function getOrderByNumberOrInvoice(value: string): Promise<Order | null> {
+  const query = qs.stringify(
+    {
+      filters: {
+        $or: [{ invoiceNumber: { $eq: value } }, { orderNumber: { $eq: value } }],
+      },
+      populate: '*',
+    },
+    { encodeValuesOnly: true }
+  );
+
+  const res = await strapiRequest<StrapiListResponse<Order>>(`/orders?${query}`, {
+    cache: 'no-store',
+  });
+
+  return res.data[0] ?? null;
+}
+
+export async function createWithdrawalRequest(data: {
+  name: string;
+  orderNumber: string;
+  email: string;
+  bankAccount: string;
+  returnedItems?: string;
+  unopenedConfirmed: boolean;
+  orderDocumentId?: string;
+}): Promise<void> {
+  await strapiRequest('/withdrawal-requests/submit', {
+    method: 'POST',
+    body: JSON.stringify({ data }),
+    cache: 'no-store',
+  });
+}
+
+// ---- Withdrawal Page ----
+
+export async function getWithdrawalPage(): Promise<WithdrawalPage | null> {
+  const query = qs.stringify(
+    { populate: ['seo', 'seo.metaImage', 'seo.openGraph'] },
+    { encodeValuesOnly: true }
+  );
+  const res = await strapiRequest<StrapiResponse<WithdrawalPage>>(`/withdrawal-page?${query}`, {
+    next: { revalidate: 0, tags: ['withdrawal-page'] },
   }).catch(() => null);
 
   return res?.data ?? null;

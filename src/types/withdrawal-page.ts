@@ -1,7 +1,8 @@
-export interface WholesalePage {
+export interface WithdrawalPage {
   title: string;
   subtitle?: string;
   description?: string;
-  specialistContent?: string;
+  warningText?: string;
+  returnAddress?: string;
   seo?: import('./product').SeoComponent;
 }

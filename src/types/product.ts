@@ -30,12 +30,17 @@ export interface ProductInfoBox {
   color?: string;
 }
 
-export interface RecipeBadge {
+export interface Badge {
   id: number;
   documentId: string;
   badgeName: string;
   badgeColor?: string;
+  /** Higher = products with this badge sort earlier in category listings. */
+  sortPriority?: number;
 }
+
+/** Alias — recipe badges share the Badge shape. */
+export type RecipeBadge = Badge;
 
 export interface ProductRecipe {
   id: number;
@@ -74,6 +79,12 @@ export interface ProductMaintenance {
   additionalInfo?: string;
 }
 
+export interface ProductUsage {
+  id: number;
+  documentId: string;
+  name: string;
+}
+
 export interface Product {
   id: number;
   documentId: string;
@@ -94,6 +105,8 @@ export interface Product {
   reviews?: Review[];
   relatedProducts?: Product[];
   maintenance?: ProductMaintenance;
+  usages?: ProductUsage[];
+  badges?: Badge[];
   seo?: SeoComponent;
   createdAt: string;
   updatedAt: string;

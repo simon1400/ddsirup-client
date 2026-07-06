@@ -2,11 +2,12 @@
 
 import { useCartTotals } from '@/store/cart.store';
 import { formatPrice } from '@/lib/utils';
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants';
 
 export function FreeShippingProgress() {
   const { subtotal, discount } = useCartTotals();
   const currentTotal = subtotal - discount;
-  const threshold = 1000; 
+  const threshold = FREE_SHIPPING_THRESHOLD;
   if (currentTotal <= 0) return null;
 
   const isFree = currentTotal >= threshold;

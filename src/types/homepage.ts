@@ -58,6 +58,20 @@ export interface ContactFormSection {
   icon?: StrapiImage;
 }
 
+export interface UsageItem {
+  id: number;
+  count: string;
+  label: string;
+}
+
+export interface BottleUsageSection {
+  __component: 'sections.bottle-usage';
+  id: number;
+  title?: string;
+  bottleImage?: StrapiImage;
+  items?: UsageItem[];
+}
+
 export interface ReviewsSection {
   __component: 'sections.reviews-section';
   id: number;
@@ -72,6 +86,7 @@ export type HomepageSection =
   | ProductsSliderSection
   | FeaturesSection
   | ContactFormSection
+  | BottleUsageSection
   | ReviewsSection;
 
 export interface Homepage {

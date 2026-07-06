@@ -43,7 +43,6 @@ export function ProductVariantSection({ product }: ProductVariantSectionProps) {
   const variants = product.variants ?? [];
   const hasVariants = variants.length > 0;
   const hasCalculation = product.calculation && product.calculation.length > 0;
-  if (!hasCalculation) return null;
 
   const defaultVariant = hasVariants ? getMaxVariant(variants) : undefined;
   const [selectedVariant, setSelectedVariant] = useState<

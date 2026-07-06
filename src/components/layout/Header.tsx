@@ -8,7 +8,7 @@ export async function Header() {
   const navItems = await getNavigation().catch(() => []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 items-center justify-between mx-auto px-4">
         <Link href="/">
           <Image src="/logo.png" alt="ddsirup.co" height={80} width={160} priority />

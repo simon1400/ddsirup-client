@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import type { Product } from '@/types/product';
 import { STRAPI_URL } from './constants';
 
 export function cn(...inputs: ClassValue[]) {
@@ -9,6 +10,28 @@ export function cn(...inputs: ClassValue[]) {
 /** Build product URL: /{categorySlug}/{productSlug} with fallback */
 export function getProductUrl(productSlug: string, categorySlug?: string): string {
   return categorySlug ? `/${categorySlug}/${productSlug}` : `/produkty/${productSlug}`;
+}
+
+/** Highest badge sortPriority across a product's badges (0 if none). Higher sorts earlier. */
+export function getProductBadgePriority(product: Pick<Product, 'badges'>): number {
+  return (product.badges ?? []).reduce((max, b) => Math.max(max, b.sortPriority ?? 0), 0);
+}
+
+/** Compact volume label in liters, Czech notation: "1000ml" → "1 l", "500ml" → "0,5 l".
+ *  Returns the original string if it can't be parsed. */
+export function formatVolumeShort(volume?: string): string | undefined {
+  if (!volume) return undefined;
+  const cleaned = volume.trim().toLowerCase();
+  const ml = cleaned.match(/^(\d+(?:[.,]\d+)?)\s*ml$/);
+  const l = cleaned.match(/^(\d+(?:[.,]\d+)?)\s*l$/);
+
+  let liters: number | null = null;
+  if (ml) liters = parseFloat(ml[1].replace(',', '.')) / 1000;
+  else if (l) liters = parseFloat(l[1].replace(',', '.'));
+  if (liters === null || !Number.isFinite(liters)) return volume.trim();
+
+  const num = liters.toFixed(3).replace(/\.?0+$/, '').replace('.', ',');
+  return `${num} l`;
 }
 
 export function formatPrice(amount: number, currency = 'CZK'): string {

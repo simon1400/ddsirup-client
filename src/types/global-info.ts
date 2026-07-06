@@ -17,4 +17,5 @@ export interface GlobalInfo {
   messengerTestMode?: boolean;
   orderFromEmail?: string;
   contactFromEmail?: string;
+  claimsEmail?: string;
 }

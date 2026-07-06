@@ -9,6 +9,7 @@ import { GoogleTagManagerNoscript } from '@/components/layout/GoogleTagManager';
 import { VatRateProvider } from '@/providers/vat-rate-provider';
 import { SITE_URL } from '@/lib/constants';
 import { Header } from '@/components/layout/Header';
+import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
 import { Footer } from '@/components/layout/Footer';
 import { Suspense } from 'react';
 import { FacebookPageView } from '@/components/tracking/FacebookPageView';
@@ -73,7 +74,10 @@ export default async function RootLayout({
         <QueryProvider>
           <VatRateProvider vatRate={vatRate}>
             <div className="min-h-screen flex flex-col">
-              <Header />
+              <div className="sticky top-0 z-50">
+                <AnnouncementBar />
+                <Header />
+              </div>
               <main className="flex-1 flex flex-col">{children}</main>
               <Footer />
             </div>

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { getProduct, getProducts, getReviews } from '@/lib/strapi';
 import { ProductVariantSection } from '@/components/shop/ProductVariantSection';
+import { ProductUsageBadges } from '@/components/shop/ProductUsageBadges';
+import { ProductBadges } from '@/components/shop/ProductBadges';
 import { ProductInfoSections } from '@/components/shop/ProductInfoSections';
 import { Separator } from '@/components/ui/separator';
 import { Container } from '@/components/ui/Container';
@@ -131,6 +133,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         {/* Images */}
         <div className="aspect-square relative bg-muted rounded-lg overflow-hidden">
+          <ProductBadges badges={product.badges} variant="overlay" corner="right" />
           {imageUrl ? (
             <Image
               src={imageUrl}
@@ -149,6 +152,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
         {/* Info */}
         <div className="space-y-4">
+          <ProductUsageBadges usages={product.usages} />
+
           <h1 className="text-4xl md:text-6xl font-bold">{product.name}</h1>
 
           <ProductVariantSection product={product} />

@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import type { CartItem, CartTotals } from '@/types/cart';
 import type { AppliedCoupon } from '@/types/coupon';
 import { calculateShipping } from '@/lib/shipping';
+import { FREE_SHIPPING_THRESHOLD } from '@/lib/constants';
 
 interface CartStore {
   items: CartItem[];
@@ -91,7 +92,7 @@ export function useCartTotals(): CartTotals {
     }
   }
 
-  const isFreeShipping = (subtotal - discount) > 999;
+  const isFreeShipping = (subtotal - discount) >= FREE_SHIPPING_THRESHOLD;
   const shipping = itemCount === 0 || isFreeShipping ? 0 : shippingCalc.priceWithVat;
   const shippingWithoutVat = itemCount === 0 || isFreeShipping ? 0 : shippingCalc.priceWithoutVat;
 

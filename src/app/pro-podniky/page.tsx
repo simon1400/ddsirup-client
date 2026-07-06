@@ -21,6 +21,7 @@ export default async function VelkoobchodPage() {
   const page = await getWholesalePage();
 
   const title = page?.title ?? 'PRO PODNIKY';
+  const subtitle = page?.subtitle ?? 'Máte bar, kavárnu, restauraci, bistro či jiný gastro podnik?';
   const description = page?.description;
   const specialistContent = page?.specialistContent;
 
@@ -28,60 +29,63 @@ export default async function VelkoobchodPage() {
     <div className="pb-20">
       {/* Header */}
       <Container as="section" size="lg" className="pt-12 pb-10">
-        <p className="text-coral font-bold uppercase tracking-wide text-sm mb-2">
-          Napište nám
-        </p>
-        <h1 className="text-6xl md:text-8xl font-black uppercase leading-none mb-6">
+        <h1 className="text-6xl md:text-8xl font-black uppercase leading-none">
           {title}
         </h1>
+        {subtitle && (
+          <p className="mt-5 text-lg md:text-xl text-gray-700 font-medium">
+            {subtitle}
+          </p>
+        )}
       </Container>
 
-      {/* Main Content: left column (text + form), right column (specialist, spans full height) */}
+      {/* Intro text (full width, content from Strapi) */}
+      {description && (
+        <Container as="section" size="lg">
+          <div className="rounded-3xl bg-green-soft p-8 md:p-12">
+            <div
+              className="ck-content text-green-text"
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          </div>
+        </Container>
+      )}
+
+      {/* Community heading — sits closer to the contact blocks below */}
+      <Container as="section" size="lg" className="pt-14 md:pt-20 pb-7 md:pb-9 text-center">
+        <h2 className="text-3xl md:text-5xl font-black uppercase leading-tight">
+          Staň se součástí naší komunity
+        </h2>
+      </Container>
+
+      {/* Contact form + specialist */}
       <Container as="section" size="lg">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Left column */}
-          <div className="flex flex-col gap-4">
-            {/* Cooperation text */}
-            {description && (
-              <div className="rounded-3xl p-8 md:p-12" style={{ backgroundColor: '#A8C98E' }}>
-                <div
-                  className="ck-content text-green-text"
-                  dangerouslySetInnerHTML={{ __html: description }}
-                />
-              </div>
-            )}
-
-            {/* Contact Form */}
-            <div className="rounded-3xl p-8 md:p-12" style={{ backgroundColor: '#A8C98E' }}>
-              <h2 className="text-xl md:text-2xl font-black uppercase leading-tight mb-6 text-green-text">
-                Kontaktní formulář
-              </h2>
-              <WholesaleForm />
-            </div>
+          <div className="rounded-3xl bg-green-soft p-8 md:p-12">
+            <h2 className="text-xl md:text-2xl font-black uppercase leading-tight mb-6 text-green-text">
+              Kontaktní formulář
+            </h2>
+            <WholesaleForm />
           </div>
 
-          {/* Right column: Specialist (spans full height) */}
-          <div
-            className="rounded-3xl flex flex-col justify-between overflow-hidden"
-            style={{ backgroundColor: '#A8C98E' }}
-          >
+          <div className="rounded-3xl bg-green-soft p-8 md:p-12 flex flex-col items-center justify-center text-center">
+            {/* Circular specialist avatar, text below */}
+            <div className="w-48 h-48 md:w-56 md:h-56 rounded-full bg-white/50 overflow-hidden shrink-0 mb-8">
+              <Image
+                src="/poradna_srna.png"
+                alt="Pan Deer — specialista na gastro podniky"
+                width={620}
+                height={752}
+                className="w-full h-full object-cover object-[70%_10%]"
+              />
+            </div>
+
             {specialistContent && (
               <div
-                className="ck-content text-green-text p-8 md:p-12"
+                className="ck-content text-green-text"
                 dangerouslySetInnerHTML={{ __html: specialistContent }}
               />
             )}
-
-            {/* Static specialist image */}
-            <div className="mt-auto">
-              <Image
-                src="/poradna_srna.png"
-                alt="Specialista"
-                width={600}
-                height={600}
-                className="w-full h-auto object-cover object-bottom"
-              />
-            </div>
           </div>
         </div>
       </Container>

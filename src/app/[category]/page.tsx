@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/Container';
 import { CATEGORY_COLORS } from '@/lib/constants';
 import { buildPageMetadata, getCanonicalUrl } from '@/lib/seo';
+import { getProductBadgePriority } from '@/lib/utils';
+import type { Product } from '@/types/product';
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -55,18 +57,27 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   const parentIndex = parentCategories.findIndex((c) => c.slug === parentCategory.slug);
   const tabColor = parentIndex >= 0 ? CATEGORY_COLORS[parentIndex] : undefined;
 
-  // Fetch products: parent → all children, child → specific category
+  // Fetch all matching products, then sort by badge priority (higher = first)
+  // and paginate the sorted list — so badge ordering is global, not per-page.
+  const PAGE_SIZE = 24;
   const productsRes = await getProducts({
     parentCategory: isParent ? slug : undefined,
     category: !isParent ? slug : undefined,
     search: sp.search,
-    page,
-    pageSize: 24,
+    page: 1,
+    pageSize: 200,
     locale: 'cs',
   });
 
-  const { data: products, meta } = productsRes;
-  const totalPages = meta.pagination?.pageCount ?? 1;
+  // 1) all products WITH a badge first, 2) among them by badge priority (desc),
+  // 3) then all products without any badge (server order preserved as tiebreak).
+  const hasBadge = (p: Product) => (p.badges?.length ?? 0) > 0;
+  const sortedProducts = [...productsRes.data].sort((a, b) => {
+    if (hasBadge(a) !== hasBadge(b)) return hasBadge(a) ? -1 : 1;
+    return getProductBadgePriority(b) - getProductBadgePriority(a);
+  });
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / PAGE_SIZE));
+  const products = sortedProducts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const subcategories = isParent
     ? category.children ?? []

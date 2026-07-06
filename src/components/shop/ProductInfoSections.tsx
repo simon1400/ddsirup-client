@@ -26,13 +26,20 @@ function isDarkBackground(hex: string): boolean {
 
 const FALLBACK_COLORS = ["#F08080", "#A8D5A2", "#F08080", "#C8D84E"];
 
+/** Outlined "stat card" palette — soft brand border + brand-colored number. */
+const DIRECTION_PALETTE = [
+  { border: "var(--color-coral)", value: "var(--color-coral)" },
+  { border: "var(--color-green-soft)", value: "var(--color-green-text)" },
+  { border: "var(--color-category-yellow)", value: "var(--color-price)" },
+] as const;
+
 function InfoBox({ box, index, hasSplash, splashSide }: { box: ProductInfoBox; index: number; hasSplash: boolean; splashSide: 'left' | 'right' }) {
   const bg = box.color || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
   const textColor = isDarkBackground(bg) ? '#FFFFFF' : '#1a1a1a';
   const lines = box.content.split('\n').filter(Boolean);
 
   return (
-    <div className="relative break-inside-avoid">
+    <div className="relative">
       {hasSplash && (
         <Image
           src="/pouze flek_result_result.webp"
@@ -106,30 +113,33 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
 
   return (
     <div className="mt-15 md:mt-35">
-      {hasBoxes && (
-        <div className="columns-1 sm:columns-2 gap-6 space-y-6">
-          {boxes.map((box, i) => (
-            <InfoBox
-              key={box.id}
-              box={box}
-              index={i}
-              hasSplash={i === 0 || i === lastIndex}
-              splashSide={i === 0 ? 'left' : 'right'}
-            />
-          ))}
-        </div>
-      )}
-      {hasRecipes && (
-        <div className="mt-12 md:mt-20 mb-12 md:mb-20">
-          <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Recepty</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {displayRecipes.map((recipe) => (
-              <RecipeSection key={recipe.id} recipe={recipe} />
+      {hasBoxes && (() => {
+        const half = Math.ceil(boxes.length / 2);
+        const columns = [boxes.slice(0, half), boxes.slice(half)];
+        return (
+          <>
+          <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Co je uvnitř</h2>
+          <div className="flex flex-col sm:flex-row gap-6 items-start">
+            {columns.map((columnBoxes, col) => (
+              <div key={col} className="flex flex-1 min-w-0 flex-col gap-6">
+                {columnBoxes.map((box, localIndex) => {
+                  const i = col === 0 ? localIndex : half + localIndex;
+                  return (
+                    <InfoBox
+                      key={box.id}
+                      box={box}
+                      index={i}
+                      hasSplash={i === 0 || i === lastIndex}
+                      splashSide={i === 0 ? 'left' : 'right'}
+                    />
+                  );
+                })}
+              </div>
             ))}
           </div>
-        </div>
-      )}
-
+          </>
+        );
+      })()}
       {hasDirections && (
         <div className="mt-12 md:mt-20 mb-12 md:mb-20">
           <h3 className="font-bold text-2xl md:text-4xl mb-6 md:mb-8">
@@ -137,51 +147,39 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             {product.directions!.map((dir, index) => {
-              const borderColors = ['#8cafd4', '#eda561', '#769d73', '#6bc4c8'];
-              const borderColor = borderColors[index % borderColors.length];
+              const palette = DIRECTION_PALETTE[index % DIRECTION_PALETTE.length];
               return (
                 <div
                   key={dir.id}
-                  className="relative bg-white rounded-2xl p-6 md:p-8 flex flex-col gap-2 overflow-hidden"
+                  className="rounded-2xl px-6 py-7 md:px-8 md:py-9 flex flex-col gap-1.5 border-2"
+                  style={{ borderColor: palette.border }}
                 >
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                    <style>{`
-                      @keyframes marching-ants-${dir.id} {
-                        0% { stroke-dashoffset: 28; }
-                        100% { stroke-dashoffset: 0; }
-                      }
-                      .marching-ants-rect-${dir.id} {
-                        animation: marching-ants-${dir.id} 1.5s linear infinite;
-                      }
-                    `}</style>
-                    <rect
-                      className={`marching-ants-rect-${dir.id}`}
-                      fill="none"
-                      stroke={borderColor}
-                      strokeWidth="2"
-                      strokeDasharray="8, 6"
-                      style={{
-                        width: 'calc(100% - 6px)',
-                        height: 'calc(100% - 6px)',
-                        x: '3px',
-                        y: '3px',
-                        rx: '16px',
-                      }}
-                    />
-                  </svg>
-
-                  <span className="relative z-10 text-sm md:text-2xl text-gray-500">
+                  <span className="text-sm md:text-base text-muted-foreground tracking-wide">
                     {dir.beverageName}
                   </span>
-                  <span className="relative z-10 font-bold text-lg md:text-3xl text-black">
+                  <span
+                    className="font-black text-3xl md:text-4xl leading-none"
+                    style={{ color: palette.value }}
+                  >
                     {dir.amount}
                   </span>
-                  <span className="relative z-10 text-xl text-gray-500 font-medium tracking-wide">
+                  <span className="text-sm md:text-base text-muted-foreground font-medium tracking-wide">
                     {dir.addIn ? dir.addIn : "\u00A0"}
                   </span>
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {hasRecipes && (
+        <div className="mt-12 md:mt-20 mb-12 md:mb-20">
+          <h2 className="font-bold text-3xl md:text-5xl mb-6 md:mb-8">Recepty</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {displayRecipes.map((recipe, i) => (
+              <RecipeSection key={recipe.id} recipe={recipe} index={i} />
+            ))}
           </div>
         </div>
       )}
