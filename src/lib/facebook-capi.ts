@@ -4,6 +4,8 @@
  * Docs: https://developers.facebook.com/docs/marketing-api/conversions-api
  */
 
+import type { Order } from '@/types/order';
+
 const FB_PIXEL_ID = process.env.FB_PIXEL_ID ?? '';
 const FB_CAPI_TOKEN = process.env.FB_CAPI_TOKEN ?? '';
 const FB_API_VERSION = 'v21.0';
@@ -66,10 +68,20 @@ export async function hashForFb(value: string): Promise<string> {
     .digest('hex');
 }
 
+const FB_MAX_RETRIES = 3;
+
 /**
  * Send one or more events to Facebook Conversions API.
+ *
+ * Transient failures (network errors, 5xx, 429) are retried with backoff.
+ * Retries are safe because every event carries a stable `event_id` — Facebook
+ * deduplicates re-sends, so a momentary CAPI outage no longer silently drops
+ * a Purchase.
  */
-export async function sendFbEvents(events: FbEvent[]): Promise<{ success: boolean; error?: string }> {
+export async function sendFbEvents(
+  events: FbEvent[],
+  attempt = 0
+): Promise<{ success: boolean; error?: string }> {
   if (!FB_PIXEL_ID || !FB_CAPI_TOKEN) {
     console.warn('[fb-capi] Missing FB_PIXEL_ID or FB_CAPI_TOKEN — skipping');
     return { success: false, error: 'Missing credentials' };
@@ -89,17 +101,70 @@ export async function sendFbEvents(events: FbEvent[]): Promise<{ success: boolea
 
     if (!res.ok) {
       const body = await res.text();
+      // Retry transient server-side failures only; 4xx (bad request) won't heal.
+      if ((res.status >= 500 || res.status === 429) && attempt < FB_MAX_RETRIES) {
+        return retryFbEvents(events, attempt, `HTTP ${res.status}`);
+      }
       console.error(`[fb-capi] API error ${res.status}:`, body);
       return { success: false, error: body };
     }
 
-    const data = await res.json();
     console.log(`[fb-capi] Sent ${events.length} event(s):`, events.map((e) => e.event_name).join(', '));
     return { success: true };
   } catch (err) {
+    if (attempt < FB_MAX_RETRIES) {
+      return retryFbEvents(events, attempt, String(err));
+    }
     console.error('[fb-capi] Network error:', err);
     return { success: false, error: String(err) };
   }
+}
+
+async function retryFbEvents(
+  events: FbEvent[],
+  attempt: number,
+  reason: string
+): Promise<{ success: boolean; error?: string }> {
+  const delay = 500 * 2 ** attempt; // 500ms, 1s, 2s
+  console.warn(
+    `[fb-capi] transient failure (${reason}), retry ${attempt + 1}/${FB_MAX_RETRIES} in ${delay}ms`
+  );
+  await new Promise((r) => setTimeout(r, delay));
+  return sendFbEvents(events, attempt + 1);
+}
+
+/**
+ * Build and send the server-side Purchase event for an order.
+ *
+ * Shared by the Comgate webhook (card payments) and the manual "paid"
+ * admin path (bank transfers), so both report the sale to Facebook with an
+ * identical, deduplicating `event_id`.
+ */
+export async function sendOrderPurchaseEvent(order: Order): Promise<void> {
+  const event: FbEvent = {
+    event_name: 'Purchase',
+    event_time: Math.floor(Date.now() / 1000),
+    event_id: `purchase_${order.orderNumber}`,
+    action_source: 'website',
+    user_data: {
+      em: await hashForFb(order.customerEmail),
+      ph: order.customerPhone ? await hashForFb(order.customerPhone.replace(/\s/g, '')) : undefined,
+      fn: await hashForFb(order.customerFirstName),
+      ln: await hashForFb(order.customerLastName),
+      country: await hashForFb('cz'),
+      fbp: order.fbp || undefined,
+      fbc: order.fbc || undefined,
+    },
+    custom_data: {
+      value: order.total,
+      currency: 'CZK',
+      content_type: 'product',
+      content_ids: order.items.map((item) => item.productSlug),
+      num_items: order.items.reduce((sum, item) => sum + item.quantity, 0),
+      order_id: order.orderNumber,
+    },
+  };
+  await sendFbEvents([event]);
 }
 
 /**

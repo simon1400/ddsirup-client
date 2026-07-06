@@ -25,7 +25,7 @@ export function AddToCartButton({ product, variant, quantity = 1, disabled }: Ad
     const price = variant?.price ?? product.price;
     addItem(cartItemFromProduct(product, quantity, variant));
     trackAddToCart({
-      contentId: String(product.id),
+      contentId: product.slug,
       contentName: product.name,
       value: price * quantity,
       quantity,

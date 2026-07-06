@@ -21,7 +21,14 @@ export async function POST(req: NextRequest) {
       couponCode: body.couponCode,
     });
 
-    // 2. Create order in Strapi with the verified figures.
+    // 2. Capture Facebook attribution cookies so the server-side CAPI
+    //    Purchase (fired from the webhook, where the browser is absent) can
+    //    still be matched to the ad click. Without _fbc/_fbp the purchase
+    //    lands as an unattributed server event.
+    const fbp = req.cookies.get('_fbp')?.value;
+    const fbc = req.cookies.get('_fbc')?.value;
+
+    // 3. Create order in Strapi with the verified figures.
     const order = await createOrder({
       ...body,
       items: priced.items,
@@ -32,16 +39,18 @@ export async function POST(req: NextRequest) {
       couponCode: priced.couponCode,
       discountAmount: priced.discountAmount > 0 ? priced.discountAmount : undefined,
       orderStatus: 'pending',
+      fbp,
+      fbc,
     });
 
-    // 3. Increment coupon usage only if the coupon was actually valid & applied.
+    // 4. Increment coupon usage only if the coupon was actually valid & applied.
     if (priced.couponCode) {
       await incrementCouponUsage(priced.couponCode).catch((err) =>
         console.error('[payment/create] Failed to increment coupon usage:', err)
       );
     }
 
-    // 4. Create Comgate payment for the verified total.
+    // 5. Create Comgate payment for the verified total.
     const globalInfo = await getGlobalInfo();
     const payment = await createPayment({
       price: Math.round(priced.total * 100), // to cents

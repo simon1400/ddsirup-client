@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOrder, assignInvoiceNumber } from '@/lib/strapi';
 import { sendOrderConfirmation } from '@/lib/send-order-confirmation';
+import { sendOrderPurchaseEvent } from '@/lib/facebook-capi';
 
 /**
  * Internal API route called by Strapi lifecycle hook
@@ -42,6 +43,17 @@ export async function POST(req: NextRequest) {
     console.log(
       `[send-confirmation] Email sent for order ${order.orderNumber}`
     );
+
+    // Report the sale to Facebook (card payments go through the Comgate
+    // webhook; bank transfers reach "paid" only via this manual admin path,
+    // so without this they never hit CAPI). Deduplicated by event_id, so a
+    // resend for an already-reported order is harmless. Non-fatal.
+    try {
+      await sendOrderPurchaseEvent(orderWithInvoice);
+      console.log(`[send-confirmation] Facebook CAPI Purchase sent for order ${order.orderNumber}`);
+    } catch (fbErr) {
+      console.error('[send-confirmation] Failed to send Facebook CAPI Purchase:', fbErr);
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

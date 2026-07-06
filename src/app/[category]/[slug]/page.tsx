@@ -173,7 +173,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       <ProductInfoSections product={product} allReviews={allReviews} />
 
       <FacebookViewContent
-        contentId={String(product.id)}
+        contentId={product.slug}
         contentName={product.name}
         contentCategory={category?.name}
         value={product.variants?.[0]?.price ?? product.price}

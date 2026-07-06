@@ -75,6 +75,10 @@ export interface Order {
   messengerShipmentId?: string;
   messengerTrackingCode?: string;
   messengerTrackingUrl?: string;
+  /** Facebook browser id (_fbp cookie) captured at checkout — for CAPI attribution */
+  fbp?: string;
+  /** Facebook click id (_fbc cookie) captured at checkout — for CAPI attribution */
+  fbc?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -100,4 +104,6 @@ export interface CreateOrderPayload {
   paymentMethod?: string;
   customerForChildren?: boolean;
   customerForBar?: boolean;
+  fbp?: string;
+  fbc?: string;
 }

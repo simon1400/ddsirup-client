@@ -20,20 +20,6 @@ export function generateEventId(): string {
   return `${Date.now()}.${Math.random().toString(36).slice(2, 11)}`;
 }
 
-/** Get _fbp cookie value */
-function getFbp(): string | undefined {
-  if (typeof document === 'undefined') return undefined;
-  const match = document.cookie.match(/(?:^|;\s*)_fbp=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : undefined;
-}
-
-/** Get _fbc cookie value */
-function getFbc(): string | undefined {
-  if (typeof document === 'undefined') return undefined;
-  const match = document.cookie.match(/(?:^|;\s*)_fbc=([^;]*)/);
-  return match ? decodeURIComponent(match[1]) : undefined;
-}
-
 interface TrackOptions {
   /** PII for enhanced matching (hashed server-side) */
   email?: string;
@@ -45,28 +31,56 @@ interface TrackOptions {
   country?: string;
 }
 
+// ── Consent queue ────────────────────────────────────────────────────
+//
+// Events fired before the user accepts cookies must not be dropped —
+// otherwise a Purchase that happens right before the consent click is
+// lost forever (a real order slipped through this way). Instead we queue
+// blocked events and flush them once consent is granted.
+
+type QueuedEvent = { eventName: string; emit: () => void };
+let consentQueue: QueuedEvent[] = [];
+let consentListenerAttached = false;
+
+function ensureConsentListener() {
+  if (consentListenerAttached || typeof window === 'undefined') return;
+  consentListenerAttached = true;
+  window.addEventListener('consent-updated', () => {
+    if (!isTrackingAllowed()) return;
+    const pending = consentQueue;
+    consentQueue = [];
+    pending.forEach((e) => e.emit());
+  });
+}
+
+function queueEvent(eventName: string, emit: () => void) {
+  // Collapse repeated PageViews so a long pre-consent browse doesn't
+  // dump a burst of identical PageViews at consent time. Keep everything
+  // else (ViewContent, AddToCart, Purchase, …).
+  if (eventName === 'PageView') {
+    consentQueue = consentQueue.filter((e) => e.eventName !== 'PageView');
+  }
+  consentQueue.push({ eventName, emit });
+  ensureConsentListener();
+}
+
 /**
- * Fire a Facebook event both client-side (via fbq/dataLayer) and server-side (via CAPI).
+ * Fire the client-side Pixel event. The Pixel script (fbq) only loads
+ * after consent, so on the consent-time flush it may not exist yet —
+ * retry briefly until it does instead of dropping the browser event.
  */
-export function trackFbEvent(
+function fireClientPixel(
   eventName: string,
-  customData?: FbCustomData,
-  options?: TrackOptions
+  customData: FbCustomData | undefined,
+  eventId: string,
+  attempt = 0
 ) {
-  // Block all tracking unless user accepted cookies
-  if (!isTrackingAllowed()) return;
+  if (typeof window === 'undefined') return;
+  const w = window as unknown as Record<string, unknown>;
+  const fbq = w.fbq as ((...args: unknown[]) => void) | undefined;
 
-  const eventId = generateEventId();
-
-  // 1. Client-side: call fbq() directly (loaded by GTM's Facebook Pixel tag)
-  //    Pass eventID for deduplication with CAPI
-  if (typeof window !== 'undefined') {
-    const w = window as unknown as Record<string, unknown>;
-    const fbq = w.fbq as ((...args: unknown[]) => void) | undefined;
-
-    if (fbq) {
-      fbq('track', eventName, customData ?? {}, { eventID: eventId });
-    }
+  if (fbq) {
+    fbq('track', eventName, customData ?? {}, { eventID: eventId });
 
     // Also push to dataLayer for GTM triggers (e.g., custom event-based tags)
     const dataLayer = (w.dataLayer as unknown[]) ?? [];
@@ -77,32 +91,67 @@ export function trackFbEvent(
       fb_event_name: eventName,
       fb_custom_data: customData,
     });
+    return;
   }
 
-  // 2. Server-side: POST to our CAPI proxy
-  const payload: Record<string, unknown> = {
-    event_name: eventName,
-    event_id: eventId,
-    event_source_url: typeof window !== 'undefined' ? window.location.href : undefined,
-    custom_data: customData,
+  // fbq not ready yet (pixel script still loading) — retry up to ~3s
+  if (attempt < 20) {
+    setTimeout(() => fireClientPixel(eventName, customData, eventId, attempt + 1), 150);
+  }
+}
+
+/**
+ * Fire a Facebook event both client-side (via fbq/dataLayer) and server-side (via CAPI).
+ *
+ * @param eventIdOverride Use a deterministic event_id (e.g. `purchase_{orderId}`)
+ *   so the browser event deduplicates against the matching server CAPI event.
+ */
+export function trackFbEvent(
+  eventName: string,
+  customData?: FbCustomData,
+  options?: TrackOptions,
+  eventIdOverride?: string
+) {
+  const eventId = eventIdOverride ?? generateEventId();
+  const eventSourceUrl =
+    typeof window !== 'undefined' ? window.location.href : undefined;
+
+  const emit = () => {
+    // 1. Client-side Pixel (with fbq-ready retry)
+    fireClientPixel(eventName, customData, eventId);
+
+    // 2. Server-side: POST to our CAPI proxy
+    const payload: Record<string, unknown> = {
+      event_name: eventName,
+      event_id: eventId,
+      event_source_url: eventSourceUrl,
+      custom_data: customData,
+    };
+
+    if (options?.email) payload.email = options.email;
+    if (options?.phone) payload.phone = options.phone;
+    if (options?.firstName) payload.first_name = options.firstName;
+    if (options?.lastName) payload.last_name = options.lastName;
+    if (options?.city) payload.city = options.city;
+    if (options?.zip) payload.zip = options.zip;
+    if (options?.country) payload.country = options.country ?? 'cz';
+
+    fetch('/api/fb-events', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      keepalive: true,
+    }).catch(() => {
+      // Silent fail — tracking should never break the UX
+    });
   };
 
-  if (options?.email) payload.email = options.email;
-  if (options?.phone) payload.phone = options.phone;
-  if (options?.firstName) payload.first_name = options.firstName;
-  if (options?.lastName) payload.last_name = options.lastName;
-  if (options?.city) payload.city = options.city;
-  if (options?.zip) payload.zip = options.zip;
-  if (options?.country) payload.country = options.country ?? 'cz';
-
-  fetch('/api/fb-events', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    keepalive: true,
-  }).catch(() => {
-    // Silent fail — tracking should never break the UX
-  });
+  if (isTrackingAllowed()) {
+    emit();
+  } else {
+    // Not consented yet — hold the event and replay it on consent.
+    queueEvent(eventName, emit);
+  }
 }
 
 // ── Convenience wrappers ─────────────────────────────────────────────
@@ -191,7 +240,10 @@ export function trackPurchase(params: {
       city: params.city,
       zip: params.zip,
       country: 'cz',
-    }
+    },
+    // Deterministic event_id so this browser Purchase deduplicates against
+    // the server-side CAPI Purchase from the webhook (`purchase_{orderNumber}`).
+    params.orderId ? `purchase_${params.orderId}` : undefined
   );
 }
 
