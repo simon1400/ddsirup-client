@@ -105,6 +105,8 @@ export interface Product {
   maintenance?: ProductMaintenance;
   usages?: ProductUsage[];
   badges?: Badge[];
+  /** Manual sort within its group (higher = earlier). Tiebreak inside a badge; primary order among badgeless products. */
+  sortOrder?: number;
   seo?: SeoComponent;
   createdAt: string;
   updatedAt: string;

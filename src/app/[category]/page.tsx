@@ -70,11 +70,19 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
   });
 
   // 1) all products WITH a badge first, 2) among them by badge priority (desc),
-  // 3) then all products without any badge (server order preserved as tiebreak).
+  // 3) within the same group (same badge priority, or all badgeless) by manual
+  //    sortOrder (higher first), 4) name as final tiebreak.
   const hasBadge = (p: Product) => (p.badges?.length ?? 0) > 0;
+  const ownOrder = (p: Product) => p.sortOrder ?? 0;
   const sortedProducts = [...productsRes.data].sort((a, b) => {
     if (hasBadge(a) !== hasBadge(b)) return hasBadge(a) ? -1 : 1;
-    return getProductBadgePriority(b) - getProductBadgePriority(a);
+    if (hasBadge(a) && hasBadge(b)) {
+      const byBadge = getProductBadgePriority(b) - getProductBadgePriority(a);
+      if (byBadge) return byBadge;
+    }
+    const byOwn = ownOrder(b) - ownOrder(a);
+    if (byOwn) return byOwn;
+    return a.name.localeCompare(b.name, 'cs');
   });
   const totalPages = Math.max(1, Math.ceil(sortedProducts.length / PAGE_SIZE));
   const products = sortedProducts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
