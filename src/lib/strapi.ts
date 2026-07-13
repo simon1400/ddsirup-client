@@ -132,7 +132,7 @@ export async function getProductPricing(
     {
       filters: { slug: { $eq: slug } },
       fields: ['name', 'slug', 'price'],
-      populate: { variants: { fields: ['name', 'volume', 'sku', 'price'] } },
+      populate: { variants: { fields: ['name', 'volume', 'price'] } },
       locale,
     },
     { encodeValuesOnly: true }
