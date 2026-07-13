@@ -101,7 +101,6 @@ export interface Homepage {
   heroCustomButtonUrl?: string;
   partnersNumber?: number;
   sections: HomepageSection[];
-  reviews?: import('./review').Review[];
   seo?: import('./product').SeoComponent;
   createdAt: string;
   updatedAt: string;

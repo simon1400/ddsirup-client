@@ -97,7 +97,6 @@ export async function getProduct(slug: string, locale = 'cs'): Promise<Product |
         'recipes.badge',
         'directions',
         'calculation',
-        'reviews',
         'relatedProducts.images',
         'relatedProducts.variants',
         'relatedProducts.badges',
@@ -348,7 +347,6 @@ export async function getHomepage(): Promise<Homepage | null> {
         heroPosterImage: true,
         heroCategories: { fields: ['name', 'slug', 'color'] },
         seo: { populate: ['metaImage', 'openGraph', 'openGraph.ogImage'] },
-        reviews: true,
         sections: {
           on: {
             // 'sections.categories-section': { // section disabled

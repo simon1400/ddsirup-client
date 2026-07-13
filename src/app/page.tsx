@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { SectionRenderer } from '@/components/sections/SectionRenderer';
-import { getHomepage, getGlobalInfo } from '@/lib/strapi';
+import { getHomepage, getGlobalInfo, getReviews } from '@/lib/strapi';
 import {
   buildPageMetadata,
   buildLocalBusinessJsonLd,
@@ -23,10 +23,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [homepage, globalInfo] = await Promise.all([
+  const [homepage, globalInfo, allReviews] = await Promise.all([
     getHomepage(),
     getGlobalInfo(),
+    getReviews(),
   ]);
+
+  // Show up to 10 random reviews pulled straight from the Reviews collection.
+  const shuffledReviews = [...allReviews];
+  for (let i = shuffledReviews.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledReviews[i], shuffledReviews[j]] = [shuffledReviews[j], shuffledReviews[i]];
+  }
+  const homepageReviews = shuffledReviews.slice(0, 10);
 
   const hasHero = !!homepage?.heroTitle;
   const hasSections = !!homepage?.sections?.length;
@@ -68,7 +77,7 @@ export default async function HomePage() {
           }}
         />
       )}
-      {hasSections && <SectionRenderer sections={homepage!.sections} reviews={homepage?.reviews} partnersNumber={homepage?.partnersNumber} />}
+      {hasSections && <SectionRenderer sections={homepage!.sections} reviews={homepageReviews} partnersNumber={homepage?.partnersNumber} />}
       {!hasHero && !hasSections && (
         <div className="flex items-center justify-center min-h-[60vh] text-gray-400 px-4 text-center">
           <p>Stránka ještě není nakonfigurována. Přidejte obsah v Strapi Admin.</p>

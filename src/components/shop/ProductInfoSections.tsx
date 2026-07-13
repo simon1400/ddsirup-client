@@ -82,17 +82,6 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
   const hasDirections = product.directions && product.directions.length > 0;
   const hasFooter = product.ingredients || product.countryOfOrigin || product.madeIn;
 
-  const displayReviews = useMemo(() => {
-    const productReviews = product.reviews ?? [];
-    if (productReviews.length > 0) return productReviews;
-    if (allReviews.length === 0) return [];
-    const shuffled = [...allReviews];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled.slice(0, 1);
-  }, [product.reviews, allReviews]);
   const hasRelated = product.relatedProducts && product.relatedProducts.length > 0;
 
   const displayRecipes = useMemo(() => {
@@ -184,7 +173,7 @@ export function ProductInfoSections({ product, allReviews = [] }: ProductInfoSec
         </div>
       )}
 
-      <ReviewsSection reviews={displayReviews} />
+      <ReviewsSection reviews={allReviews} />
 
       {hasMaintenance && product.maintenance && (
         <div className="mt-12 md:mt-20 mb-12 md:mb-20">
