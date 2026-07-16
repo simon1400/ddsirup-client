@@ -16,9 +16,10 @@ interface FacebookPurchaseProps {
 }
 
 /**
- * Fires client-side Purchase event on success page.
- * Server-side CAPI Purchase is also sent from webhook — Facebook deduplicates
- * via event_id = `purchase_{orderNumber}`.
+ * Fires the browser-side (Pixel only) Purchase event on the success page.
+ * The server-side CAPI Purchase is sent exclusively from the payment webhook
+ * (or the manual send-confirmation path) — Facebook deduplicates the
+ * browser↔server pair via event_id = `purchase_{orderNumber}`.
  */
 export function FacebookPurchase({
   orderId,

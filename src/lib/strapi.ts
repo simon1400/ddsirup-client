@@ -447,9 +447,9 @@ export async function createWithdrawalRequest(data: {
   name: string;
   orderNumber: string;
   email: string;
-  bankAccount: string;
+  bankAccount?: string;
   returnedItems?: string;
-  unopenedConfirmed: boolean;
+  conditionsConfirmed: boolean;
   orderDocumentId?: string;
 }): Promise<void> {
   await strapiRequest('/withdrawal-requests/submit', {

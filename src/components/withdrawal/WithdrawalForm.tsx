@@ -12,7 +12,7 @@ export function WithdrawalForm() {
   const [email, setEmail] = useState('');
   const [bankAccount, setBankAccount] = useState('');
   const [returnedItems, setReturnedItems] = useState('');
-  const [unopenedConfirmed, setUnopenedConfirmed] = useState(false);
+  const [conditionsConfirmed, setConditionsConfirmed] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -29,9 +29,9 @@ export function WithdrawalForm() {
           name,
           orderNumber,
           email,
-          bankAccount,
+          bankAccount: bankAccount || undefined,
           returnedItems: returnedItems || undefined,
-          unopenedConfirmed,
+          conditionsConfirmed,
         }),
       });
 
@@ -54,7 +54,8 @@ export function WithdrawalForm() {
         <p className="font-bold text-lg">Odstoupení odesláno</p>
         <p className="text-gray-600 text-sm mt-2 max-w-md mx-auto">
           Vaše odstoupení od smlouvy jsme přijali. Potvrzení s pokyny k vrácení zboží jsme vám
-          zaslali na e-mail. Peníze vám vrátíme do 14 dnů na uvedený účet.
+          zaslali na e-mail. Peníze vám vrátíme do 14 dnů od odstoupení, nejdříve však poté, co
+          zboží obdržíme nebo prokážete jeho odeslání.
         </p>
       </div>
     );
@@ -107,17 +108,21 @@ export function WithdrawalForm() {
 
       <div>
         <label htmlFor="wd-account" className="block text-sm font-bold mb-1.5">
-          Číslo účtu pro vrácení peněz *
+          Číslo účtu pro vrácení peněz (nepovinné)
         </label>
         <input
           id="wd-account"
           type="text"
           value={bankAccount}
           onChange={(e) => setBankAccount(e.target.value)}
-          required
           placeholder="např. 123456789/0800"
           className={inputClass}
+          aria-describedby="wd-account-hint"
         />
+        <p id="wd-account-hint" className="text-xs text-gray-500 mt-1.5">
+          Peníze vracíme stejným způsobem, jakým jste platbu provedli. Vyplněním čísla účtu
+          souhlasíte s vrácením peněz bankovním převodem místo původní platební metody.
+        </p>
       </div>
 
       <div>
@@ -134,17 +139,31 @@ export function WithdrawalForm() {
         />
       </div>
 
+      <div className="rounded-2xl border border-gray-300 bg-gray-50 p-5 text-sm text-gray-700 leading-relaxed">
+        <p>
+          <strong>Upozornění:</strong> Podle § 1837 písm. g) občanského zákoníku nelze odstoupit
+          od smlouvy o dodávce zboží v uzavřeném obalu, které z důvodu ochrany zdraví nebo
+          z hygienických důvodů není vhodné vrátit poté, co jej kupující porušil. Sirupy a
+          cordialy jsou potraviny – zboží s porušeným uzávěrem proto nemůžeme jako odstoupení od
+          smlouvy přijmout a bude vám zasláno zpět na vaše náklady.
+        </p>
+        <p className="mt-3">
+          Náklady na zaslání vráceného zboží zpět nese kupující. Peněžní prostředky včetně
+          původního poštovného (ve výši nejlevnějšího nabízeného způsobu dodání) vám vrátíme do
+          14 dnů od odstoupení, nejdříve však poté, co zboží obdržíme nebo prokážete jeho
+          odeslání.
+        </p>
+      </div>
+
       <label className="flex items-start gap-3 text-sm cursor-pointer">
         <input
           type="checkbox"
-          checked={unopenedConfirmed}
-          onChange={(e) => setUnopenedConfirmed(e.target.checked)}
+          checked={conditionsConfirmed}
+          onChange={(e) => setConditionsConfirmed(e.target.checked)}
           required
           className="mt-0.5 h-4 w-4 accent-[#1a4a3a]"
         />
-        <span>
-          Potvrzuji, že vracené zboží je <strong>neotevřené a v původním obalu</strong> *
-        </span>
+        <span>Seznámil/a jsem se s výše uvedenou informací o podmínkách vrácení zboží. *</span>
       </label>
 
       <p className="text-xs text-gray-500">

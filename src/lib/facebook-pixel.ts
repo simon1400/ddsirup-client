@@ -105,12 +105,18 @@ function fireClientPixel(
  *
  * @param eventIdOverride Use a deterministic event_id (e.g. `purchase_{orderId}`)
  *   so the browser event deduplicates against the matching server CAPI event.
+ * @param browserOnly Skip the /api/fb-events CAPI leg. Needed when the server
+ *   already sends its own CAPI event for this action (e.g. Purchase from the
+ *   payment webhook) — Meta deduplicates browser↔server pairs by event_id, but
+ *   NOT two server events sent through the same CAPI channel, so a second
+ *   server event would be counted as an extra conversion.
  */
 export function trackFbEvent(
   eventName: string,
   customData?: FbCustomData,
   options?: TrackOptions,
-  eventIdOverride?: string
+  eventIdOverride?: string,
+  browserOnly = false
 ) {
   const eventId = eventIdOverride ?? generateEventId();
   const eventSourceUrl =
@@ -119,6 +125,8 @@ export function trackFbEvent(
   const emit = () => {
     // 1. Client-side Pixel (with fbq-ready retry)
     fireClientPixel(eventName, customData, eventId);
+
+    if (browserOnly) return;
 
     // 2. Server-side: POST to our CAPI proxy
     const payload: Record<string, unknown> = {
@@ -243,7 +251,11 @@ export function trackPurchase(params: {
     },
     // Deterministic event_id so this browser Purchase deduplicates against
     // the server-side CAPI Purchase from the webhook (`purchase_{orderNumber}`).
-    params.orderId ? `purchase_${params.orderId}` : undefined
+    params.orderId ? `purchase_${params.orderId}` : undefined,
+    // browserOnly: the webhook (or send-confirmation) already sends the CAPI
+    // Purchase — sending it again via /api/fb-events would double-count,
+    // because Meta does not deduplicate two events from the same CAPI channel.
+    true
   );
 }
 

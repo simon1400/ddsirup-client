@@ -6,7 +6,7 @@ export interface WithdrawalRequestData {
   name: string;
   orderNumber: string;
   email: string;
-  bankAccount: string;
+  bankAccount?: string;
   returnedItems?: string;
 }
 
@@ -29,13 +29,16 @@ export const DEFAULT_RETURN_ADDRESS = 'Doe&Deer.co s.r.o., Lafayetova 49/5, 779 
 const EMAIL_INTRO =
   'děkujeme, vaše odstoupení od kupní smlouvy jsme v pořádku přijali. Níže najdete shrnutí žádosti a pokyny k vrácení zboží.';
 
-function buildInstructions(returnAddress: string): string {
+function buildInstructions(returnAddress: string, bankAccount?: string): string {
+  const refundMethod = bankAccount
+    ? `bankovním převodem na účet <strong>${escapeHtml(bankAccount)}</strong>`
+    : 'stejným způsobem, jakým jste provedli platbu';
   return `
     <p style="margin:0 0 8px 0;"><strong>Jak postupovat:</strong></p>
     <ol style="margin:0;padding-left:20px;">
-      <li style="margin-bottom:8px;">Zboží zabalte tak, aby nedošlo k jeho poškození. Vrátit lze pouze <strong>neotevřené zboží v původním obalu</strong>.</li>
-      <li style="margin-bottom:8px;">Zboží zašlete do 14 dnů od odeslání odstoupení na adresu: <strong>${escapeHtml(returnAddress)}</strong>.</li>
-      <li>Peníze vám vrátíme nejpozději do <strong>14 dnů</strong> od odstoupení od smlouvy na uvedený bankovní účet (ne však dříve, než nám zboží předáte nebo prokážete jeho odeslání).</li>
+      <li style="margin-bottom:8px;">Zboží zabalte tak, aby nedošlo k jeho poškození. Vrátit lze pouze <strong>neotevřené zboží v původním obalu</strong> — zboží s porušeným uzávěrem nemůžeme dle § 1837 písm. g) občanského zákoníku přijmout.</li>
+      <li style="margin-bottom:8px;">Zboží zašlete do 14 dnů od odeslání odstoupení na adresu: <strong>${escapeHtml(returnAddress)}</strong>. Náklady na zaslání vráceného zboží nesete vy.</li>
+      <li>Peníze včetně původního poštovného (ve výši nejlevnějšího nabízeného způsobu dodání) vám vrátíme nejpozději do <strong>14 dnů</strong> od odstoupení od smlouvy ${refundMethod}, ne však dříve, než nám zboží předáte nebo prokážete jeho odeslání.</li>
     </ol>`;
 }
 
@@ -44,7 +47,12 @@ function summaryRows(data: WithdrawalRequestData): string {
     ['Jméno a příjmení', data.name],
     ['Číslo objednávky', data.orderNumber],
     ['E-mail', data.email],
-    ['Číslo účtu pro vrácení peněz', data.bankAccount],
+    [
+      'Vrácení peněz',
+      data.bankAccount
+        ? `Bankovním převodem na účet ${data.bankAccount}`
+        : 'Původní platební metodou',
+    ],
   ];
   if (data.returnedItems) {
     rows.push(['Vracené zboží', data.returnedItems]);
@@ -91,7 +99,7 @@ export function buildWithdrawalCustomerHtml(
           </div>
 
           <div style="border-top:1px solid #333333;padding-top:20px;color:#cccccc;font-size:14px;line-height:1.6;">
-            ${buildInstructions(returnAddress)}
+            ${buildInstructions(returnAddress, data.bankAccount)}
           </div>
         </td></tr>
 
@@ -133,7 +141,7 @@ export function buildWithdrawalInternalHtml(
       <strong>Jméno:</strong> ${escapeHtml(data.name)}<br />
       <strong>E-mail:</strong> <a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a><br />
       <strong>Číslo objednávky:</strong> ${escapeHtml(data.orderNumber)}<br />
-      <strong>Číslo účtu pro vrácení:</strong> ${escapeHtml(data.bankAccount)}<br />
+      <strong>Vrácení peněz:</strong> ${data.bankAccount ? `bankovním převodem na účet ${escapeHtml(data.bankAccount)}` : 'původní platební metodou (účet nevyplněn)'}<br />
       ${data.returnedItems ? `<strong>Vracené zboží:</strong> ${escapeHtml(data.returnedItems)}<br />` : ''}
       <strong>Časové razítko:</strong> ${escapeHtml(timestamp)}
     </p>

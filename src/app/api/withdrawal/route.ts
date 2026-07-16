@@ -20,22 +20,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
   }
 
-  const { name, orderNumber, email, bankAccount, returnedItems, unopenedConfirmed } = body as {
+  const { name, orderNumber, email, bankAccount, returnedItems, conditionsConfirmed } = body as {
     name?: string;
     orderNumber?: string;
     email?: string;
     bankAccount?: string;
     returnedItems?: string;
-    unopenedConfirmed?: boolean;
+    conditionsConfirmed?: boolean;
   };
 
-  if (!name || !orderNumber || !email || !bankAccount) {
+  if (!name || !orderNumber || !email) {
     return NextResponse.json({ error: 'Všechna povinná pole musí být vyplněna' }, { status: 422 });
   }
 
-  if (unopenedConfirmed !== true) {
+  if (conditionsConfirmed !== true) {
     return NextResponse.json(
-      { error: 'Je nutné potvrdit, že vracené zboží je neotevřené' },
+      { error: 'Je nutné potvrdit seznámení s podmínkami vrácení zboží' },
       { status: 422 }
     );
   }
@@ -48,9 +48,9 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       orderNumber: orderNumber.trim(),
       email: email.trim(),
-      bankAccount: bankAccount.trim(),
+      bankAccount: bankAccount?.trim() || undefined,
       returnedItems: returnedItems?.trim() || undefined,
-      unopenedConfirmed: true,
+      conditionsConfirmed: true,
       orderDocumentId: order?.documentId,
     });
   } catch (err) {
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       orderNumber: orderNumber.trim(),
       email: email.trim(),
-      bankAccount: bankAccount.trim(),
+      bankAccount: bankAccount?.trim() || undefined,
       returnedItems: returnedItems?.trim() || undefined,
     };
 
