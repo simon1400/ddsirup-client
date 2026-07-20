@@ -76,7 +76,7 @@ export async function createMessengerShipment(params: {
     // Shipment details
     dobirka: 0, // no cash-on-delivery
     typ_prepravy: Number(MESSENGER_SHIPPING_TYPE),
-    hmotnost: params.weightKg.toFixed(1),
+    hmotnost: Number(params.weightKg.toFixed(1)),
     pocet_kusu: params.packageCount,
     kod_zasilky: params.orderNumber,
     poznamka_kam: params.notes ?? '',
