@@ -49,6 +49,15 @@ export async function createMessengerShipment(params: {
   const apiUrl = isTest ? MESSENGER_API_URL_TEST : MESSENGER_API_URL_PROD;
   const { streetName, houseNumber } = splitStreetAndNumber(params.deliveryAddress.street);
 
+  // Per-package weights via the `baliky` field. The label printed by Messenger
+  // shows the package weight from this field — without it every package
+  // defaults to 1 kg (the top-level `hmotnost` is only the order total and is
+  // NOT used on labels). Format per docs: "weight,length,width,height;" per
+  // package, weight mandatory as an integer rounded UP to the nearest kg.
+  const packageCount = Math.max(1, params.packageCount);
+  const perPackageKg = Math.max(1, Math.ceil(params.weightKg / packageCount));
+  const baliky = `${perPackageKg},,,;`.repeat(packageCount);
+
   const payload = {
     // Auth (parameter-based, no HTTP Basic Auth)
     customerNumber: Number(MESSENGER_CUSTOMER_NUMBER),
@@ -78,6 +87,7 @@ export async function createMessengerShipment(params: {
     typ_prepravy: Number(MESSENGER_SHIPPING_TYPE),
     hmotnost: Number(params.weightKg.toFixed(1)),
     pocet_kusu: params.packageCount,
+    baliky,
     kod_zasilky: params.orderNumber,
     poznamka_kam: params.notes ?? '',
   };
