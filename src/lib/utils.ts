@@ -74,8 +74,11 @@ export function getPaymentLabel(method?: string): string {
       return 'Platební karta';
     case 'BANK_ALL':
       return 'Bankovní převod';
-    case 'GPAY':
+    case 'GOOGLEPAY_REDIRECT':
+    case 'GPAY': // legacy orders created before the method code fix
       return 'Google Pay';
+    case 'APPLEPAY_REDIRECT':
+      return 'Apple Pay';
     case 'ALL':
       return 'Online platba';
     default:

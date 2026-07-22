@@ -5,7 +5,7 @@ export const ZIP_REGEX = /^\d{3}\s?\d{2}$/;
 export const PAYMENT_METHODS = [
   { id: 'ALL', label: 'Comgate', description: 'Všechny platební metody' },
   { id: 'CARD_ALL', label: 'Platební kartou', description: 'Visa, Mastercard' },
-  { id: 'GPAY', label: 'Google Pay', description: '' },
+  { id: 'GOOGLEPAY_REDIRECT', label: 'Google Pay', description: '' },
   { id: 'APPLEPAY_REDIRECT', label: 'Apple Pay', description: '' },
   { id: 'BANK_ALL', label: 'Rychlá platba online převodem', description: '' },
 ] as const;
