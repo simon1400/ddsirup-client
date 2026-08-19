@@ -16,7 +16,6 @@ import { useCartValidation } from '@/hooks/use-cart-validation';
 import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 import type { Product } from '@/types/product';
-import { STRAPI_URL } from '@/lib/constants';
 
 export default function CartPage() {
   const vatRate = useVatRate();
@@ -25,11 +24,9 @@ export default function CartPage() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetch(
-      `${STRAPI_URL}/api/products?populate[0]=images&populate[1]=category&populate[2]=variants&populate[3]=badges&pagination[pageSize]=4&sort[0]=createdAt:desc`
-    )
+    fetch('/api/products/related')
       .then((r) => r.json())
-      .then((json) => setRelatedProducts(json.data ?? []))
+      .then((data) => setRelatedProducts(Array.isArray(data) ? data : []))
       .catch(() => {});
   }, []);
 
