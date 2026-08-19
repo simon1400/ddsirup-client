@@ -25,7 +25,9 @@ export default function CartPage() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetch(`${STRAPI_URL}/api/products?populate=images,variants&pagination[pageSize]=4&sort=createdAt:desc`)
+    fetch(
+      `${STRAPI_URL}/api/products?populate[0]=images&populate[1]=category&populate[2]=variants&populate[3]=badges&pagination[pageSize]=4&sort[0]=createdAt:desc`
+    )
       .then((r) => r.json())
       .then((json) => setRelatedProducts(json.data ?? []))
       .catch(() => {});
