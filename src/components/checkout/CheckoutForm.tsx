@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
+import { useCartValidation } from '@/hooks/use-cart-validation';
+import { UnavailableItemsAlert } from '@/components/cart/UnavailableItemsAlert';
 import { formatPrice, generateOrderNumber } from '@/lib/utils';
 import { checkoutSchema, ZIP_REGEX, type CheckoutFormValues } from './checkout.schema';
 import { FieldError } from './checkout.helpers';
@@ -22,6 +24,7 @@ export function CheckoutForm() {
   const router = useRouter();
   const { items, clearCart, appliedCoupon } = useCartStore();
   const { subtotal, discount, shipping, total, totalWeight, packageCount } = useCartTotals();
+  const { statusByItemId, unavailableItems, hasBlockingIssues } = useCartValidation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +47,11 @@ export function CheckoutForm() {
   const errors = form.formState.errors;
 
   async function onSubmit(values: CheckoutFormValues) {
+    if (hasBlockingIssues) {
+      setError('Košík obsahuje nedostupné položky. Odeberte je prosím a zkuste to znovu.');
+      return;
+    }
+
     if (values.isCompany) {
       let hasError = false;
       const ba = values.billingAddress;
@@ -224,6 +232,8 @@ export function CheckoutForm() {
               .
             </p>
 
+            <UnavailableItemsAlert items={unavailableItems} statusByItemId={statusByItemId} />
+
             {error && (
               <p className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
             )}
@@ -231,7 +241,7 @@ export function CheckoutForm() {
             <Button
               type="submit"
               className="w-full bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-12 text-base"
-              disabled={isLoading || items.length === 0}
+              disabled={isLoading || items.length === 0 || hasBlockingIssues}
             >
               {isLoading ? 'Zpracovávám...' : `Zaplatit ${formatPrice(total)}`}
             </Button>

@@ -13,7 +13,9 @@ interface CartStore {
   // Actions
   addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
+  removeItems: (ids: string[]) => void;
   updateQuantity: (id: string, quantity: number) => void;
+  syncPrices: (updates: { id: string; price: number }[]) => void;
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -46,6 +48,25 @@ export const useCartStore = create<CartStore>()(
 
       removeItem: (id) =>
         set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
+
+      removeItems: (ids) =>
+        set((state) => ({ items: state.items.filter((i) => !ids.includes(i.id)) })),
+
+      // Prices persist in localStorage and go stale; this pulls them back in
+      // line with Strapi. Returns an empty patch when nothing moved, so the
+      // caller's effect cannot loop on its own update.
+      syncPrices: (updates) =>
+        set((state) => {
+          const priceById = new Map(updates.map((u) => [u.id, u.price]));
+          let changed = false;
+          const items = state.items.map((i) => {
+            const price = priceById.get(i.id);
+            if (price == null || price === i.price) return i;
+            changed = true;
+            return { ...i, price };
+          });
+          return changed ? { items } : {};
+        }),
 
       updateQuantity: (id, quantity) =>
         set((state) => ({

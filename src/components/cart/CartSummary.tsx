@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AppliedCouponBadge } from '@/components/cart/AppliedCouponBadge';
 import { useCartStore, useCartTotals } from '@/store/cart.store';
+import { useCartValidation } from '@/hooks/use-cart-validation';
 import { formatPrice, formatPriceWithoutVat } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 import type { AppliedCoupon } from '@/types/coupon';
@@ -15,6 +16,7 @@ export function CartSummary() {
   const vatRate = useVatRate();
   const { appliedCoupon, applyCoupon, removeCoupon } = useCartStore();
   const { subtotal, discount, shipping, shippingWithoutVat, total, totalWeight, packageCount } = useCartTotals();
+  const { hasBlockingIssues } = useCartValidation();
 
   const [couponInput, setCouponInput] = useState('');
   const [couponLoading, setCouponLoading] = useState(false);
@@ -123,12 +125,26 @@ export function CartSummary() {
         </div>
       )}
 
-      <Button
-        className="w-full bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-14 text-base"
-        asChild
-      >
-        <Link href="/pokladna">Přejít k pokladně</Link>
-      </Button>
+      {hasBlockingIssues ? (
+        <div className="space-y-2">
+          <Button
+            className="w-full bg-coral text-white font-bold uppercase tracking-wider rounded-full h-14 text-base"
+            disabled
+          >
+            Přejít k pokladně
+          </Button>
+          <p className="text-xs text-center text-destructive">
+            Nejprve odeberte nedostupné položky z košíku.
+          </p>
+        </div>
+      ) : (
+        <Button
+          className="w-full bg-coral hover:bg-coral/90 text-white font-bold uppercase tracking-wider rounded-full h-14 text-base"
+          asChild
+        >
+          <Link href="/pokladna">Přejít k pokladně</Link>
+        </Button>
+      )}
     </div>
   );
 }

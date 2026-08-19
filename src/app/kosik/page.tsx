@@ -7,10 +7,12 @@ import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QuantityControl } from '@/components/ui/QuantityControl';
 import { CartSummary } from '@/components/cart/CartSummary';
+import { UnavailableItemsAlert } from '@/components/cart/UnavailableItemsAlert';
 import { CheckoutStepper } from '@/components/checkout/CheckoutStepper';
 import RelatedProducts from '@/components/shop/RelatedProducts';
 import { Container } from '@/components/ui/Container';
 import { useCartStore } from '@/store/cart.store';
+import { useCartValidation } from '@/hooks/use-cart-validation';
 import { formatPrice, formatPriceWithoutVat, getStrapiImageUrl, getProductUrl } from '@/lib/utils';
 import { useVatRate } from '@/providers/vat-rate-provider';
 import type { Product } from '@/types/product';
@@ -19,6 +21,7 @@ import { STRAPI_URL } from '@/lib/constants';
 export default function CartPage() {
   const vatRate = useVatRate();
   const { items, removeItem, updateQuantity } = useCartStore();
+  const { statusByItemId, unavailableItems } = useCartValidation();
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -47,6 +50,12 @@ export default function CartPage() {
     <Container className="py-8">
       <CheckoutStepper activeStep={1} />
 
+      <UnavailableItemsAlert
+        items={unavailableItems}
+        statusByItemId={statusByItemId}
+        className="mb-6"
+      />
+
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 min-h-[50vh]">
         {/* Left: Cart table + coupon */}
         <div className="lg:col-span-3">
@@ -62,8 +71,10 @@ export default function CartPage() {
           <div className="divide-y">
             {items.map((item) => {
               const imgUrl = getStrapiImageUrl(item.thumbnail);
+              const status = statusByItemId[item.id];
+              const unavailable = status?.available === false;
               return (
-                <div key={item.id} className="py-4">
+                <div key={item.id} className={`py-4 ${unavailable ? 'opacity-60' : ''}`}>
                   {/* Desktop row */}
                   <div className="hidden sm:grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center">
                     <div className="flex items-center gap-3">
@@ -86,6 +97,11 @@ export default function CartPage() {
                         </Link>
                         {item.variant && (
                           <p className="text-xs text-muted-foreground">{item.variant.name}</p>
+                        )}
+                        {unavailable && (
+                          <p className="text-xs font-semibold text-coral mt-1">
+                            {status?.issue === 'out-of-stock' ? 'Vyprodáno' : 'Není dostupné'}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -125,6 +141,11 @@ export default function CartPage() {
                           </Link>
                           {item.variant && (
                             <p className="text-xs text-muted-foreground">{item.variant.name}</p>
+                          )}
+                          {unavailable && (
+                            <p className="text-xs font-semibold text-coral mt-1">
+                              {status?.issue === 'out-of-stock' ? 'Vyprodáno' : 'Není dostupné'}
+                            </p>
                           )}
                         </div>
                         <button
